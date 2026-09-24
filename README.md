@@ -1,73 +1,82 @@
-# Panduan Deployment GitHub Pages: Live Demo Interaktif Kelompok 6
-**Mata Kuliah:** Matematika Diskrit (09313120237) — Kelas A  
-**Program Studi:** S-1 Matematika, Fakultas MIPA, Universitas Sebelas Maret (UNS)  
-**Dosen Pengampu:** Prof. Drs. Tri Atmojo Kusmayadi, M.Sc., Ph.D.  
-**Akun GitHub:** `ramadhan-imanur`
+# Platform Simulasi Interaktif: Karakterisasi Tree & Spanning Tree
+## Serta Pengembangan Algoritma Hibrida Adaptif pada Machine Learning Reasoning (Tree-of-Thoughts)
+
+**Mata Kuliah:** Matematika Diskrit (09313120237) — 2 SKS  
+**Kelas:** A (Kelompok 6)  
+**Program Studi:** S-1 Matematika, Fakultas MIPA, Universitas Sebelas Maret (UNS), Surakarta  
+**Dosen Pengampu:** Prof. Drs. Tri Atmojo Kusmayadi, M.Sc., Ph.D.
 
 ---
 
-## 🎯 Mengapa Menggunakan GitHub Pages untuk Demo?
-1. **0% Beban Laptop (Zero Overhead):** Seluruh komputasi graf, pencarian pohon (Tree-of-Thoughts), dan kalkulasi Entropi Shannon berjalan langsung di peramban web (*Client-Side V8 Engine*). Anda tidak perlu menyalakan Python server lokal atau proses background di laptop saat presentasi.
-2. **Hanya Butuh Koneksi Internet:** Cukup buka link di browser laptop, tablet, atau PC proyektor kelas.
-3. **Bisa Dibuka Langsung oleh Dosen:** Tautan web dapat dibagikan kepada Prof. Tri Atmojo Kusmayadi dan rekan-rekan mahasiswa agar mereka dapat mencoba interaktif langsung di gawai masing-masing.
+## 🌐 Akses Live Demo Interaktif (Online Deployment)
+
+Aplikasi web simulasi ini telah di-deploy dan dapat diakses secara publik melalui dua tautan *cloud* berikut (100% *serverless*, bebas beban prosesor, dan dapat dibuka di HP, laptop, maupun tablet):
+
+* 🚀 **Vercel Deployment (Utama):**  
+  👉 **[https://tree-search-demo.vercel.app/](https://tree-search-demo.vercel.app/)**
+
+* 🐙 **GitHub Pages Deployment (Mirror):**  
+  👉 **[https://ramadhan-imanur.github.io/tree-search-demo/](https://ramadhan-imanur.github.io/tree-search-demo/)**
 
 ---
 
-## 🚀 Langkah Cepat 2 Menit untuk Mengaktifkan GitHub Pages
+## 📌 Ringkasan Fitur Aplikasi Web
 
-### Langkah 1: Buat Repository Baru di GitHub
-1. Buka [https://github.com/new](https://github.com/new) pada akun GitHub Anda (`ramadhan-imanur`).
-2. Masukkan **Repository name**, misalnya: `tree-search-demo` (atau `matematika-diskrit-tree`).
-3. Pilih opsi **Public**.
-4. Biarkan opsi *Add a README file*, *.gitignore*, dan *license* **tidak dicentang** (kosong).
-5. Klik **Create repository**.
+Aplikasi web interaktif ini memvisualisasikan seluruh materi tugas kelompok secara komprehensif melalui 3 tab utama:
+
+### 1. 🧠 Inovasi Machine Learning (Tree-of-Thoughts & AEGTS)
+* **Komparasi 4 Paradigma Penelusuran Pohon Keadaan:**
+  1. *Linear Chain-of-Thought (CoT)* — Penalaran greedy linear.
+  2. *Pure ToT-BFS* — Eksplorasi melebar menggunakan antrean FIFO berpenjamin geodesik.
+  3. *Pure ToT-DFS* — Penyelaman mendalam tumpukan LIFO dengan backtracking.
+  4. *Adaptive AEGTS (Inovasi Kelompok 6)* — Penelusuran hibrida terpandu Entropi Shannon $\bar{\mathcal{H}}(s)$ dengan *Predictive Early Backtracking* $\Delta V < -\delta$.
+* **Penghematan Komputasi Riil:** Membuktikan reduksi evaluasi simpul hingga **>70%** dibandingkan DFS murni.
+* **Diagram Pohon Deduktif Interaktif (*Thought Tree*):** Menampilkan hierarki langkah pemikiran dari Aras 0 (*Root*) ke Aras 3 (*Goal 24*) beserta badge nilai entropi ternormalisasi.
+* **Grafik Batang Perbandingan Ukuran Ruang Pencarian (*SVG Bar Chart*).**
+* **Preset Kasus Cepat & Kustomisasi Bilangan:** Pilihan instan `[1, 2, 3, 4]`, `[6, 6, 6, 6]`, `[4, 5, 6, 7]`, `[4, 1, 8, 7]`, `[2, 4, 6, 8]`, `[3, 3, 8, 8]`, atau memasukkan 4 angka bebas.
+* **Tuning Hyperparameter:** Slider interaktif untuk ambang entropi $\tau$, pemangkasan nilai $\alpha$, dan toleransi rollback $\delta$.
+
+### 2. 🕸️ Teori Graf Diskrit: Tracing Graf Uji 8 Titik (Materi Makalah Bab III)
+* **Kanvas Graf Interaktif (SVG):** Menampilkan graf uji acuan terhubung seragam berordo 8 titik ($|V|=8$) dan berukuran 11 sisi ($|E|=11$).
+* **Tombol Alih Mode Rekonstruksi:**
+  * *Graf Asal:* Menampilkan seluruh 11 sisi awal.
+  * *Pohon Rentang BFS ($h=4$):* Menyorot 7 sisi pohon berwarna hijau dan 4 sisi tali busur (*chords*) putus-putus abu-abu.
+  * *Pohon Rentang DFS ($h=7$):* Menyorot 7 sisi rantai pohon berwarna ungu dan 4 sisi kembali (*Back Edges*) berwarna merah untuk deteksi sikel.
+* **Tabel Penelusuran Langkah demi Langkah:** Status antrean FIFO vs tumpukan LIFO & peristiwa *backtracking* sesuai naskah Bab III.
+* **Tabel Analisis Komparatif Morfologi:** Kontras dangkal-lebar (*bushy*) vs tinggi-ramping (*stringy*), jaminan geodesik, dan skenario penerapan (STP IEEE 802.1D vs deteksi deadlock).
+
+### 3. 📊 Laporan Benchmark & Teorema Matematis
+* **Rekapitulasi 25 Kasus Uji Baku Game of 24** (Mudah, Sedang, Sulit).
+* **Formulasi Teorema Formal:**
+  * Relasi Invarian Pohon: $|E| = |V| - 1$ (Induksi Matematika via Lema Daun).
+  * Entropi Ternormalisasi Shannon: $\bar{\mathcal{H}}(s) = -\frac{1}{\ln k} \sum p_i \ln p_i$.
+  * Syarat Pemotongan Dini: $\Delta V < -\delta$.
 
 ---
 
-### Langkah 2: Unggah Berkas ke GitHub Melalui Terminal
-Buka terminal di komputer Anda, lalu jalankan perintah berikut:
+## 👥 Tim Peneliti & Penyaji (Kelompok 6 - Kelas A)
 
+| No | Nama Mahasiswa | NIM | Peran Utama & Kontribusi |
+| :---: | :--- | :---: | :--- |
+| 1 | [Nama Mahasiswa 1] | M0523001 | **Koordinator & Teoretikus:** Penyusun Bab II Landasan Teori & Pembuktian Sifat Ekuivalensi Pohon. |
+| 2 | [Nama Mahasiswa 2] | M0523002 | **Analis Matematis:** Pembuktian Formal Induksi Matematika $|E| = |V| - 1$ & Teorema Spanning Tree. |
+| 3 | [Nama Mahasiswa 3] | M0523003 | **Spesialis Algoritma:** Desain Pseudocode BFS/DFS, Struktur Data FIFO/LIFO, & Analisis Kompleksitas. |
+| 4 | [Nama Mahasiswa 4] | M0523004 | **Analis Kasus & Visualisator:** Perancangan Graf Uji 8 Titik, Tabel Tracing Detail, & Desain Visual Graf. |
+| 5 | [Nama Mahasiswa 5] | M0523005 | **Inovator Machine Learning & Web Demo:** Perumusan Inovasi AEGTS, Benchmarking Game of 24, & Deployment Web. |
+
+---
+
+## 🛠️ Menjalankan Secara Lokal (Opsional)
+
+Jika ingin menjalankan aplikasi secara lokal di komputer:
 ```bash
-cd "/media/ramadhan/0C6A-1ABD/University/Matematika Diskrit/riset/github_pages"
+# Clone repositori
+git clone git@github.com:ramadhan-imanur/tree-search-demo.git
+cd tree-search-demo
 
-# Inisialisasi git lokal untuk web
-git init
-git add .
-git commit -m "feat: Deploy interactive tree search & machine learning demo"
-git branch -M main
-
-# Hubungkan ke repository GitHub Anda (ganti URL jika nama repo berbeda)
-git remote add origin https://github.com/ramadhan-imanur/tree-search-demo.git
-
-# Push berkas ke GitHub
-git push -u origin main
+# Buka langsung file index.html di browser atau gunakan Five Server di VS Code:
+# Klik kanan index.html -> Open with Five Server
 ```
 
 ---
-
-### Langkah 3: Aktifkan GitHub Pages (1x Klik)
-1. Buka repository Anda di browser: `https://github.com/ramadhan-imanur/tree-search-demo`.
-2. Klik tab **Settings** (di bilah atas menu repository).
-3. Di menu sebelah kiri, klik menu **Pages** (pada bagian *Code and automation*).
-4. Di bagian **Build and deployment**:
-   * **Source:** Pilih `Deploy from a branch`
-   * **Branch:** Pilih `main` dan folder `/ (root)`
-   * Klik tombol **Save**.
-5. Tunggu sekitar 30 detik. Refresh halaman Settings Pages, tautan publik Anda akan muncul:
-   👉 **`https://ramadhan-imanur.github.io/tree-search-demo/`**
-
----
-
-## 📱 Fitur yang Tersedia di GitHub Pages
-* **Tab 1 — Machine Learning ToT & AEGTS:**
-  * Komparasi 4 algoritma secara instan (*Linear CoT*, *Pure BFS*, *Pure DFS*, dan *AEGTS*).
-  * Penghematan simpul (>70% vs DFS murni).
-  * Grafik batang perbandingan ruang pencarian (*SVG Bar Chart*).
-  * Visualisasi hierarki pohon deduktif langkah demi langkah (*Thought Tree*) dengan badge Entropi Shannon $\bar{\mathcal{H}}(s)$.
-  * Slider hyperparameter interaktif ($\tau, \alpha, \delta$).
-* **Tab 2 — Tracing Graf 8 Titik (Materi Makalah Bab III):**
-  * Kanvas interaktif SVG Graf 8 Titik.
-  * Tombol alih mode: Graf Asal $\to$ Spanning Tree BFS ($h=4$) $\to$ Spanning Tree DFS ($h=7$ dengan 4 *Back Edges*).
-  * Tabel tracing langkah demi langkah (FIFO Queue vs LIFO Stack & Backtracking).
-* **Tab 3 — Laporan Benchmark 25 Kasus Uji & Landasan Teori:**
-  * Tabel metrik empiris dan formulasi matematis formal.
+*© 2026 Program Studi S-1 Matematika, Fakultas MIPA, Universitas Sebelas Maret (UNS), Surakarta.*
