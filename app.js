@@ -651,11 +651,31 @@ function initSearch() {
   });
 }
 
+function escapeHtml(str) {
+  if (str === null || str === undefined) return "";
+  return String(str)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
 function runSearch() {
-  const n1 = parseInt(document.getElementById("num1").value) || 1;
-  const n2 = parseInt(document.getElementById("num2").value) || 2;
-  const n3 = parseInt(document.getElementById("num3").value) || 3;
-  const n4 = parseInt(document.getElementById("num4").value) || 4;
+  let n1 = parseInt(document.getElementById("num1").value) || 1;
+  let n2 = parseInt(document.getElementById("num2").value) || 2;
+  let n3 = parseInt(document.getElementById("num3").value) || 3;
+  let n4 = parseInt(document.getElementById("num4").value) || 4;
+
+  // Sanitasi & pembatasan rentang [1, 99] untuk proteksi Algorithmic Complexity DoS
+  n1 = Math.min(99, Math.max(1, n1));
+  n2 = Math.min(99, Math.max(1, n2));
+  n3 = Math.min(99, Math.max(1, n3));
+  n4 = Math.min(99, Math.max(1, n4));
+  document.getElementById("num1").value = n1;
+  document.getElementById("num2").value = n2;
+  document.getElementById("num3").value = n3;
+  document.getElementById("num4").value = n4;
 
   const tau = parseFloat(document.getElementById("paramTau").value) || 0.40;
   const alpha = parseFloat(document.getElementById("paramAlpha").value) || 0.30;
@@ -817,7 +837,7 @@ function renderThoughtTree(aegtsData, initialNums) {
       <div class="tree-node-card ${isGoal ? 'goal' : ''}">
         <div class="tree-node-left">
           <span class="tree-node-badge">Aras ${idx + 1}</span>
-          <span>${step}</span>
+          <span>${escapeHtml(step)}</span>
         </div>
         <div style="display:flex; gap:0.5rem; align-items:center;">
           ${entropyBadge}
