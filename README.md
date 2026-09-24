@@ -1,10 +1,9 @@
 # Platform Simulasi Interaktif: Karakterisasi Tree & Spanning Tree
 ## Serta Pengembangan Algoritma Hibrida Adaptif pada Machine Learning Reasoning (Tree-of-Thoughts)
 
-**Mata Kuliah:** Matematika Diskrit (09313120237) — 2 SKS  
-**Kelas:** A (Kelompok 6)  
-**Program Studi:** S-1 Matematika, Fakultas MIPA, Universitas Sebelas Maret (UNS), Surakarta  
-**Dosen Pengampu:** Prof. Drs. Tri Atmojo Kusmayadi, M.Sc., Ph.D.
+**Author:** Ramadhan Imanur  
+**Repository:** [ramadhan-imanur/tree-search-demo](https://github.com/ramadhan-imanur/tree-search-demo)  
+**Project Type:** Proyek Riset Mandiri (Independent Open Source Project)  
 
 ---
 
@@ -22,27 +21,27 @@ Aplikasi web simulasi ini telah di-deploy dan dapat diakses secara publik melalu
 
 ## 📌 Ringkasan Fitur Aplikasi Web
 
-Aplikasi web interaktif ini memvisualisasikan seluruh materi tugas kelompok secara komprehensif melalui 3 tab utama:
+Aplikasi web interaktif ini memvisualisasikan riset komparasi algoritma dan penelusuran graf secara komprehensif melalui 3 tab utama:
 
 ### 1. 🧠 Inovasi Machine Learning (Tree-of-Thoughts & AEGTS)
 * **Komparasi 4 Paradigma Penelusuran Pohon Keadaan:**
   1. *Linear Chain-of-Thought (CoT)* — Penalaran greedy linear.
   2. *Pure ToT-BFS* — Eksplorasi melebar menggunakan antrean FIFO berpenjamin geodesik.
   3. *Pure ToT-DFS* — Penyelaman mendalam tumpukan LIFO dengan backtracking.
-  4. *Adaptive AEGTS (Inovasi Kelompok 6)* — Penelusuran hibrida terpandu Entropi Shannon $\bar{\mathcal{H}}(s)$ dengan *Predictive Early Backtracking* $\Delta V < -\delta$.
+  4. *Adaptive AEGTS (Adaptive Entropy-Guided Tree Search)* — Penelusuran hibrida terpandu Entropi Shannon $\bar{\mathcal{H}}(s)$ dengan *Predictive Early Backtracking* $\Delta V < -\delta$.
 * **Penghematan Komputasi Riil:** Membuktikan reduksi evaluasi simpul hingga **>70%** dibandingkan DFS murni.
 * **Diagram Pohon Deduktif Interaktif (*Thought Tree*):** Menampilkan hierarki langkah pemikiran dari Aras 0 (*Root*) ke Aras 3 (*Goal 24*) beserta badge nilai entropi ternormalisasi.
 * **Grafik Batang Perbandingan Ukuran Ruang Pencarian (*SVG Bar Chart*).**
 * **Preset Kasus Cepat & Kustomisasi Bilangan:** Pilihan instan `[1, 2, 3, 4]`, `[6, 6, 6, 6]`, `[4, 5, 6, 7]`, `[4, 1, 8, 7]`, `[2, 4, 6, 8]`, `[3, 3, 8, 8]`, atau memasukkan 4 angka bebas.
 * **Tuning Hyperparameter:** Slider interaktif untuk ambang entropi $\tau$, pemangkasan nilai $\alpha$, dan toleransi rollback $\delta$.
 
-### 2. 🕸️ Teori Graf Diskrit: Tracing Graf Uji 8 Titik (Materi Makalah Bab III)
+### 2. 🕸️ Teori Graf Diskrit: Tracing Graf Uji 8 Titik (BFS vs DFS)
 * **Kanvas Graf Interaktif (SVG):** Menampilkan graf uji acuan terhubung seragam berordo 8 titik ($|V|=8$) dan berukuran 11 sisi ($|E|=11$).
 * **Tombol Alih Mode Rekonstruksi:**
   * *Graf Asal:* Menampilkan seluruh 11 sisi awal.
   * *Pohon Rentang BFS ($h=4$):* Menyorot 7 sisi pohon berwarna hijau dan 4 sisi tali busur (*chords*) putus-putus abu-abu.
   * *Pohon Rentang DFS ($h=7$):* Menyorot 7 sisi rantai pohon berwarna ungu dan 4 sisi kembali (*Back Edges*) berwarna merah untuk deteksi sikel.
-* **Tabel Penelusuran Langkah demi Langkah:** Status antrean FIFO vs tumpukan LIFO & peristiwa *backtracking* sesuai naskah Bab III.
+* **Tabel Penelusuran Langkah demi Langkah:** Status antrean FIFO vs tumpukan LIFO & peristiwa *backtracking*.
 * **Tabel Analisis Komparatif Morfologi:** Kontras dangkal-lebar (*bushy*) vs tinggi-ramping (*stringy*), jaminan geodesik, dan skenario penerapan (STP IEEE 802.1D vs deteksi deadlock).
 
 ### 3. 📊 Laporan Benchmark & Teorema Matematis
@@ -54,15 +53,9 @@ Aplikasi web interaktif ini memvisualisasikan seluruh materi tugas kelompok seca
 
 ---
 
-## 👥 Tim Peneliti & Penyaji (Kelompok 6 - Kelas A)
+## 👤 Pengembang Proyek
 
-| No | Nama Mahasiswa | NIM | Peran Utama & Kontribusi |
-| :---: | :--- | :---: | :--- |
-| 1 | [Nama Mahasiswa 1] | M0523001 | **Koordinator & Teoretikus:** Penyusun Bab II Landasan Teori & Pembuktian Sifat Ekuivalensi Pohon. |
-| 2 | [Nama Mahasiswa 2] | M0523002 | **Analis Matematis:** Pembuktian Formal Induksi Matematika $|E| = |V| - 1$ & Teorema Spanning Tree. |
-| 3 | [Nama Mahasiswa 3] | M0523003 | **Spesialis Algoritma:** Desain Pseudocode BFS/DFS, Struktur Data FIFO/LIFO, & Analisis Kompleksitas. |
-| 4 | [Nama Mahasiswa 4] | M0523004 | **Analis Kasus & Visualisator:** Perancangan Graf Uji 8 Titik, Tabel Tracing Detail, & Desain Visual Graf. |
-| 5 | [Nama Mahasiswa 5] | M0523005 | **Inovator Machine Learning & Web Demo:** Perumusan Inovasi AEGTS, Benchmarking Game of 24, & Deployment Web. |
+Proyek ini dikembangkan secara mandiri oleh **Ramadhan Imanur** sebagai eksplorasi interdisipliner antara matematika diskrit (teori graf dan algoritma penelusuran pohon) dan penalaran model kecerdasan buatan (*Machine Learning / Tree-of-Thoughts Reasoning*).
 
 ---
 
@@ -79,4 +72,4 @@ cd tree-search-demo
 ```
 
 ---
-*© 2026 Program Studi S-1 Matematika, Fakultas MIPA, Universitas Sebelas Maret (UNS), Surakarta.*
+*© 2026 Ramadhan Imanur. Proyek Riset Mandiri (Independent Open Source Project).*

@@ -1,6 +1,6 @@
 /**
  * Client Application Logic & Full In-Browser Search Engine
- * Kelompok 6 (Kelas A) - S-1 Matematika FMIPA UNS
+ * Independent Project by Ramadhan Imanur
  * 100% Serverless & GitHub Pages Compatible (Zero Local Server Overhead)
  */
 
@@ -359,7 +359,7 @@ function jsPureDFS(rawNums, target = 24, maxSteps = 300) {
   };
 }
 
-// 4. Adaptive AEGTS (Inovasi Kelompok 6)
+// 4. Adaptive AEGTS (Adaptive Entropy-Guided Tree Search)
 function jsAEGTS(rawNums, target = 24, tau = 0.40, alpha = 0.30, delta = 0.25) {
   const t0 = performance.now();
   const initNums = rawNums.map(x => new Fraction(x));
