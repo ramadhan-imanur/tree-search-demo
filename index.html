@@ -155,7 +155,7 @@
                 <strong id="tauVal">0.40</strong>
               </div>
               <input type="range" id="paramTau" min="0.10" max="0.90" step="0.05" value="0.40">
-              <small class="slider-desc">\(H \ge \tau\) : Mode BFS (eksplorasi melebar) &nbsp;|&nbsp; \(H &lt; \tau\) : Mode DFS (eksploitasi mendalam)</small>
+              <small class="slider-desc"><strong>Kendali ragu vs yakin:</strong> Saat ragu (\(H \ge \tau\)), telusuri melebar (BFS). Saat yakin (\(H &lt; \tau\)), fokus selami opsi terbaik (DFS).</small>
             </div>
 
             <div class="slider-group">
@@ -164,7 +164,7 @@
                 <strong id="alphaVal">0.30</strong>
               </div>
               <input type="range" id="paramAlpha" min="0.10" max="0.60" step="0.05" value="0.30">
-              <small class="slider-desc">Batas nilai minimum verteks yang diizinkan masuk ke antrean BFS (\(V \ge \alpha\))</small>
+              <small class="slider-desc"><strong>Filter mutu langkah:</strong> Hanya langkah berprospek (\(V \ge \alpha\)) yang diuji; cabang buruk langsung dibuang agar hemat memori.</small>
             </div>
 
             <div class="slider-group">
@@ -173,7 +173,7 @@
                 <strong id="deltaVal">0.25</strong>
               </div>
               <input type="range" id="paramDelta" min="0.10" max="0.60" step="0.05" value="0.25">
-              <small class="slider-desc">\(\Delta V &lt; -\delta\) : Pemangkasan cabang yang menurunkan nilai evaluasi</small>
+              <small class="slider-desc"><strong>Rem darurat jalan buntu:</strong> Langsung putar balik (<em>backtrack</em>) jika langkah baru memperburuk solusi (\(\Delta V &lt; -\delta\)), mencegah tersesat.</small>
             </div>
           </div>
         </div>
