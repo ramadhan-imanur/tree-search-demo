@@ -1555,12 +1555,196 @@ code {
 }
 
 /* ==========================================================================
-   Morphology & Spanning Tree Process Tab
+   Morphology & Spanning Tree Process Tab (Dynamic & Reactive Decomposition)
    ========================================================================== */
 .card-subtitle {
   font-size: 0.82rem;
   color: var(--text-secondary);
   margin-top: 0.25rem;
+}
+
+.active-case-text {
+  font-family: var(--font-mono);
+  color: var(--clay-peach-dark);
+  font-weight: 800;
+}
+
+.morphology-quick-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  margin-top: 0.85rem;
+  padding-top: 0.75rem;
+  border-top: 1px dashed var(--border-light);
+}
+
+.quick-bar-label {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.quick-preset-buttons {
+  display: flex;
+  gap: 0.45rem;
+  flex-wrap: wrap;
+}
+
+.btn-quick-preset {
+  background: var(--bg-sunken);
+  border: 1px solid var(--border-light);
+  color: var(--text-main);
+  padding: 0.3rem 0.7rem;
+  border-radius: 12px;
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  user-select: none;
+}
+
+.btn-quick-preset:hover {
+  background: var(--clay-peach-light);
+  border-color: var(--clay-peach);
+  color: var(--clay-peach-dark);
+  transform: translateY(-1px);
+}
+
+.btn-quick-preset.active {
+  background: var(--clay-peach);
+  border-color: var(--clay-peach-dark);
+  color: #FFFFFF;
+  box-shadow: 0 2px 8px var(--clay-peach-glow);
+}
+
+/* Morphology Subtabs */
+.morphology-subtab-container {
+  margin: 1.25rem 0 1.25rem 0;
+}
+
+.morphology-subtab-nav {
+  display: flex;
+  gap: 0.6rem;
+  overflow-x: auto;
+  padding-bottom: 0.4rem;
+  scrollbar-width: thin;
+}
+
+.morphology-subtab-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.65rem 1.15rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border-card);
+  border-radius: 16px;
+  color: var(--text-secondary);
+  font-family: inherit;
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: var(--shadow-sm);
+  white-space: nowrap;
+}
+
+.morphology-subtab-btn .subtab-icon {
+  font-size: 1.05rem;
+}
+
+.morphology-subtab-btn:hover {
+  color: var(--text-main);
+  border-color: var(--clay-blue);
+  transform: translateY(-1px);
+}
+
+.morphology-subtab-btn.active {
+  background: #FFFFFF;
+  border-color: var(--clay-peach);
+  color: var(--clay-peach-dark);
+  box-shadow: 0 4px 14px var(--clay-peach-glow);
+}
+
+.morphology-subtab-btn.star-subtab.active {
+  border-color: var(--clay-peach);
+  background: linear-gradient(135deg, rgba(229, 150, 120, 0.12), rgba(229, 150, 120, 0.04));
+}
+
+.subtab-pill-status {
+  font-size: 0.68rem;
+  padding: 0.15rem 0.45rem;
+  border-radius: 8px;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+}
+
+.subtab-pill-status.solved {
+  background: #DCFCE7;
+  color: #166534;
+}
+
+.subtab-pill-status.failed {
+  background: #FEE2E2;
+  color: #991B1B;
+}
+
+/* Sub-panes */
+.morphology-subpane {
+  display: none;
+  animation: fadeInSubpane 0.25s ease-out forwards;
+}
+
+.morphology-subpane.active {
+  display: block;
+}
+
+@keyframes fadeInSubpane {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Decomposition Detail View & Containers */
+.decomposition-header-card {
+  margin-bottom: 1.25rem;
+}
+
+.decomposition-layout {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.detail-graph-card {
+  margin-bottom: 1.25rem;
+}
+
+.detail-diagram-large {
+  padding: 1.25rem;
+  border-radius: 18px;
+  background: var(--bg-main);
+  border: 1px solid var(--border-card);
+  box-shadow: inset 2px 2px 8px rgba(0, 0, 0, 0.03);
+  overflow-x: auto;
+}
+
+.morphology-detail-svg {
+  width: 100%;
+  min-width: 580px;
+  height: auto;
+  display: block;
+}
+
+.info-cards-split {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 1.25rem;
+  margin-top: 1.25rem;
 }
 
 .morphology-grid {
@@ -1895,8 +2079,61 @@ code {
   color: #6EE7B7 !important;
 }
 
+[data-theme="dark"] .morphology-subtab-btn {
+  background: #172033;
+  border-color: #27354A;
+  color: #94A3B8;
+}
+
+[data-theme="dark"] .morphology-subtab-btn:hover {
+  color: #F1F5F9;
+  border-color: #6EA2D4;
+}
+
+[data-theme="dark"] .morphology-subtab-btn.active {
+  background: #1E293B;
+  border-color: #E59678;
+  color: #F8B196;
+  box-shadow: 0 4px 14px rgba(229, 150, 120, 0.25);
+}
+
+[data-theme="dark"] .btn-quick-preset {
+  background: #1E293B;
+  border-color: #334155;
+  color: #E2E8F0;
+}
+
+[data-theme="dark"] .btn-quick-preset:hover {
+  background: #2C1A14;
+  border-color: #E59678;
+  color: #F8B196;
+}
+
+[data-theme="dark"] .btn-quick-preset.active {
+  background: #E59678;
+  border-color: #F8B196;
+  color: #1A1412;
+}
+
+[data-theme="dark"] .detail-diagram-large {
+  background: #0B111D;
+  border-color: #1E293B;
+  box-shadow: inset 2px 2px 10px rgba(0, 0, 0, 0.7);
+}
+
+[data-theme="dark"] .subtab-pill-status.solved {
+  background: #064E3B;
+  color: #6EE7B7;
+}
+
+[data-theme="dark"] .subtab-pill-status.failed {
+  background: #450A0A;
+  color: #FCA5A5;
+}
+
 @media (max-width: 768px) {
   .morphology-grid {
     grid-template-columns: 1fr;
   }
 }
+

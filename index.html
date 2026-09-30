@@ -348,446 +348,657 @@
     <!-- =================================================================== -->
     <section id="tab-morphology" class="tab-pane">
 
-      <!-- Header Introduction Card -->
+      <!-- Header Introduction & Dynamic Case Control Card -->
       <div class="card intro-morphology-card">
         <div class="card-header">
           <div>
             <h3>Urutan Proses Penentuan <em>Spanning Tree</em> dari Setiap Metode</h3>
-            <p class="card-subtitle">Dekomposisi komparatif pembentukan subgraf penelusuran (<em>search spanning tree</em>) pada ruang keadaan deduktif <em>Game of 24</em> untuk kasus simetris [6, 6, 6, 6].</p>
+            <p class="card-subtitle">
+              Dekomposisi komparatif pembentukan subgraf penelusuran (<em>search spanning tree</em>) untuk kasus aktif: 
+              <strong id="morphologyActiveCaseBadge" class="active-case-text">[4, 1, 3, 2] &rarr; Target 24</strong>
+            </p>
           </div>
-          <span class="badge badge-accent">Analisis Morfologi Graf</span>
+          <span class="badge badge-accent" id="morphologyActiveBadge">Kasus Aktif: [4, 1, 3, 2]</span>
+        </div>
+        
+        <!-- Quick Preset Switcher Bar -->
+        <div class="morphology-quick-bar">
+          <span class="quick-bar-label">⚡ Ganti Angka Preset Cepat:</span>
+          <div class="quick-preset-buttons" id="morphQuickPresetButtons">
+            <button type="button" class="btn-quick-preset active" data-nums="4,1,3,2">[4, 1, 3, 2] Standar</button>
+            <button type="button" class="btn-quick-preset" data-nums="6,6,6,6">[6, 6, 6, 6] Simetris</button>
+            <button type="button" class="btn-quick-preset" data-nums="1,5,5,5">[1, 5, 5, 5] Pecahan</button>
+            <button type="button" class="btn-quick-preset" data-nums="3,3,8,8">[3, 3, 8, 8] Sulit</button>
+            <button type="button" class="btn-quick-preset" data-nums="1,2,7,7">[1, 2, 7, 7] Pencarian Dalam</button>
+          </div>
         </div>
       </div>
 
-      <!-- 4 Paradigms Cards Grid -->
-      <div class="morphology-grid">
-
-        <!-- 1. Linear Chain-of-Thought (CoT) -->
-        <div class="card morphology-method-card">
-          <div class="card-header">
-            <div>
-              <span class="method-num">Metode 1</span>
-              <h4>1. Linear Chain-of-Thought (CoT)</h4>
-            </div>
-            <span class="badge badge-danger">Greedy Rantai Tunggal</span>
-          </div>
-          <div class="card-body">
-            <div class="method-spec">
-              <strong>Karakteristik Graf:</strong> Berbentuk rantai tunggal (<em>bamboo graph</em> / <em>linear path</em>). Model memilih satu aksi terbaik (<em>greedy</em>) di setiap aras tanpa menyimpan alternatif cabang lain dan tanpa kemampuan berputar balik (<em>backtracking</em>).
-            </div>
-
-            <!-- Visual Diagram -->
-            <div class="morphology-diagram-wrapper">
-              <svg viewBox="0 0 520 135" class="morphology-svg" xmlns="http://www.w3.org/2000/svg">
-                <defs>
-                  <marker id="arrowCoT" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
-                    <path d="M 0 1 L 10 5 L 0 9 z" fill="#64748B" />
-                  </marker>
-                  <marker id="arrowFail" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
-                    <path d="M 0 1 L 10 5 L 0 9 z" fill="#EF4444" />
-                  </marker>
-                </defs>
-                <g class="m-node" transform="translate(15, 30)">
-                  <rect width="95" height="48" rx="12" class="svg-node-box root-box" />
-                  <text x="47" y="22" class="svg-node-title" text-anchor="middle">Aras 0 (Root)</text>
-                  <text x="47" y="38" class="svg-node-val" text-anchor="middle">[6, 6, 6, 6]</text>
-                </g>
-                <line x1="110" y1="54" x2="145" y2="54" stroke="#64748B" stroke-width="2.5" marker-end="url(#arrowCoT)" />
-                <text x="127" y="44" class="svg-edge-label" text-anchor="middle">6×6</text>
-
-                <g class="m-node" transform="translate(145, 30)">
-                  <rect width="95" height="48" rx="12" class="svg-node-box" />
-                  <text x="47" y="22" class="svg-node-title" text-anchor="middle">Aras 1</text>
-                  <text x="47" y="38" class="svg-node-val" text-anchor="middle">[6, 6, 36]</text>
-                </g>
-                <line x1="240" y1="54" x2="275" y2="54" stroke="#64748B" stroke-width="2.5" marker-end="url(#arrowCoT)" />
-                <text x="257" y="44" class="svg-edge-label" text-anchor="middle">6×36</text>
-
-                <g class="m-node" transform="translate(275, 30)">
-                  <rect width="95" height="48" rx="12" class="svg-node-box" />
-                  <text x="47" y="22" class="svg-node-title" text-anchor="middle">Aras 2</text>
-                  <text x="47" y="38" class="svg-node-val" text-anchor="middle">[6, 216]</text>
-                </g>
-                <line x1="370" y1="54" x2="405" y2="54" stroke="#EF4444" stroke-width="2.5" stroke-dasharray="4,3" marker-end="url(#arrowFail)" />
-                <text x="387" y="44" class="svg-edge-label text-red" text-anchor="middle">6×216</text>
-
-                <g class="m-node" transform="translate(405, 30)">
-                  <rect width="100" height="48" rx="12" class="svg-node-box danger-box" />
-                  <text x="50" y="22" class="svg-node-title text-red" text-anchor="middle">Aras 3 (Terminal)</text>
-                  <text x="50" y="38" class="svg-node-val text-red" text-anchor="middle">[1296] ❌ Gagal</text>
-                </g>
-
-                <text x="260" y="112" class="svg-caption" text-anchor="middle">Urutan Edge: t₁: (s₀ → s₁) ➔ t₂: (s₁ → s₂) ➔ t₃: (s₂ → s₃). Panjang rantai k = 3, tanpa percabangan.</text>
-              </svg>
-            </div>
-
-            <!-- Collapsible Mermaid Diagram -->
-            <details class="mermaid-details">
-              <summary>Lihat Sintaks Mermaid Diagram</summary>
-              <pre class="mermaid-code"><code>graph LR
-  A["[6, 6, 6, 6] (Root)"] -->|6*6=36| B["[6, 6, 36] (Aras 1)"]
-  B -->|6*36=216| C["[6, 216] (Aras 2)"]
-  C -->|6*216=1296| D["[1296] ❌ Gagal Total"]</code></pre>
-            </details>
-
-            <div class="method-meta-grid">
-              <div class="meta-pill">
-                <span class="meta-lbl">Evaluasi Verteks</span>
-                <strong>61 verteks</strong>
-              </div>
-              <div class="meta-pill">
-                <span class="meta-lbl">Memori Puncak</span>
-                <strong>1 verteks</strong>
-              </div>
-            </div>
-
-            <div class="method-callout callout-danger">
-              <strong>Kelemahan:</strong> Jika pada langkah awal memilih cabang yang salah (misal: \(6 \times 6 = 36\)), CoT akan langsung gagal total karena tidak memiliki memori percabangan.
-            </div>
-          </div>
+      <!-- Sub-Tabs Navigation (Page Anakan Per Metode) -->
+      <div class="morphology-subtab-container">
+        <div class="morphology-subtab-nav" role="tablist">
+          <button type="button" class="morphology-subtab-btn active" data-subtab="all">
+            <span class="subtab-icon">📊</span>
+            <span>Semua Metode (Ikhtisar)</span>
+          </button>
+          <button type="button" class="morphology-subtab-btn" data-subtab="cot">
+            <span class="subtab-icon">⛓️</span>
+            <span>1. Linear CoT</span>
+            <span class="subtab-pill-status solved" id="subtabPillCot">SOLVED</span>
+          </button>
+          <button type="button" class="morphology-subtab-btn" data-subtab="bfs">
+            <span class="subtab-icon">🌳</span>
+            <span>2. Pure ToT-BFS</span>
+            <span class="subtab-pill-status solved" id="subtabPillBfs">SOLVED</span>
+          </button>
+          <button type="button" class="morphology-subtab-btn" data-subtab="dfs">
+            <span class="subtab-icon">⚡</span>
+            <span>3. Pure ToT-DFS</span>
+            <span class="subtab-pill-status solved" id="subtabPillDfs">SOLVED</span>
+          </button>
+          <button type="button" class="morphology-subtab-btn star-subtab" data-subtab="aegts">
+            <span class="subtab-icon">🌟</span>
+            <span>4. Adaptive AEGTS ★</span>
+            <span class="subtab-pill-status solved" id="subtabPillAegts">SOLVED</span>
+          </button>
         </div>
-
-        <!-- 2. Pure ToT-BFS (Breadth-First Search) -->
-        <div class="card morphology-method-card">
-          <div class="card-header">
-            <div>
-              <span class="method-num">Metode 2</span>
-              <h4>2. Pure ToT-BFS (Breadth-First Search)</h4>
-            </div>
-            <span class="badge badge-info">Antrean FIFO (Melebar)</span>
-          </div>
-          <div class="card-body">
-            <div class="method-spec">
-              <strong>Karakteristik Graf:</strong> Pohon melebar rimbun (<em>bushy tree</em>). Menggunakan antrean FIFO. Seluruh verteks pada Aras 1 harus dievaluasi terlebih dahulu sebelum algoritma diizinkan masuk ke Aras 2.
-            </div>
-
-            <!-- Visual Diagram -->
-            <div class="morphology-diagram-wrapper">
-              <svg viewBox="0 0 520 185" class="morphology-svg" xmlns="http://www.w3.org/2000/svg">
-                <defs>
-                  <marker id="arrowBfs" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
-                    <path d="M 0 1 L 10 5 L 0 9 z" fill="#6EA2D4" />
-                  </marker>
-                </defs>
-                <!-- Root -->
-                <g class="m-node" transform="translate(205, 12)">
-                  <rect width="110" height="36" rx="10" class="svg-node-box root-box" />
-                  <text x="55" y="23" class="svg-node-val" text-anchor="middle">[6, 6, 6, 6] (Root)</text>
-                </g>
-
-                <!-- Layer Lines & Arrows to Level 1 -->
-                <line x1="230" y1="48" x2="65" y2="85" stroke="#6EA2D4" stroke-width="2" marker-end="url(#arrowBfs)" />
-                <line x1="250" y1="48" x2="185" y2="85" stroke="#6EA2D4" stroke-width="2" marker-end="url(#arrowBfs)" />
-                <line x1="270" y1="48" x2="315" y2="85" stroke="#6EA2D4" stroke-width="2" marker-end="url(#arrowBfs)" />
-                <line x1="290" y1="48" x2="435" y2="85" stroke="#6EA2D4" stroke-width="2" marker-end="url(#arrowBfs)" />
-
-                <!-- Level 1 Nodes -->
-                <g class="m-node" transform="translate(15, 85)">
-                  <rect width="100" height="34" rx="8" class="svg-node-box bfs-box" />
-                  <text x="50" y="21" class="svg-node-val" text-anchor="middle">[6, 6, 12] (6+6)</text>
-                </g>
-                <g class="m-node" transform="translate(135, 85)">
-                  <rect width="100" height="34" rx="8" class="svg-node-box bfs-box" />
-                  <text x="50" y="21" class="svg-node-val" text-anchor="middle">[6, 6, 0] (6-6)</text>
-                </g>
-                <g class="m-node" transform="translate(265, 85)">
-                  <rect width="100" height="34" rx="8" class="svg-node-box bfs-box" />
-                  <text x="50" y="21" class="svg-node-val" text-anchor="middle">[6, 6, 36] (6×6)</text>
-                </g>
-                <g class="m-node" transform="translate(395, 85)">
-                  <rect width="100" height="34" rx="8" class="svg-node-box bfs-box" />
-                  <text x="50" y="21" class="svg-node-val" text-anchor="middle">[6, 6, 1] (6/6)</text>
-                </g>
-
-                <!-- Arrows from L1 to L2 branches -->
-                <line x1="65" y1="119" x2="45" y2="145" stroke="#94A3B8" stroke-width="1.5" stroke-dasharray="3,3" />
-                <line x1="65" y1="119" x2="85" y2="145" stroke="#94A3B8" stroke-width="1.5" stroke-dasharray="3,3" />
-                <line x1="185" y1="119" x2="185" y2="145" stroke="#94A3B8" stroke-width="1.5" stroke-dasharray="3,3" />
-                <line x1="315" y1="119" x2="295" y2="145" stroke="#94A3B8" stroke-width="1.5" stroke-dasharray="3,3" />
-                <line x1="315" y1="119" x2="335" y2="145" stroke="#94A3B8" stroke-width="1.5" stroke-dasharray="3,3" />
-                <line x1="445" y1="119" x2="445" y2="145" stroke="#94A3B8" stroke-width="1.5" stroke-dasharray="3,3" />
-
-                <!-- Layer Labels -->
-                <text x="260" y="172" class="svg-caption" text-anchor="middle">Urutan Edge: Ekstraksi Lapis 1 menyeluruh (FIFO) ➔ baru ekspansi cabang Lapis 2 secara rimbun.</text>
-              </svg>
-            </div>
-
-            <!-- Collapsible Mermaid Diagram -->
-            <details class="mermaid-details">
-              <summary>Lihat Sintaks Mermaid Diagram</summary>
-              <pre class="mermaid-code"><code>graph TD
-  Root["[6, 6, 6, 6] (Root)"]
-  Root --> B1["[6, 6, 12] (6+6)"]
-  Root --> B2["[6, 6, 0] (6-6)"]
-  Root --> B3["[6, 6, 36] (6*6)"]
-  Root --> B4["[6, 6, 1] (6/6)"]
-  B1 --> C1["[6, 18]"]
-  B1 --> C2["[6, 6]"]
-  B3 --> C3["[6, 216] (Boros Evaluasi)"]</code></pre>
-            </details>
-
-            <div class="method-meta-grid">
-              <div class="meta-pill">
-                <span class="meta-lbl">Evaluasi Verteks</span>
-                <strong>113 verteks</strong>
-              </div>
-              <div class="meta-pill">
-                <span class="meta-lbl">Memori Puncak</span>
-                <strong>4 verteks</strong>
-              </div>
-            </div>
-
-            <div class="method-callout callout-info">
-              <strong>Karakter:</strong> Menjamin ditemukannya rute geodesik (langkah terpendek), namun boros evaluasi karena mengeksplorasi cabang-cabang yang tidak potensial (seperti \([6, 6, 0]\) dan \([6, 6, 36]\)).
-            </div>
-          </div>
-        </div>
-
-        <!-- 3. Pure ToT-DFS (Depth-First Search) -->
-        <div class="card morphology-method-card">
-          <div class="card-header">
-            <div>
-              <span class="method-num">Metode 3</span>
-              <h4>3. Pure ToT-DFS (Depth-First Search)</h4>
-            </div>
-            <span class="badge badge-accent">Tumpukan LIFO (Mendalam)</span>
-          </div>
-          <div class="card-body">
-            <div class="method-spec">
-              <strong>Karakteristik Graf:</strong> Menyelam tinggi-ramping (<em>stringy tree</em>) dengan tumpukan LIFO. Algoritma menyelam ke cabang pertama hingga ke daun paling bawah. Jika buntu, terjadi <em>backtracking</em> (mundur kembali) berulang-ulang.
-            </div>
-
-            <!-- Visual Diagram -->
-            <div class="morphology-diagram-wrapper">
-              <svg viewBox="0 0 520 185" class="morphology-svg" xmlns="http://www.w3.org/2000/svg">
-                <defs>
-                  <marker id="arrowDfs" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
-                    <path d="M 0 1 L 10 5 L 0 9 z" fill="#DE7464" />
-                  </marker>
-                  <marker id="arrowBack" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
-                    <path d="M 0 1 L 10 5 L 0 9 z" fill="#F87171" />
-                  </marker>
-                </defs>
-                <!-- Root -->
-                <g class="m-node" transform="translate(195, 10)">
-                  <rect width="115" height="34" rx="10" class="svg-node-box root-box" />
-                  <text x="57" y="21" class="svg-node-val" text-anchor="middle">[6, 6, 6, 6] (Root)</text>
-                </g>
-
-                <!-- Left Column: Deep Dive 1 (Blind) -->
-                <line x1="210" y1="44" x2="120" y2="70" stroke="#DE7464" stroke-width="2.5" marker-end="url(#arrowDfs)" />
-                <g class="m-node" transform="translate(60, 68)">
-                  <rect width="105" height="30" rx="8" class="svg-node-box" />
-                  <text x="52" y="19" class="svg-node-val" text-anchor="middle">1. [6, 6, 36]</text>
-                </g>
-
-                <line x1="112" y1="98" x2="112" y2="115" stroke="#DE7464" stroke-width="2.5" marker-end="url(#arrowDfs)" />
-                <g class="m-node" transform="translate(60, 115)">
-                  <rect width="105" height="30" rx="8" class="svg-node-box" />
-                  <text x="52" y="19" class="svg-node-val" text-anchor="middle">2. [6, 216]</text>
-                </g>
-
-                <!-- Dead End Leaf -->
-                <line x1="165" y1="130" x2="195" y2="130" stroke="#EF4444" stroke-width="2" marker-end="url(#arrowDfs)" />
-                <g class="m-node" transform="translate(195, 115)">
-                  <rect width="105" height="30" rx="8" class="svg-node-box danger-box" />
-                  <text x="52" y="19" class="svg-node-val text-red" text-anchor="middle">3. [1296] ❌ Buntu</text>
-                </g>
-
-                <!-- Backtracking Arc -->
-                <path d="M 300 125 C 380 120, 390 40, 315 25" fill="none" stroke="#F87171" stroke-width="2" stroke-dasharray="5,4" marker-end="url(#arrowBack)" />
-                <text x="375" y="80" class="svg-edge-label text-red" text-anchor="middle">4. Backtrack ke Root</text>
-
-                <!-- Right Column: Try Alternative Branch -->
-                <line x1="280" y1="44" x2="350" y2="70" stroke="#529F79" stroke-width="2" stroke-dasharray="3,3" marker-end="url(#arrowDfs)" />
-                <g class="m-node" transform="translate(340, 68)">
-                  <rect width="115" height="30" rx="8" class="svg-node-box" />
-                  <text x="57" y="19" class="svg-node-val" text-anchor="middle">5. Coba [6, 6, 12]</text>
-                </g>
-
-                <text x="260" y="172" class="svg-caption" text-anchor="middle">Urutan Edge: Penyelaman vertikal LIFO hingga mentok ➔ Backtrack mundur berulang-ulang.</text>
-              </svg>
-            </div>
-
-            <!-- Collapsible Mermaid Diagram -->
-            <details class="mermaid-details">
-              <summary>Lihat Sintaks Mermaid Diagram</summary>
-              <pre class="mermaid-code"><code>graph TD
-  Root["[6, 6, 6, 6] (Root)"]
-  Root -->|1. Selam Utama| D1["[6, 6, 36] (Aras 1)"]
-  D1 -->|2. Selam Dalam| D2["[6, 216] (Aras 2)"]
-  D2 -->|3. Buntu| D3["[1296] ❌ Dead End"]
-  D3 -.->|4. Backtrack Buta| Root
-  Root -->|5. Coba Ulang| D4["[6, 6, 12] (Cabang Alternatif)"]</code></pre>
-            </details>
-
-            <div class="method-meta-grid">
-              <div class="meta-pill">
-                <span class="meta-lbl">Evaluasi Verteks</span>
-                <strong class="text-red">132 verteks</strong>
-              </div>
-              <div class="meta-pill">
-                <span class="meta-lbl">Memori Puncak</span>
-                <strong>15 verteks</strong>
-              </div>
-            </div>
-
-            <div class="method-callout callout-danger">
-              <strong>Kelemahan:</strong> Mengalami <em>blind deep diving</em>. Begitu terjebak di cabang angka raksasa (\(36 \to 216 \to 1296\)), DFS tetap menghabiskan komputasi sampai batas kedalaman sebelum mundur.
-            </div>
-          </div>
-        </div>
-
-        <!-- 4. Adaptive AEGTS (Adaptive Entropy-Guided Tree Search) -->
-        <div class="card morphology-method-card star-card">
-          <div class="card-header">
-            <div>
-              <span class="method-num text-emerald">Metode 4 (Optimal)</span>
-              <h4>4. Adaptive AEGTS (Adaptive Entropy-Guided Tree Search)</h4>
-            </div>
-            <span class="badge badge-success">Hibrida Entropi Cerdas</span>
-          </div>
-          <div class="card-body">
-            <div class="method-spec">
-              <strong>Karakteristik Graf:</strong> Pohon adaptif cerdas. Memanfaatkan Entropi Shannon (\(\bar{\mathcal{H}}\)) dan pemangkasan dini (<em>Value Pruning</em> \(\alpha = 0.30\)):
-              <ul class="method-bullets">
-                <li><strong>Aras 0:</strong> Entropi tinggi (\(\bar{\mathcal{H}} = 0.897 \ge \tau\)) $\to$ Masuk Mode BFS (eksplorasi melebar), namun cabang buruk (\(36, 0, 1\)) dipangkas seketika (<em>pruned</em>).</li>
-                <li><strong>Aras 1 &amp; 2:</strong> Tersisa verteks terbaik \([6, 6, 12]\). Ambiguitas turun (\(\bar{\mathcal{H}} &lt; \tau\)) $\to$ Seketika beralih ke Mode DFS (eksploitasi mendalam cepat) langsung menuju target.</li>
-              </ul>
-            </div>
-
-            <!-- Visual Diagram -->
-            <div class="morphology-diagram-wrapper">
-              <svg viewBox="0 0 520 185" class="morphology-svg" xmlns="http://www.w3.org/2000/svg">
-                <defs>
-                  <marker id="arrowAegts" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
-                    <path d="M 0 1 L 10 5 L 0 9 z" fill="#529F79" />
-                  </marker>
-                </defs>
-                <!-- Root with High Entropy -->
-                <g class="m-node" transform="translate(160, 8)">
-                  <rect width="200" height="36" rx="10" class="svg-node-box root-box highlight-root" />
-                  <text x="100" y="22" class="svg-node-val" text-anchor="middle">[6, 6, 6, 6] (H̄ = 0.897 ≥ τ)</text>
-                </g>
-
-                <!-- Left: Pruned Bad Branches -->
-                <line x1="210" y1="44" x2="110" y2="75" stroke="#94A3B8" stroke-width="2" stroke-dasharray="3,3" />
-                <g class="m-node" transform="translate(20, 75)">
-                  <rect width="180" height="42" rx="10" class="svg-node-box pruned-box" />
-                  <text x="90" y="19" class="svg-node-val text-muted" text-anchor="middle">[6,6,36], [6,6,0], [6,6,1]</text>
-                  <text x="90" y="34" class="svg-node-sub text-red" text-anchor="middle">✂️ α-Pruning (Dipangkas!)</text>
-                </g>
-
-                <!-- Right: Preserved Best Branch -->
-                <line x1="310" y1="44" x2="360" y2="75" stroke="#529F79" stroke-width="3" marker-end="url(#arrowAegts)" />
-                <g class="m-node" transform="translate(270, 75)">
-                  <rect width="220" height="42" rx="10" class="svg-node-box success-box" />
-                  <text x="110" y="19" class="svg-node-val text-emerald font-bold" text-anchor="middle">[6, 6, 12] (V = 0.85 ✅)</text>
-                  <text x="110" y="34" class="svg-node-sub text-emerald" text-anchor="middle">Ambiguitas Turun: H̄ &lt; τ ➔ Beralih ke DFS</text>
-                </g>
-
-                <!-- Direct DFS dive to Goal -->
-                <line x1="380" y1="117" x2="380" y2="135" stroke="#529F79" stroke-width="3" marker-end="url(#arrowAegts)" />
-                <g class="m-node" transform="translate(270, 135)">
-                  <rect width="220" height="32" rx="8" class="svg-node-box goal-box" />
-                  <text x="110" y="21" class="svg-node-val text-emerald font-bold" text-anchor="middle">(6+6) + (6+6) = 24 🎉 Target!</text>
-                </g>
-
-                <text x="110" y="145" class="svg-caption text-emerald" text-anchor="middle">Hemat 43.9% verteks vs DFS!</text>
-                <text x="260" y="176" class="svg-caption" text-anchor="middle">Urutan Edge: BFS terpandu di akar ➔ pangkas cabang buruk ➔ DFS cepat langsung ke target.</text>
-              </svg>
-            </div>
-
-            <!-- Collapsible Mermaid Diagram -->
-            <details class="mermaid-details">
-              <summary>Lihat Sintaks Mermaid Diagram</summary>
-              <pre class="mermaid-code"><code>graph TD
-  Root["[6, 6, 6, 6] (H̄ = 0.897 >= tau)"]
-  Root -->|Mode BFS: Cabang Prospek| S1["[6, 6, 12] (V = 0.85 ✅ Lolos)"]
-  Root -.->|alpha-Pruning| S2["[6, 6, 36] ✂️ Dipangkas"]
-  Root -.->|alpha-Pruning| S3["[6, 6, 0] ✂️ Dipangkas"]
-  Root -.->|alpha-Pruning| S4["[6, 6, 1] ✂️ Dipangkas"]
-  S1 -->|Mode DFS: H̄ < tau (Cepat)| Goal["(6+6) + (6+6) = 24 🎉 Target"]</code></pre>
-            </details>
-
-            <div class="method-meta-grid">
-              <div class="meta-pill highlight">
-                <span class="meta-lbl">Evaluasi Verteks</span>
-                <strong class="text-emerald">74 verteks saja (Optimal)</strong>
-              </div>
-              <div class="meta-pill highlight">
-                <span class="meta-lbl">Memori Puncak</span>
-                <strong class="text-emerald">6 verteks</strong>
-              </div>
-            </div>
-
-            <div class="method-callout callout-success">
-              <strong>Efisiensi:</strong> Menghemat <strong>43.9%</strong> token vs DFS dan <strong>34.5%</strong> vs BFS, tanpa risiko tersesat seperti Linear CoT.
-            </div>
-          </div>
-        </div>
-
       </div>
 
-      <!-- Summary Comparison Table -->
-      <div class="card" style="margin-top: 1.5rem;">
-        <div class="card-header">
-          <div>
-            <h3>Ringkasan Perbandingan Morfologi Graf</h3>
-            <p class="card-subtitle">Perbandingan karakteristik struktural pohon pencarian deduktif dari keempat paradigma.</p>
+      <!-- ================================================================= -->
+      <!-- SUBPANE 0: SEMUA METODE (IKHTISAR KOMPARATIF)                     -->
+      <!-- ================================================================= -->
+      <div class="morphology-subpane active" id="subpane-all">
+        <!-- 4 Paradigms Cards Grid (Dinamis Sesuai Kasus Aktif) -->
+        <div class="morphology-grid" id="morphologyOverviewGrid">
+          
+          <!-- Card 1: CoT -->
+          <div class="card morphology-method-card" id="morphCardCot">
+            <div class="card-header">
+              <div>
+                <span class="method-num">Metode 1</span>
+                <h4>1. Linear Chain-of-Thought (CoT)</h4>
+              </div>
+              <span class="badge badge-success" id="badgeMorphCot">SOLVED</span>
+            </div>
+            <div class="card-body">
+              <div class="method-spec">
+                <strong>Karakteristik Graf:</strong> Berbentuk rantai tunggal (<em>bamboo graph</em> / <em>linear path</em>). Model memilih satu aksi terbaik (<em>greedy</em>) di setiap aras tanpa menyimpan alternatif cabang lain dan tanpa kemampuan berputar balik (<em>backtracking</em>).
+              </div>
+              <div class="morphology-diagram-wrapper" id="morphSvgWrapCot">
+                <!-- Dynamically populated SVG -->
+              </div>
+              <details class="mermaid-details">
+                <summary>Lihat Sintaks Mermaid Diagram</summary>
+                <pre class="mermaid-code"><code id="morphMermaidCot">graph LR</code></pre>
+              </details>
+              <div class="method-meta-grid">
+                <div class="meta-pill">
+                  <span class="meta-lbl">Evaluasi Verteks</span>
+                  <strong id="metaNodesCot">-- verteks</strong>
+                </div>
+                <div class="meta-pill">
+                  <span class="meta-lbl">Memori Puncak</span>
+                  <strong id="metaMemCot">1 verteks</strong>
+                </div>
+              </div>
+              <div class="method-callout callout-danger" id="calloutCot">
+                <strong>Kelemahan:</strong> Jika langkah awal memilih cabang yang salah, CoT langsung gagal total karena tiadanya memori percabangan.
+              </div>
+            </div>
           </div>
-          <span class="badge badge-accent">Sintesis Teoretis</span>
+
+          <!-- Card 2: Pure ToT-BFS -->
+          <div class="card morphology-method-card" id="morphCardBfs">
+            <div class="card-header">
+              <div>
+                <span class="method-num">Metode 2</span>
+                <h4>2. Pure ToT-BFS (Breadth-First Search)</h4>
+              </div>
+              <span class="badge badge-info" id="badgeMorphBfs">SOLVED</span>
+            </div>
+            <div class="card-body">
+              <div class="method-spec">
+                <strong>Karakteristik Graf:</strong> Pohon melebar rimbun (<em>bushy tree</em>). Menggunakan antrean FIFO. Seluruh verteks pada Aras 1 harus dievaluasi terlebih dahulu sebelum algoritma diizinkan masuk ke Aras 2.
+              </div>
+              <div class="morphology-diagram-wrapper" id="morphSvgWrapBfs">
+                <!-- Dynamically populated SVG -->
+              </div>
+              <details class="mermaid-details">
+                <summary>Lihat Sintaks Mermaid Diagram</summary>
+                <pre class="mermaid-code"><code id="morphMermaidBfs">graph TD</code></pre>
+              </details>
+              <div class="method-meta-grid">
+                <div class="meta-pill">
+                  <span class="meta-lbl">Evaluasi Verteks</span>
+                  <strong id="metaNodesBfs">-- verteks</strong>
+                </div>
+                <div class="meta-pill">
+                  <span class="meta-lbl">Memori Puncak</span>
+                  <strong id="metaMemBfs">-- verteks</strong>
+                </div>
+              </div>
+              <div class="method-callout callout-info">
+                <strong>Karakter:</strong> Menjamin ditemukannya rute geodesik (langkah terpendek), namun boros evaluasi karena mengeksplorasi cabang-cabang non-potensial secara menyeluruh.
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 3: Pure ToT-DFS -->
+          <div class="card morphology-method-card" id="morphCardDfs">
+            <div class="card-header">
+              <div>
+                <span class="method-num">Metode 3</span>
+                <h4>3. Pure ToT-DFS (Depth-First Search)</h4>
+              </div>
+              <span class="badge badge-accent" id="badgeMorphDfs">SOLVED</span>
+            </div>
+            <div class="card-body">
+              <div class="method-spec">
+                <strong>Karakteristik Graf:</strong> Menyelam tinggi-ramping (<em>stringy tree</em>) dengan tumpukan LIFO. Algoritma menyelam ke cabang pertama hingga ke daun paling bawah. Jika buntu, terjadi <em>backtracking</em> (mundur kembali) berulang-ulang.
+              </div>
+              <div class="morphology-diagram-wrapper" id="morphSvgWrapDfs">
+                <!-- Dynamically populated SVG -->
+              </div>
+              <details class="mermaid-details">
+                <summary>Lihat Sintaks Mermaid Diagram</summary>
+                <pre class="mermaid-code"><code id="morphMermaidDfs">graph TD</code></pre>
+              </details>
+              <div class="method-meta-grid">
+                <div class="meta-pill">
+                  <span class="meta-lbl">Evaluasi Verteks</span>
+                  <strong id="metaNodesDfs">-- verteks</strong>
+                </div>
+                <div class="meta-pill">
+                  <span class="meta-lbl">Memori Puncak</span>
+                  <strong id="metaMemDfs">-- verteks</strong>
+                </div>
+              </div>
+              <div class="method-callout callout-danger">
+                <strong>Kelemahan:</strong> Mengalami <em>blind deep diving</em>. Begitu terjebak di cabang angka yang menjauh dari 24, DFS tetap menghabiskan kuota evaluasi hingga daun sebelum mundur.
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 4: Adaptive AEGTS -->
+          <div class="card morphology-method-card star-card" id="morphCardAegts">
+            <div class="card-header">
+              <div>
+                <span class="method-num text-emerald">Metode 4 (Optimal)</span>
+                <h4>4. Adaptive AEGTS (Entropy-Guided)</h4>
+              </div>
+              <span class="badge badge-success" id="badgeMorphAegts">SOLVED</span>
+            </div>
+            <div class="card-body">
+              <div class="method-spec">
+                <strong>Karakteristik Graf:</strong> Pohon adaptif cerdas. Memanfaatkan Entropi Shannon (\(\bar{\mathcal{H}}\)), pemangkasan dini (\(\alpha\)-<em>pruning</em>), dan deteksi penurunan nilai (\(\delta\)-<em>early backtrack</em>):
+              </div>
+              <div class="morphology-diagram-wrapper" id="morphSvgWrapAegts">
+                <!-- Dynamically populated SVG -->
+              </div>
+              <details class="mermaid-details">
+                <summary>Lihat Sintaks Mermaid Diagram</summary>
+                <pre class="mermaid-code"><code id="morphMermaidAegts">graph TD</code></pre>
+              </details>
+              <div class="method-meta-grid">
+                <div class="meta-pill highlight">
+                  <span class="meta-lbl">Evaluasi Verteks</span>
+                  <strong class="text-emerald" id="metaNodesAegts">-- verteks (Optimal)</strong>
+                </div>
+                <div class="meta-pill highlight">
+                  <span class="meta-lbl">Memori Puncak</span>
+                  <strong class="text-emerald" id="metaMemAegts">-- verteks</strong>
+                </div>
+              </div>
+              <div class="method-callout callout-success" id="calloutAegtsSavings">
+                <strong>Efisiensi:</strong> Memangkas evaluasi verteks secara signifikan tanpa risiko kegagalan fatal seperti Linear CoT.
+              </div>
+            </div>
+          </div>
+
         </div>
-        <div class="card-body">
-          <div class="table-responsive">
-            <table class="table table-bordered table-striped">
-              <thead>
-                <tr>
-                  <th>Metrik / Aspek</th>
-                  <th>Linear CoT</th>
-                  <th>Pure ToT-BFS</th>
-                  <th>Pure ToT-DFS</th>
-                  <th class="table-header-highlight">Adaptive AEGTS ★</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td><strong>Bentuk Graf</strong></td>
-                  <td>Rantai lurus tunggal</td>
-                  <td>Pohon melebar (<em>bushy</em>)</td>
-                  <td>Pohon ramping zig-zag (<em>stringy</em>)</td>
-                  <td><strong class="text-emerald">Pohon ramping terfokus</strong></td>
-                </tr>
-                <tr>
-                  <td><strong>Verteks Dievaluasi</strong></td>
-                  <td>61 verteks</td>
-                  <td>113 verteks</td>
-                  <td>132 verteks</td>
-                  <td><strong class="text-emerald">74 verteks (Paling efisien)</strong></td>
-                </tr>
-                <tr>
-                  <td><strong>Memori Frontier</strong></td>
-                  <td>1 verteks</td>
-                  <td>4 verteks</td>
-                  <td>15 verteks</td>
-                  <td><strong class="text-emerald">6 verteks</strong></td>
-                </tr>
-                <tr>
-                  <td><strong>Strategi Transisi</strong></td>
-                  <td><em>Greedy</em> satu arah</td>
-                  <td>Antrean FIFO lapis per lapis</td>
-                  <td>Tumpukan LIFO + <em>Backtrack</em> buta</td>
-                  <td><strong class="text-emerald">Hibrida Dinamis (Entropi Shannon)</strong></td>
-                </tr>
-                <tr>
-                  <td><strong>Pemangkasan Cabang</strong></td>
-                  <td>Tidak ada</td>
-                  <td>Tidak ada</td>
-                  <td>Tidak ada</td>
-                  <td><strong class="text-emerald">Ada (\(\alpha\)-<em>pruning</em> &amp; <em>early rollback</em>)</strong></td>
-                </tr>
-              </tbody>
-            </table>
+
+        <!-- Summary Comparison Table -->
+        <div class="card" style="margin-top: 1.5rem;">
+          <div class="card-header">
+            <div>
+              <h3>Ringkasan Perbandingan Morfologi Graf untuk Kasus Aktif</h3>
+              <p class="card-subtitle">Perbandingan karakteristik struktural pohon pencarian deduktif dari keempat paradigma.</p>
+            </div>
+            <span class="badge badge-accent">Sintesis Teoretis</span>
+          </div>
+          <div class="card-body">
+            <div class="table-responsive">
+              <table class="table table-bordered table-striped" id="morphSummaryTable">
+                <thead>
+                  <tr>
+                    <th>Metrik / Aspek</th>
+                    <th>Linear CoT</th>
+                    <th>Pure ToT-BFS</th>
+                    <th>Pure ToT-DFS</th>
+                    <th class="table-header-highlight">Adaptive AEGTS ★</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><strong>Bentuk Graf</strong></td>
+                    <td>Rantai lurus tunggal</td>
+                    <td>Pohon melebar (<em>bushy</em>)</td>
+                    <td>Pohon ramping zig-zag (<em>stringy</em>)</td>
+                    <td><strong class="text-emerald">Pohon ramping terfokus</strong></td>
+                  </tr>
+                  <tr>
+                    <td><strong>Verteks Dievaluasi</strong></td>
+                    <td id="tblNodesCot">-- verteks</td>
+                    <td id="tblNodesBfs">-- verteks</td>
+                    <td id="tblNodesDfs">-- verteks</td>
+                    <td><strong class="text-emerald" id="tblNodesAegts">-- verteks (Paling efisien)</strong></td>
+                  </tr>
+                  <tr>
+                    <td><strong>Memori Frontier</strong></td>
+                    <td id="tblMemCot">1 verteks</td>
+                    <td id="tblMemBfs">-- verteks</td>
+                    <td id="tblMemDfs">-- verteks</td>
+                    <td><strong class="text-emerald" id="tblMemAegts">-- verteks</strong></td>
+                  </tr>
+                  <tr>
+                    <td><strong>Waktu Komputasi</strong></td>
+                    <td id="tblTimeCot">-- ms</td>
+                    <td id="tblTimeBfs">-- ms</td>
+                    <td id="tblTimeDfs">-- ms</td>
+                    <td><strong class="text-emerald" id="tblTimeAegts">-- ms</strong></td>
+                  </tr>
+                  <tr>
+                    <td><strong>Status Solusi</strong></td>
+                    <td id="tblStatusCot">--</td>
+                    <td id="tblStatusBfs">--</td>
+                    <td id="tblStatusDfs">--</td>
+                    <td><strong class="text-emerald" id="tblStatusAegts">--</strong></td>
+                  </tr>
+                  <tr>
+                    <td><strong>Strategi Transisi</strong></td>
+                    <td><em>Greedy</em> satu arah</td>
+                    <td>Antrean FIFO lapis per lapis</td>
+                    <td>Tumpukan LIFO + <em>Backtrack</em> buta</td>
+                    <td><strong class="text-emerald">Hibrida Dinamis (Entropi Shannon)</strong></td>
+                  </tr>
+                  <tr>
+                    <td><strong>Pemangkasan Cabang</strong></td>
+                    <td>Tidak ada</td>
+                    <td>Tidak ada</td>
+                    <td>Tidak ada</td>
+                    <td><strong class="text-emerald">Ada (\(\alpha\)-<em>pruning</em> &amp; <em>early rollback</em>)</strong></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ================================================================= -->
+      <!-- SUBPANE 1: LINEAR CHAIN-OF-THOUGHT (DEKOMPOSISI MENDALAM)         -->
+      <!-- ================================================================= -->
+      <div class="morphology-subpane" id="subpane-cot">
+        <div class="card decomposition-header-card">
+          <div class="card-header">
+            <div>
+              <span class="method-num">Dekomposisi Mendalam Metode 1</span>
+              <h3>Linear Chain-of-Thought (CoT): Karakteristik Lintasan Tunggal</h3>
+              <p class="card-subtitle">Representasi graf rantai tunggal (<em>bamboo graph</em>) tanpa percabangan cabang alternatif (\(\deg(v) \le 2\)).</p>
+            </div>
+            <span class="badge badge-danger" id="decompBadgeCot">Status: SOLVED</span>
+          </div>
+          <div class="card-body">
+            <p>Pada paradigma Linear CoT, model menghasilkan urutan pemikiran deterministik satu langkah demi satu langkah secara <em>greedy</em>. Di setiap aras, hanya 1 kandidat transisi dengan nilai probabilitas tertinggi yang diekspansi. Model tidak pernah menyimpan cabang cadangan ke memori dan tidak memiliki operator pelacakan balik (<em>backtracking</em>).</p>
+          </div>
+        </div>
+
+        <!-- Big SVG Graph Card -->
+        <div class="card detail-graph-card">
+          <div class="card-header">
+            <h4>Visualisasi Graf Pembentukan <em>Spanning Tree</em> CoT</h4>
+            <span class="badge badge-accent">Lintasan Sekuensial Aras 0 &rarr; Aras 3</span>
+          </div>
+          <div class="card-body">
+            <div class="detail-diagram-large" id="cotDetailSvgContainer">
+              <!-- Dynamically populated detail SVG -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Two Columns: Step Table & Theory Analysis -->
+        <div class="info-cards-split">
+          <div class="card">
+            <div class="card-header">
+              <h4>Rekonstruksi Urutan <em>Edge</em> Transisi</h4>
+            </div>
+            <div class="card-body">
+              <div class="table-responsive">
+                <table class="table table-bordered table-striped" id="cotTransitionTable">
+                  <thead>
+                    <tr>
+                      <th>Langkah (\(t\))</th>
+                      <th>Verteks Asal</th>
+                      <th>Operasi <em>Edge</em></th>
+                      <th>Verteks Tujuan</th>
+                      <th>Evaluasi (\(V\))</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <!-- Dynamically populated rows -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <h4>Metrik &amp; Analisis Kritis CoT</h4>
+            </div>
+            <div class="card-body">
+              <div class="method-meta-grid">
+                <div class="meta-pill">
+                  <span class="meta-lbl">Verteks Dievaluasi</span>
+                  <strong id="cotDetailNodes">-- verteks</strong>
+                </div>
+                <div class="meta-pill">
+                  <span class="meta-lbl">Memori Puncak</span>
+                  <strong id="cotDetailMem">1 verteks</strong>
+                </div>
+                <div class="meta-pill">
+                  <span class="meta-lbl">Waktu Komputasi</span>
+                  <strong id="cotDetailTime">-- ms</strong>
+                </div>
+                <div class="meta-pill">
+                  <span class="meta-lbl">Panjang Rantai (\(k\))</span>
+                  <strong id="cotDetailLength">3 <em>edge</em></strong>
+                </div>
+              </div>
+              <div class="method-callout callout-danger" style="margin-top:0.75rem;">
+                <strong>Kelemahan Fatal:</strong> Linear CoT hanya efisien jika probabilitas langkah pertama langsung mengarah ke rute yang benar. Bila langkah awal memilih kombinasi yang salah (misal pengurangan atau pembagian yang menghasilkan angka buntu), CoT akan gagal 100% karena tidak memiliki mekanisme putar balik (<em>backtracking</em>).
+              </div>
+              <details class="mermaid-details" style="margin-top:1rem;">
+                <summary>Lihat Sintaks Mermaid Diagram Linear CoT</summary>
+                <pre class="mermaid-code"><code id="cotDetailMermaidCode">graph LR</code></pre>
+              </details>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ================================================================= -->
+      <!-- SUBPANE 2: PURE TOT-BFS (DEKOMPOSISI MENDALAM)                     -->
+      <!-- ================================================================= -->
+      <div class="morphology-subpane" id="subpane-bfs">
+        <div class="card decomposition-header-card">
+          <div class="card-header">
+            <div>
+              <span class="method-num">Dekomposisi Mendalam Metode 2</span>
+              <h3>Pure ToT-BFS: Pohon Melebar &amp; Antrean FIFO</h3>
+              <p class="card-subtitle">Eksplorasi lapis demi lapis (<em>breadth-first</em>) yang menjamin lintasan terpendek (geodesik).</p>
+            </div>
+            <span class="badge badge-info" id="decompBadgeBfs">Status: SOLVED</span>
+          </div>
+          <div class="card-body">
+            <p>Pure Tree-of-Thoughts BFS memanfaatkan antrean FIFO (<em>First-In, First-Out</em>). Seluruh anak cabang pada suatu aras (tingkat kedalaman) harus dimasukkan ke antrean dan dievaluasi terlebih dahulu sebelum algoritma diizinkan mengekspansi aras berikutnya. Hal ini membentuk morfologi pohon yang sangat rimbun (<em>bushy tree</em>).</p>
+          </div>
+        </div>
+
+        <!-- Big SVG Graph Card -->
+        <div class="card detail-graph-card">
+          <div class="card-header">
+            <h4>Visualisasi Graf Pembentukan <em>Spanning Tree</em> BFS</h4>
+            <span class="badge badge-accent">Ekspansi Menyeluruh Lapis demi Lapis</span>
+          </div>
+          <div class="card-body">
+            <div class="detail-diagram-large" id="bfsDetailSvgContainer">
+              <!-- Dynamically populated BFS detail SVG -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Two Columns: Queue Dynamics & Analysis -->
+        <div class="info-cards-split">
+          <div class="card">
+            <div class="card-header">
+              <h4>Dinamika Antrean FIFO &amp; Evaluasi Verteks</h4>
+            </div>
+            <div class="card-body">
+              <div class="table-responsive">
+                <table class="table table-bordered table-striped" id="bfsQueueTable">
+                  <thead>
+                    <tr>
+                      <th>Aras</th>
+                      <th>Verteks Diekspansi</th>
+                      <th>Cabang Dibangkitkan</th>
+                      <th>Antrean Aktif (\(Q\))</th>
+                      <th>Kandidat Solusi</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <!-- Dynamically populated rows -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <h4>Metrik &amp; Analisis Kritis BFS</h4>
+            </div>
+            <div class="card-body">
+              <div class="method-meta-grid">
+                <div class="meta-pill">
+                  <span class="meta-lbl">Verteks Dievaluasi</span>
+                  <strong class="text-cyan" id="bfsDetailNodes">-- verteks</strong>
+                </div>
+                <div class="meta-pill">
+                  <span class="meta-lbl">Memori Puncak Frontier</span>
+                  <strong id="bfsDetailMem">-- verteks</strong>
+                </div>
+                <div class="meta-pill">
+                  <span class="meta-lbl">Waktu Komputasi</span>
+                  <strong id="bfsDetailTime">-- ms</strong>
+                </div>
+                <div class="meta-pill">
+                  <span class="meta-lbl">Jaminan Geodesik</span>
+                  <strong class="text-emerald">Ya (Optimal Steps)</strong>
+                </div>
+              </div>
+              <div class="method-callout callout-info" style="margin-top:0.75rem;">
+                <strong>Kelebihan &amp; Biaya:</strong> BFS menjamin menemukan solusi dengan jumlah operasi paling sedikit (rute geodesik). Namun demikian, BFS menderita ledakan kombinatorial karena mengevaluasi cabang-cabang yang secara matematis tidak berprospek (seperti angka yang melonjak ke ratusan atau bernilai 0).
+              </div>
+              <details class="mermaid-details" style="margin-top:1rem;">
+                <summary>Lihat Sintaks Mermaid Diagram BFS</summary>
+                <pre class="mermaid-code"><code id="bfsDetailMermaidCode">graph TD</code></pre>
+              </details>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ================================================================= -->
+      <!-- SUBPANE 3: PURE TOT-DFS (DEKOMPOSISI MENDALAM)                     -->
+      <!-- ================================================================= -->
+      <div class="morphology-subpane" id="subpane-dfs">
+        <div class="card decomposition-header-card">
+          <div class="card-header">
+            <div>
+              <span class="method-num">Dekomposisi Mendalam Metode 3</span>
+              <h3>Pure ToT-DFS: Penyelaman Mendalam &amp; Tumpukan LIFO</h3>
+              <p class="card-subtitle">Eksplorasi tinggi-ramping (<em>depth-first</em>) dengan mekanisme pelacakan balik (<em>backtracking</em>).</p>
+            </div>
+            <span class="badge badge-accent" id="decompBadgeDfs">Status: SOLVED</span>
+          </div>
+          <div class="card-body">
+            <p>Pure Tree-of-Thoughts DFS menggunakan tumpukan LIFO (<em>Last-In, First-Out</em>). Algoritma memilih satu cabang dan menyelam sedalam-dalamnya hingga mencapai daun terminal. Jika daun tersebut bukan target (24), algoritma melakukan <em>backtracking</em> (mundur kembali ke verteks induk) lalu mencoba cabang alternatif.</p>
+          </div>
+        </div>
+
+        <!-- Big SVG Graph Card -->
+        <div class="card detail-graph-card">
+          <div class="card-header">
+            <h4>Visualisasi Graf Pembentukan <em>Spanning Tree</em> DFS</h4>
+            <span class="badge badge-accent">Penyelaman Vertikal &amp; Lintasan <em>Backtracking</em></span>
+          </div>
+          <div class="card-body">
+            <div class="detail-diagram-large" id="dfsDetailSvgContainer">
+              <!-- Dynamically populated DFS detail SVG -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Two Columns: Stack Dynamics & Analysis -->
+        <div class="info-cards-split">
+          <div class="card">
+            <div class="card-header">
+              <h4>Dinamika Tumpukan LIFO &amp; Titik <em>Backtrack</em></h4>
+            </div>
+            <div class="card-body">
+              <div class="table-responsive">
+                <table class="table table-bordered table-striped" id="dfsStackTable">
+                  <thead>
+                    <tr>
+                      <th>Fase</th>
+                      <th>Verteks Aktif</th>
+                      <th>Tumpukan (\(S\))</th>
+                      <th>Aksi Navigasi</th>
+                      <th>Keterangan Morfologi</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <!-- Dynamically populated rows -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <h4>Metrik &amp; Analisis Kritis DFS</h4>
+            </div>
+            <div class="card-body">
+              <div class="method-meta-grid">
+                <div class="meta-pill">
+                  <span class="meta-lbl">Verteks Dievaluasi</span>
+                  <strong class="text-amber" id="dfsDetailNodes">-- verteks</strong>
+                </div>
+                <div class="meta-pill">
+                  <span class="meta-lbl">Memori Puncak Tumpukan</span>
+                  <strong id="dfsDetailMem">-- verteks</strong>
+                </div>
+                <div class="meta-pill">
+                  <span class="meta-lbl">Waktu Komputasi</span>
+                  <strong id="dfsDetailTime">-- ms</strong>
+                </div>
+                <div class="meta-pill">
+                  <span class="meta-lbl">Pola Pohon</span>
+                  <strong>Tinggi-Ramping (<em>Stringy</em>)</strong>
+                </div>
+              </div>
+              <div class="method-callout callout-danger" style="margin-top:0.75rem;">
+                <strong>Kelemahan Blind Deep Dive:</strong> DFS sangat rentan terjebak dalam penyelaman buta. Jika cabang pertama mengarah ke hasil antara yang tidak efisien, DFS tetap mengeksplorasi cabang tersebut hingga kedalaman batas sebelum berputar balik, menyebabkan pembengkakan evaluasi verteks.
+              </div>
+              <details class="mermaid-details" style="margin-top:1rem;">
+                <summary>Lihat Sintaks Mermaid Diagram DFS</summary>
+                <pre class="mermaid-code"><code id="dfsDetailMermaidCode">graph TD</code></pre>
+              </details>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ================================================================= -->
+      <!-- SUBPANE 4: ADAPTIVE AEGTS (DEKOMPOSISI MENDALAM)                  -->
+      <!-- ================================================================= -->
+      <div class="morphology-subpane" id="subpane-aegts">
+        <div class="card decomposition-header-card star-card">
+          <div class="card-header">
+            <div>
+              <span class="method-num text-emerald">Dekomposisi Mendalam Metode 4 (Optimal)</span>
+              <h3>Adaptive AEGTS: Sintesis Entropi Shannon &amp; Pemangkasan Adaptif</h3>
+              <p class="card-subtitle">Peralihan dinamis BFS \(\to\) DFS berbasis ambang entropi (\(\tau\)) disertai pemangkasan (\(\alpha\)) dan rem darurat (\(\delta\)).</p>
+            </div>
+            <span class="badge badge-success" id="decompBadgeAegts">Status: SOLVED</span>
+          </div>
+          <div class="card-body">
+            <p>AEGTS mengukur ketidakpastian distribusi probabilitas kebijakan menggunakan Entropi Shannon ternormalisasi (\(\bar{\mathcal{H}}\)). Saat ambiguitas tinggi (\(\bar{\mathcal{H}} \ge \tau\)), algoritma mengaktifkan eksplorasi BFS dengan pemangkasan nilai (\(V &lt; \alpha\)). Begitu ambiguitas mereda (\(\bar{\mathcal{H}} &lt; \tau\)), sistem seketika beralih ke eksploitasi cepat DFS terarah menuju target 24.</p>
+          </div>
+        </div>
+
+        <!-- Big SVG Graph Card -->
+        <div class="card detail-graph-card">
+          <div class="card-header">
+            <h4>Visualisasi Graf Pembentukan <em>Spanning Tree</em> AEGTS</h4>
+            <span class="badge badge-accent">Pohon Adaptif Cerdas &amp; Titik \(\alpha\)-Pruning</span>
+          </div>
+          <div class="card-body">
+            <div class="detail-diagram-large" id="aegtsDetailSvgContainer">
+              <!-- Dynamically populated AEGTS detail SVG -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Two Columns: Entropy Schedule & Efficiency Analysis -->
+        <div class="info-cards-split">
+          <div class="card">
+            <div class="card-header">
+              <h4>Jadwal Entropi Shannon &amp; Transisi Mode</h4>
+            </div>
+            <div class="card-body">
+              <div class="table-responsive">
+                <table class="table table-bordered table-striped" id="aegtsEntropyTable">
+                  <thead>
+                    <tr>
+                      <th>Aras</th>
+                      <th>Entropi (\(\bar{\mathcal{H}}\))</th>
+                      <th>Kondisi vs Ambang (\(\tau\))</th>
+                      <th>Mode Aktif</th>
+                      <th>Aksi Pemangkasan</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <!-- Dynamically populated rows -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <h4>Metrik &amp; Keunggulan Teori Informasi</h4>
+            </div>
+            <div class="card-body">
+              <div class="method-meta-grid">
+                <div class="meta-pill highlight">
+                  <span class="meta-lbl">Verteks Dievaluasi</span>
+                  <strong class="text-emerald" id="aegtsDetailNodes">-- verteks</strong>
+                </div>
+                <div class="meta-pill highlight">
+                  <span class="meta-lbl">Hemat vs DFS</span>
+                  <strong class="text-emerald" id="aegtsDetailSavingsDfs">+--%</strong>
+                </div>
+                <div class="meta-pill highlight">
+                  <span class="meta-lbl">Hemat vs BFS</span>
+                  <strong class="text-cyan" id="aegtsDetailSavingsBfs">+--%</strong>
+                </div>
+                <div class="meta-pill highlight">
+                  <span class="meta-lbl">Memori Puncak</span>
+                  <strong class="text-emerald" id="aegtsDetailMem">-- verteks</strong>
+                </div>
+              </div>
+              <div class="method-callout callout-success" style="margin-top:0.75rem;">
+                <strong>Optimalitas Matematika:</strong> Dengan memadukan Teori Informasi (Shannon Entropy) dan Teori Graf (*spanning tree* terpandu), AEGTS memangkas cabang buruk di tahap paling awal sehingga subgraf penelusuran menjadi ramping, hemat token, dan sangat cepat.
+              </div>
+              <details class="mermaid-details" style="margin-top:1rem;">
+                <summary>Lihat Sintaks Mermaid Diagram AEGTS</summary>
+                <pre class="mermaid-code"><code id="aegtsDetailMermaidCode">graph TD</code></pre>
+              </details>
+            </div>
           </div>
         </div>
       </div>

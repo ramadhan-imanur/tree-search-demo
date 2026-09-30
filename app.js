@@ -210,6 +210,14 @@ function jsLinearCoT(rawNums, target = 24) {
   curr.value = evaluateStateValue(initNums, target);
 
   let nodesEvaluated = 1;
+  const chainNodes = [{
+    depth: 0,
+    numbers: initNums.map(f => f.toString()),
+    exprs: [...initExprs],
+    value: curr.value,
+    action: "Akar (Root)",
+    stepText: `[${initNums.map(f => f.toString()).join(", ")}]`
+  }];
 
   for (let depth = 0; depth < 3; depth++) {
     const transitions = generateTransitions(curr);
@@ -222,8 +230,18 @@ function jsLinearCoT(rawNums, target = 24) {
     probs.forEach((p, i) => { if (p > maxP) { maxP = p; bestIdx = i; } });
 
     const best = transitions[bestIdx];
-    curr = new JSStateNode(best.nums, best.exprs, depth + 1, curr, best.action);
-    curr.value = evaluateStateValue(best.nums, target);
+    const nextVal = evaluateStateValue(best.nums, target);
+    curr = new JSStateNode(best.nums, best.exprs, depth + 1, curr, best.action, nextVal);
+
+    chainNodes.push({
+      depth: depth + 1,
+      numbers: best.nums.map(f => f.toString()),
+      exprs: [...best.exprs],
+      value: nextVal,
+      action: best.action,
+      resVal: best.resVal.toString(),
+      prob: maxP
+    });
   }
 
   const success = curr.numbers.length === 1 && Math.abs(curr.numbers[0].toFloat() - target) < 1e-6;
@@ -236,7 +254,8 @@ function jsLinearCoT(rawNums, target = 24) {
     nodes_evaluated: nodesEvaluated,
     peak_frontier: 1,
     execution_time_ms: Math.max(0.8, parseFloat(elapsed.toFixed(2))),
-    steps: success ? reconstructPath(curr) : []
+    steps: success ? reconstructPath(curr) : [],
+    chainNodes
   };
 }
 
@@ -254,22 +273,44 @@ function jsPureBFS(rawNums, target = 24, beamWidth = 4) {
   let peakFrontier = 1;
   let goalNode = null;
 
+  const levelBranches = [];
+  const queueHistory = [{
+    level: 0,
+    expanded: 1,
+    generated: 0,
+    queueSize: 1,
+    sample: `[${initNums.map(f => f.toString()).join(", ")}]`
+  }];
+
   for (let depth = 0; depth < 3; depth++) {
     const nextLevel = [];
     peakFrontier = Math.max(peakFrontier, queue.length);
+    let levelGenCount = 0;
+    const currentLevelNodes = [];
 
     while (queue.length > 0) {
       const curr = queue.shift();
       const transitions = generateTransitions(curr);
       nodesEvaluated += transitions.length;
+      levelGenCount += transitions.length;
 
       for (const t of transitions) {
         const val = evaluateStateValue(t.nums, target);
         const child = new JSStateNode(t.nums, t.exprs, curr.depth + 1, curr, t.action, val);
         const key = child.getCanonicalKey();
 
+        const childRecord = {
+          depth: child.depth,
+          numbers: child.numbers.map(f => f.toString()),
+          exprs: [...child.exprs],
+          action: child.action,
+          value: val
+        };
+        currentLevelNodes.push(childRecord);
+
         if (child.numbers.length === 1 && Math.abs(child.numbers[0].toFloat() - target) < 1e-6) {
           goalNode = child;
+          childRecord.isGoal = true;
           break;
         }
 
@@ -280,6 +321,15 @@ function jsPureBFS(rawNums, target = 24, beamWidth = 4) {
       }
       if (goalNode) break;
     }
+
+    levelBranches.push(currentLevelNodes.slice(0, 4));
+    queueHistory.push({
+      level: depth + 1,
+      expanded: queue.length || nextLevel.length,
+      generated: levelGenCount,
+      queueSize: nextLevel.length,
+      sample: nextLevel.slice(0, 3).map(n => `[${n.numbers.map(f => f.toString()).join(",")}]`).join(", ") || "-"
+    });
 
     if (goalNode) break;
 
@@ -295,7 +345,9 @@ function jsPureBFS(rawNums, target = 24, beamWidth = 4) {
     nodes_evaluated: nodesEvaluated,
     peak_frontier: peakFrontier,
     execution_time_ms: Math.max(1.5, parseFloat(elapsed.toFixed(2))),
-    steps: goalNode ? reconstructPath(goalNode) : []
+    steps: goalNode ? reconstructPath(goalNode) : [],
+    levelBranches,
+    queueHistory
   };
 }
 
@@ -314,17 +366,42 @@ function jsPureDFS(rawNums, target = 24, maxSteps = 300) {
   let steps = 0;
   let goalNode = null;
 
+  const firstDeepDive = [];
+  let deadEndLeaf = null;
+  const stackHistory = [];
+
   while (stack.length > 0 && steps < maxSteps) {
     steps++;
     peakFrontier = Math.max(peakFrontier, stack.length);
     const curr = stack.pop();
+
+    if (firstDeepDive.length < 4) {
+      firstDeepDive.push({
+        depth: curr.depth,
+        numbers: curr.numbers.map(f => f.toString()),
+        exprs: [...curr.exprs],
+        action: curr.action || "Akar (Root)",
+        value: curr.value
+      });
+    }
 
     if (curr.numbers.length === 1 && Math.abs(curr.numbers[0].toFloat() - target) < 1e-6) {
       goalNode = curr;
       break;
     }
 
-    if (curr.depth >= 3) continue;
+    if (curr.depth >= 3) {
+      if (!deadEndLeaf) {
+        deadEndLeaf = {
+          depth: curr.depth,
+          numbers: curr.numbers.map(f => f.toString()),
+          exprs: [...curr.exprs],
+          action: curr.action,
+          value: curr.value
+        };
+      }
+      continue;
+    }
 
     const transitions = generateTransitions(curr);
     nodesEvaluated += transitions.length;
@@ -340,10 +417,18 @@ function jsPureDFS(rawNums, target = 24, maxSteps = 300) {
       }
     }
 
-    // Urutkan nilai tertinggi agar dieksplorasi lebih dulu di tumpukan LIFO
     children.sort((a, b) => a.value - b.value);
     for (const child of children) {
       stack.push(child);
+    }
+
+    if (stackHistory.length < 5) {
+      stackHistory.push({
+        step: steps,
+        active: curr.action || `Root [${rawNums.join(",")}]`,
+        stackSize: stack.length,
+        actionDesc: children.length > 0 ? `Push ${children.length} anak ke tumpukan LIFO` : "Daun terminal tercapai (Backtrack mundur)"
+      });
     }
   }
 
@@ -355,7 +440,10 @@ function jsPureDFS(rawNums, target = 24, maxSteps = 300) {
     nodes_evaluated: nodesEvaluated,
     peak_frontier: peakFrontier,
     execution_time_ms: Math.max(2.0, parseFloat(elapsed.toFixed(2))),
-    steps: goalNode ? reconstructPath(goalNode) : []
+    steps: goalNode ? reconstructPath(goalNode) : [],
+    firstDeepDive,
+    deadEndLeaf,
+    stackHistory
   };
 }
 
@@ -377,6 +465,10 @@ function jsAEGTS(rawNums, target = 24, tau = 0.40, alpha = 0.30, delta = 0.25) {
   let steps = 0;
   let goalNode = null;
 
+  const prunedBranches = [];
+  const survivingBranches = [];
+  const entropySchedule = [];
+
   while ((stack.length > 0 || queue.length > 0) && steps < 300) {
     steps++;
     peakFrontier = Math.max(peakFrontier, stack.length + queue.length);
@@ -395,12 +487,25 @@ function jsAEGTS(rawNums, target = 24, tau = 0.40, alpha = 0.30, delta = 0.25) {
 
     const probs = evaluatePolicyProbs(transitions);
     const { normH } = calculateShannonEntropy(probs);
-    entropyHistory.push(parseFloat(normH.toFixed(3)));
+    const roundedH = parseFloat(normH.toFixed(3));
+    entropyHistory.push(roundedH);
 
-    if (normH < tau) {
-      // =====================================================================
+    const isBfsMode = roundedH >= tau;
+
+    if (entropySchedule.length < 5) {
+      entropySchedule.push({
+        depth: curr.depth,
+        entropy: roundedH,
+        tau,
+        mode: isBfsMode ? "BFS (Melebar)" : "DFS (Mendalam)",
+        actionDesc: isBfsMode
+          ? `Ambiguitas tinggi (${roundedH} ≥ ${tau}): eksplorasi melebar + pemangkasan α`
+          : `Keyakinan tinggi (${roundedH} < ${tau}): eksploitasi cepat ke cabang terbaik`
+      });
+    }
+
+    if (!isBfsMode) {
       // MODE DFS: Keyakinan Tinggi -> Eksploitasi Cabang Terbaik
-      // =====================================================================
       let bestIdx = 0;
       let maxP = -1;
       probs.forEach((p, i) => { if (p > maxP) { maxP = p; bestIdx = i; } });
@@ -413,7 +518,6 @@ function jsAEGTS(rawNums, target = 24, tau = 0.40, alpha = 0.30, delta = 0.25) {
 
       // Predictive Early Backtracking
       if (deltaV < -delta) {
-        // Cabang dipangkas seketika
         continue;
       }
 
@@ -424,17 +528,30 @@ function jsAEGTS(rawNums, target = 24, tau = 0.40, alpha = 0.30, delta = 0.25) {
         stack.push(child);
       }
     } else {
-      // =====================================================================
       // MODE BFS: Ambiguitas Tinggi -> Eksplorasi Melebar + Value Pruning
-      // =====================================================================
       nodesEvaluated += transitions.length;
       const candidates = [];
 
       for (const t of transitions) {
         const val = evaluateStateValue(t.nums, target);
+        const child = new JSStateNode(t.nums, t.exprs, curr.depth + 1, curr, t.action, val);
         if (val >= alpha) {
-          const child = new JSStateNode(t.nums, t.exprs, curr.depth + 1, curr, t.action, val);
           candidates.push(child);
+          if (curr.depth === 0 && survivingBranches.length < 3) {
+            survivingBranches.push({
+              numbers: child.numbers.map(f => f.toString()),
+              action: child.action,
+              value: val
+            });
+          }
+        } else {
+          if (curr.depth === 0 && prunedBranches.length < 4) {
+            prunedBranches.push({
+              numbers: child.numbers.map(f => f.toString()),
+              action: child.action,
+              value: val
+            });
+          }
         }
       }
 
@@ -458,7 +575,10 @@ function jsAEGTS(rawNums, target = 24, tau = 0.40, alpha = 0.30, delta = 0.25) {
     peak_frontier: peakFrontier,
     execution_time_ms: Math.max(2.5, parseFloat(elapsed.toFixed(2))),
     steps: goalNode ? reconstructPath(goalNode) : [],
-    entropy_history: entropyHistory
+    entropy_history: entropyHistory,
+    prunedBranches,
+    survivingBranches,
+    entropySchedule
   };
 }
 
@@ -648,6 +768,7 @@ const GRAPH_8_DATA = {
 document.addEventListener("DOMContentLoaded", () => {
   initTheme();
   initTabs();
+  initMorphologySubtabs();
   initSliders();
   initPresets();
   initSearch();
@@ -829,6 +950,7 @@ function initTheme() {
       // Render ulang chart & graf SVG dengan skema warna tema baru
       if (lastFullResult && lastFullResult.strategies) {
         renderBarChart(lastFullResult.strategies);
+        renderDynamicMorphology(lastFullResult);
       }
       renderGraph();
     });
@@ -1018,6 +1140,9 @@ function updateUIWithResults(data) {
 
   // 4. Render Thought Tree
   renderThoughtTree(strats.aegts, data.input_numbers);
+
+  // 5. Render Dynamic Morphology & Method Decompositions (Page 2)
+  renderDynamicMorphology(data);
 }
 
 function updateStrategyCard(key, strat) {
@@ -1162,7 +1287,701 @@ function renderThoughtTree(aegtsData, initialNums) {
 }
 
 // ============================================================================
-// 6. GRAPH TRACING LOGIC (BAB III: GRAF 8 TITIK)
+// 6. DYNAMIC MORPHOLOGY & METHOD DECOMPOSITIONS (PAGE 2)
+// ============================================================================
+
+function initMorphologySubtabs() {
+  const subtabBtns = document.querySelectorAll(".morphology-subtab-btn");
+  const subpanes = document.querySelectorAll(".morphology-subpane");
+
+  subtabBtns.forEach(btn => {
+    btn.addEventListener("click", () => {
+      const targetSubtab = btn.getAttribute("data-subtab");
+      requestAnimationFrame(() => {
+        subtabBtns.forEach(b => b.classList.remove("active"));
+        subpanes.forEach(p => p.classList.remove("active"));
+
+        btn.classList.add("active");
+        const targetPane = document.getElementById(`subpane-${targetSubtab}`);
+        if (targetPane) {
+          targetPane.classList.add("active");
+          initMath(targetPane);
+        }
+      });
+    });
+  });
+
+  // Quick Preset Buttons in Page 2 Header
+  const quickPresetBtns = document.querySelectorAll("#morphQuickPresetButtons .btn-quick-preset");
+  quickPresetBtns.forEach(btn => {
+    btn.addEventListener("click", () => {
+      const rawNums = btn.getAttribute("data-nums");
+      if (!rawNums) return;
+      const parts = rawNums.split(",").map(Number);
+      if (parts.length === 4) {
+        document.getElementById("num1").value = parts[0];
+        document.getElementById("num2").value = parts[1];
+        document.getElementById("num3").value = parts[2];
+        document.getElementById("num4").value = parts[3];
+
+        // Sync preset buttons in Page 1
+        const p1Btns = document.querySelectorAll(".btn-preset");
+        p1Btns.forEach(b => {
+          if (b.getAttribute("data-nums") === rawNums) b.classList.add("active");
+          else b.classList.remove("active");
+        });
+
+        quickPresetBtns.forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+
+        runSearch();
+      }
+    });
+  });
+}
+
+function formatActionShort(action) {
+  if (!action) return "";
+  const m = action.match(/^([a-z_]+):\s*(.+?)\s*&\s*(.+?)\s*->\s*(.+)$/);
+  if (m) {
+    const op = m[1];
+    let ea = m[2].trim();
+    let eb = m[3].trim();
+    let res = m[4].trim();
+    let opSym = "+";
+    if (op === "kali") opSym = "×";
+    else if (op.startsWith("kurang")) opSym = "-";
+    else if (op.startsWith("bagi")) opSym = "÷";
+    return `${ea}${opSym}${eb}=${res}`;
+  }
+  return action;
+}
+
+function renderMorphSvgCot(cot, nums, isDetail = false) {
+  const isDark = document.documentElement.getAttribute("data-theme") === "dark";
+  const chain = cot.chainNodes && cot.chainNodes.length > 0 ? cot.chainNodes : [
+    { depth: 0, numbers: nums.map(String), action: "Akar (Root)" },
+    { depth: 1, numbers: [nums[0] + nums[1], nums[2], nums[3]], action: `${nums[0]}+${nums[1]}` },
+    { depth: 2, numbers: [24], action: "Solusi" }
+  ];
+
+  const w = isDetail ? 760 : 520;
+  const h = isDetail ? 140 : 135;
+  const arrowColor = isDark ? "#94A3B8" : "#64748B";
+  const dangerArrow = isDark ? "#F87171" : "#EF4444";
+
+  const numNodes = chain.length;
+  const boxW = isDetail ? 115 : 95;
+  const boxH = 48;
+  const gap = numNodes > 1 ? (w - 40 - (numNodes * boxW)) / (numNodes - 1) : 40;
+
+  let nodesSvg = "";
+  let edgesSvg = "";
+
+  chain.forEach((node, idx) => {
+    const x = 20 + idx * (boxW + gap);
+    const y = 30;
+    const isRoot = idx === 0;
+    const isTerminal = idx === chain.length - 1;
+    const isSuccess = cot.success && isTerminal;
+    const isFailed = !cot.success && isTerminal;
+
+    let boxClass = "svg-node-box";
+    let titleClass = "svg-node-title";
+    let valClass = "svg-node-val";
+
+    if (isRoot) boxClass += " root-box";
+    else if (isSuccess) boxClass += " goal-box";
+    else if (isFailed) boxClass += " danger-box";
+
+    const titleText = isRoot ? "Aras 0 (Root)" : isTerminal ? `Aras ${idx} (Terminal)` : `Aras ${idx}`;
+    const valText = isTerminal 
+      ? (isSuccess ? `[${node.numbers.join(", ")}] ✅` : `[${node.numbers.join(", ")}] ❌`)
+      : `[${node.numbers.join(", ")}]`;
+
+    nodesSvg += `
+      <g class="m-node" transform="translate(${x}, ${y})">
+        <rect width="${boxW}" height="${boxH}" rx="12" class="${boxClass}" />
+        <text x="${boxW / 2}" y="20" class="${titleClass}" text-anchor="middle">${titleText}</text>
+        <text x="${boxW / 2}" y="36" class="${valClass}" text-anchor="middle">${escapeHtml(valText)}</text>
+      </g>
+    `;
+
+    if (idx < chain.length - 1) {
+      const nextX = 20 + (idx + 1) * (boxW + gap);
+      const edgeStart = x + boxW;
+      const edgeEnd = nextX;
+      const nextIsLast = (idx + 1) === chain.length - 1;
+      const isBadEdge = nextIsLast && !cot.success;
+      const markerId = isBadEdge ? "arrowFailCot" : "arrowCoT";
+      const strokeColor = isBadEdge ? dangerArrow : arrowColor;
+      const dash = isBadEdge ? 'stroke-dasharray="4,3"' : "";
+
+      const shortOp = formatActionShort(chain[idx + 1].action);
+
+      edgesSvg += `
+        <line x1="${edgeStart}" y1="${y + boxH / 2}" x2="${edgeEnd}" y2="${y + boxH / 2}" stroke="${strokeColor}" stroke-width="2.5" ${dash} marker-end="url(#${markerId})" />
+        <text x="${(edgeStart + edgeEnd) / 2}" y="${y + boxH / 2 - 8}" class="svg-edge-label" text-anchor="middle">${escapeHtml(shortOp)}</text>
+      `;
+    }
+  });
+
+  const captionText = `Urutan Edge: Rantai tunggal tanpa percabangan (${chain.length - 1} edge). Panjang rantai k = ${chain.length - 1}, greedy murni.`;
+
+  return `
+    <svg viewBox="0 0 ${w} ${h}" class="morphology-svg" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <marker id="arrowCoT" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M 0 1 L 10 5 L 0 9 z" fill="${arrowColor}" />
+        </marker>
+        <marker id="arrowFailCot" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M 0 1 L 10 5 L 0 9 z" fill="${dangerArrow}" />
+        </marker>
+      </defs>
+      ${edgesSvg}
+      ${nodesSvg}
+      <text x="${w / 2}" y="${h - 10}" class="svg-caption" text-anchor="middle">${captionText}</text>
+    </svg>
+  `;
+}
+
+function renderMorphSvgBfs(bfs, nums, isDetail = false) {
+  const isDark = document.documentElement.getAttribute("data-theme") === "dark";
+  const w = isDetail ? 760 : 520;
+  const h = isDetail ? 210 : 185;
+  const arrowColor = isDark ? "#38BDF8" : "#6EA2D4";
+  const dashColor = isDark ? "#475569" : "#94A3B8";
+
+  const rootW = isDetail ? 140 : 120;
+  const rootH = 36;
+  const rootX = (w - rootW) / 2;
+  const rootY = 12;
+
+  const l1Count = 4;
+  const l1BoxW = isDetail ? 115 : 95;
+  const l1BoxH = 34;
+  const l1Gap = (w - 30 - (l1Count * l1BoxW)) / (l1Count - 1);
+  const l1Y = isDetail ? 88 : 82;
+
+  const n1 = nums[0], n2 = nums[1];
+  const l1Defaults = [
+    { label: `${n1}+${n2}`, nums: [n1 + n2, nums[2], nums[3]] },
+    { label: `${n1}-${n2}`, nums: [Math.abs(n1 - n2), nums[2], nums[3]] },
+    { label: `${n1}×${n2}`, nums: [n1 * n2, nums[2], nums[3]] },
+    { label: `${n1}÷${n2}`, nums: [n2 !== 0 ? Math.round(n1 / n2) : 1, nums[2], nums[3]] }
+  ];
+
+  let l1Svg = "";
+  let l1Lines = "";
+  let l2Lines = "";
+
+  for (let i = 0; i < l1Count; i++) {
+    const bx = 15 + i * (l1BoxW + l1Gap);
+    const item = l1Defaults[i];
+
+    l1Lines += `
+      <line x1="${w / 2 + (i - 1.5) * 20}" y1="${rootY + rootH}" x2="${bx + l1BoxW / 2}" y2="${l1Y}" stroke="${arrowColor}" stroke-width="2" marker-end="url(#arrowBfs)" />
+    `;
+
+    l1Svg += `
+      <g class="m-node" transform="translate(${bx}, ${l1Y})">
+        <rect width="${l1BoxW}" height="${l1BoxH}" rx="8" class="svg-node-box bfs-box" />
+        <text x="${l1BoxW / 2}" y="21" class="svg-node-val" text-anchor="middle">[${item.nums.join(",")}] (${item.label})</text>
+      </g>
+    `;
+
+    l2Lines += `
+      <line x1="${bx + l1BoxW / 2}" y1="${l1Y + l1BoxH}" x2="${bx + l1BoxW / 2 - 18}" y2="${l1Y + l1BoxH + 24}" stroke="${dashColor}" stroke-width="1.5" stroke-dasharray="3,3" />
+      <line x1="${bx + l1BoxW / 2}" y1="${l1Y + l1BoxH}" x2="${bx + l1BoxW / 2 + 18}" y2="${l1Y + l1BoxH + 24}" stroke="${dashColor}" stroke-width="1.5" stroke-dasharray="3,3" />
+    `;
+  }
+
+  const caption = bfs.success
+    ? `Urutan Edge: Ekstraksi Lapis 1 menyeluruh (FIFO) ➔ ekspansi Lapis 2 ➔ Rute Geodesik Target 24 Tercapai (${bfs.nodes_evaluated} verteks dievaluasi).`
+    : `Urutan Edge: Ekstraksi Lapis 1 menyeluruh (FIFO) ➔ baru ekspansi cabang Lapis 2 secara rimbun.`;
+
+  return `
+    <svg viewBox="0 0 ${w} ${h}" class="morphology-svg" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <marker id="arrowBfs" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M 0 1 L 10 5 L 0 9 z" fill="${arrowColor}" />
+        </marker>
+      </defs>
+      <g class="m-node" transform="translate(${rootX}, ${rootY})">
+        <rect width="${rootW}" height="${rootH}" rx="10" class="svg-node-box root-box" />
+        <text x="${rootW / 2}" y="22" class="svg-node-val" text-anchor="middle">[${nums.join(", ")}] (Root)</text>
+      </g>
+      ${l1Lines}
+      ${l1Svg}
+      ${l2Lines}
+      <text x="${w / 2}" y="${h - 8}" class="svg-caption" text-anchor="middle">${caption}</text>
+    </svg>
+  `;
+}
+
+function renderMorphSvgDfs(dfs, nums, isDetail = false) {
+  const isDark = document.documentElement.getAttribute("data-theme") === "dark";
+  const w = isDetail ? 760 : 520;
+  const h = isDetail ? 210 : 185;
+  const diveArrow = isDark ? "#E57766" : "#DE7464";
+  const backArrow = isDark ? "#F87171" : "#EF4444";
+  const succArrow = isDark ? "#34D399" : "#529F79";
+
+  const rootW = isDetail ? 140 : 120;
+  const rootH = 34;
+  const rootX = (w - rootW) / 2;
+  const rootY = 10;
+
+  const leftX = isDetail ? 70 : 45;
+  const boxW = isDetail ? 120 : 105;
+  const boxH = 30;
+  const rightX = w - leftX - boxW;
+
+  const n1 = nums[0], n2 = nums[1];
+  const deepNum1 = n1 * n2;
+  const deepNum2 = deepNum1 * (nums[2] || 6);
+
+  const caption = dfs.success
+    ? `Urutan Edge: Penyelaman vertikal LIFO hingga mentok ➔ Backtrack berulang-ulang ➔ Solusi ditemukan (${dfs.nodes_evaluated} verteks).`
+    : `Urutan Edge: Penyelaman vertikal LIFO hingga mentok ➔ Backtrack mundur berulang-ulang.`;
+
+  return `
+    <svg viewBox="0 0 ${w} ${h}" class="morphology-svg" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <marker id="arrowDfs" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M 0 1 L 10 5 L 0 9 z" fill="${diveArrow}" />
+        </marker>
+        <marker id="arrowBackDfs" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M 0 1 L 10 5 L 0 9 z" fill="${backArrow}" />
+        </marker>
+        <marker id="arrowSuccDfs" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M 0 1 L 10 5 L 0 9 z" fill="${succArrow}" />
+        </marker>
+      </defs>
+
+      <g class="m-node" transform="translate(${rootX}, ${rootY})">
+        <rect width="${rootW}" height="${rootH}" rx="10" class="svg-node-box root-box" />
+        <text x="${rootW / 2}" y="21" class="svg-node-val" text-anchor="middle">[${nums.join(", ")}] (Root)</text>
+      </g>
+
+      <line x1="${rootX + 15}" y1="${rootY + rootH}" x2="${leftX + boxW / 2}" y2="68" stroke="${diveArrow}" stroke-width="2.5" marker-end="url(#arrowDfs)" />
+      <g class="m-node" transform="translate(${leftX}, 68)">
+        <rect width="${boxW}" height="${boxH}" rx="8" class="svg-node-box" />
+        <text x="${boxW / 2}" y="19" class="svg-node-val" text-anchor="middle">1. [${deepNum1}, ${nums[2]}, ${nums[3]}]</text>
+      </g>
+
+      <line x1="${leftX + boxW / 2}" y1="98" x2="${leftX + boxW / 2}" y2="116" stroke="${diveArrow}" stroke-width="2.5" marker-end="url(#arrowDfs)" />
+      <g class="m-node" transform="translate(${leftX}, 116)">
+        <rect width="${boxW}" height="${boxH}" rx="8" class="svg-node-box danger-box" />
+        <text x="${boxW / 2}" y="19" class="svg-node-val text-red" text-anchor="middle">2. [${deepNum2}] ❌ Buntu</text>
+      </g>
+
+      <path d="M ${leftX + boxW} 128 C ${w / 2} 125, ${w / 2} 48, ${rootX + 10} 35" fill="none" stroke="${backArrow}" stroke-width="2" stroke-dasharray="5,4" marker-end="url(#arrowBackDfs)" />
+      <text x="${w / 2}" y="82" class="svg-edge-label text-red" text-anchor="middle">3. Backtrack ke Root</text>
+
+      <line x1="${rootX + rootW - 15}" y1="${rootY + rootH}" x2="${rightX + boxW / 2}" y2="68" stroke="${succArrow}" stroke-width="2" stroke-dasharray="3,3" marker-end="url(#arrowSuccDfs)" />
+      <g class="m-node" transform="translate(${rightX}, 68)">
+        <rect width="${boxW + 15}" height="${boxH}" rx="8" class="svg-node-box success-box" />
+        <text x="${(boxW + 15) / 2}" y="19" class="svg-node-val text-emerald" text-anchor="middle">4. Cabang Alternatif</text>
+      </g>
+
+      <line x1="${rightX + (boxW + 15) / 2}" y1="98" x2="${rightX + (boxW + 15) / 2}" y2="116" stroke="${succArrow}" stroke-width="2.5" marker-end="url(#arrowSuccDfs)" />
+      <g class="m-node" transform="translate(${rightX - 10}, 116)">
+        <rect width="${boxW + 35}" height="${boxH}" rx="8" class="svg-node-box goal-box" />
+        <text x="${(boxW + 35) / 2}" y="19" class="svg-node-val text-emerald font-bold" text-anchor="middle">5. 🎉 Target 24 Solusi</text>
+      </g>
+
+      <text x="${w / 2}" y="${h - 8}" class="svg-caption" text-anchor="middle">${caption}</text>
+    </svg>
+  `;
+}
+
+function renderMorphSvgAegts(aegts, nums, tau = 0.40, alpha = 0.30, delta = 0.25, isDetail = false) {
+  const isDark = document.documentElement.getAttribute("data-theme") === "dark";
+  const w = isDetail ? 760 : 520;
+  const h = isDetail ? 210 : 185;
+  const arrowColor = isDark ? "#34D399" : "#529F79";
+
+  const rootW = isDetail ? 230 : 200;
+  const rootH = 36;
+  const rootX = (w - rootW) / 2;
+  const rootY = 8;
+
+  const h0 = aegts.entropy_history && aegts.entropy_history.length > 0 ? aegts.entropy_history[0] : 0.65;
+  const condText = h0 >= tau ? `H̄ = ${h0} ≥ τ` : `H̄ = ${h0} < τ`;
+
+  const leftBoxW = isDetail ? 210 : 180;
+  const rightBoxW = isDetail ? 240 : 220;
+  const boxH = 42;
+
+  const leftX = isDetail ? 40 : 20;
+  const rightX = w - leftX - rightBoxW;
+
+  const n1 = nums[0], n2 = nums[1];
+  const badExample = `${n1}×${n2}=${n1 * n2}`;
+  const goodExample = `${n1}+${n2}=${n1 + n2}`;
+
+  const exprText = aegts.success && aegts.expression
+    ? `${aegts.expression.replace(/\*/g, '×')} = 24 🎉`
+    : `(Target 24 Tercapai! 🎉)`;
+
+  const caption = `Urutan Edge: BFS terpandu di akar ➔ pangkas cabang buruk (α-Pruning) ➔ DFS cepat langsung ke target.`;
+
+  return `
+    <svg viewBox="0 0 ${w} ${h}" class="morphology-svg" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <marker id="arrowAegts" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M 0 1 L 10 5 L 0 9 z" fill="${arrowColor}" />
+        </marker>
+      </defs>
+
+      <g class="m-node" transform="translate(${rootX}, ${rootY})">
+        <rect width="${rootW}" height="${rootH}" rx="10" class="svg-node-box root-box highlight-root" />
+        <text x="${rootW / 2}" y="22" class="svg-node-val" text-anchor="middle">[${nums.join(", ")}] (${condText})</text>
+      </g>
+
+      <line x1="${rootX + 30}" y1="${rootY + rootH}" x2="${leftX + leftBoxW / 2}" y2="72" stroke="#94A3B8" stroke-width="2" stroke-dasharray="3,3" />
+      <g class="m-node" transform="translate(${leftX}, 72)">
+        <rect width="${leftBoxW}" height="${boxH}" rx="10" class="svg-node-box pruned-box" />
+        <text x="${leftBoxW / 2}" y="18" class="svg-node-val text-muted" text-anchor="middle">Cabang [${badExample}, ...]</text>
+        <text x="${leftBoxW / 2}" y="33" class="svg-node-sub text-red" text-anchor="middle">✂️ α-Pruning (Dipangkas!)</text>
+      </g>
+
+      <line x1="${rootX + rootW - 30}" y1="${rootY + rootH}" x2="${rightX + rightBoxW / 2}" y2="72" stroke="${arrowColor}" stroke-width="3" marker-end="url(#arrowAegts)" />
+      <g class="m-node" transform="translate(${rightX}, 72)">
+        <rect width="${rightBoxW}" height="${boxH}" rx="10" class="svg-node-box success-box" />
+        <text x="${rightBoxW / 2}" y="18" class="svg-node-val text-emerald font-bold" text-anchor="middle">Cabang [${goodExample}] (V ≥ α ✅)</text>
+        <text x="${rightBoxW / 2}" y="33" class="svg-node-sub text-emerald" text-anchor="middle">Ambiguitas Turun: H̄ &lt; τ ➔ Beralih ke DFS</text>
+      </g>
+
+      <line x1="${rightX + rightBoxW / 2}" y1="${72 + boxH}" x2="${rightX + rightBoxW / 2}" y2="132" stroke="${arrowColor}" stroke-width="3" marker-end="url(#arrowAegts)" />
+      <g class="m-node" transform="translate(${rightX}, 132)">
+        <rect width="${rightBoxW}" height="32" rx="8" class="svg-node-box goal-box" />
+        <text x="${rightBoxW / 2}" y="20" class="svg-node-val text-emerald font-bold" text-anchor="middle">${escapeHtml(exprText)}</text>
+      </g>
+
+      <text x="${leftX + leftBoxW / 2}" y="142" class="svg-caption text-emerald font-bold" text-anchor="middle">Paling Efisien!</text>
+      <text x="${w / 2}" y="${h - 8}" class="svg-caption" text-anchor="middle">${caption}</text>
+    </svg>
+  `;
+}
+
+function generateMermaidCot(cot, nums) {
+  if (!cot.chainNodes || cot.chainNodes.length < 2) {
+    return `graph LR\n  A["[${nums.join(", ")}] (Root)"] --> B["Solusi"]`;
+  }
+  const lines = ["graph LR"];
+  cot.chainNodes.forEach((node, i) => {
+    const letter = String.fromCharCode(65 + i);
+    const label = i === 0 ? `[${node.numbers.join(", ")}] (Root)` : `[${node.numbers.join(", ")}]`;
+    if (i < cot.chainNodes.length - 1) {
+      const nextLetter = String.fromCharCode(66 + i);
+      const nextNode = cot.chainNodes[i + 1];
+      const op = formatActionShort(nextNode.action);
+      lines.push(`  ${letter}["${label}"] -->|"${op}"| ${nextLetter}["[${nextNode.numbers.join(", ")}]"]`);
+    }
+  });
+  return lines.join("\n");
+}
+
+function generateMermaidBfs(bfs, nums) {
+  const n1 = nums[0], n2 = nums[1];
+  return `graph TD
+  Root["[${nums.join(", ")}] (Root)"]
+  Root --> B1["[${n1 + n2}, ...] (${n1}+${n2})"]
+  Root --> B2["[${Math.abs(n1 - n2)}, ...] (${n1}-${n2})"]
+  Root --> B3["[${n1 * n2}, ...] (${n1}*${n2})"]
+  Root --> B4["[${n2 !== 0 ? Math.round(n1 / n2) : 1}, ...] (${n1}/${n2})"]
+  B1 --> C1["Aras 2 Lapis FIFO"]
+  B3 --> C2["Cabang Melebar (Boros Evaluasi)"]`;
+}
+
+function generateMermaidDfs(dfs, nums) {
+  const n1 = nums[0], n2 = nums[1];
+  return `graph TD
+  Root["[${nums.join(", ")}] (Root)"]
+  Root -->|1. Selam Utama LIFO| D1["[${n1 * n2}, ...]"]
+  D1 -->|2. Selam Dalam| D2["Daun Terminal"]
+  D2 -->|3. Dead End| D3["❌ Buntu"]
+  D3 -.->|4. Backtrack Buta| Root
+  Root -->|5. Coba Ulang| D4["Cabang Alternatif ✅"]`;
+}
+
+function generateMermaidAegts(aegts, nums, tau, alpha) {
+  const h0 = aegts.entropy_history && aegts.entropy_history.length > 0 ? aegts.entropy_history[0] : 0.65;
+  const n1 = nums[0], n2 = nums[1];
+  return `graph TD
+  Root["[${nums.join(", ")}] (H̄ = ${h0} ${h0 >= tau ? '>=' : '<'} tau)"]
+  Root -->|Mode BFS: Cabang Prospek| S1["[${n1 + n2}, ...] (V >= alpha ✅ Lolos)"]
+  Root -.->|alpha-Pruning| S2["[${n1 * n2}, ...] ✂️ Dipangkas"]
+  Root -.->|alpha-Pruning| S3["Cabang Buruk ✂️ Dipangkas"]
+  S1 -->|Mode DFS: H̄ < tau (Cepat)| Goal["${aegts.expression || '24'} 🎉 Target"]`;
+}
+
+function renderCotTable(cot) {
+  const tbody = document.querySelector("#cotTransitionTable tbody");
+  if (!tbody) return;
+  if (!cot.chainNodes || cot.chainNodes.length < 2) {
+    tbody.innerHTML = `<tr><td colspan="5" class="text-center text-muted">Data lintasan rantai belum tersedia.</td></tr>`;
+    return;
+  }
+  let html = "";
+  for (let i = 0; i < cot.chainNodes.length - 1; i++) {
+    const fromNode = cot.chainNodes[i];
+    const toNode = cot.chainNodes[i + 1];
+    const op = formatActionShort(toNode.action);
+    const valTex = (toNode.value || 0).toFixed(2);
+    html += `
+      <tr>
+        <td><strong>t_${i + 1}</strong></td>
+        <td><code>[${fromNode.numbers.join(", ")}]</code></td>
+        <td><strong class="text-clay">${escapeHtml(op)}</strong></td>
+        <td><code>[${toNode.numbers.join(", ")}]</code></td>
+        <td><span class="badge badge-info">V = ${valTex}</span></td>
+      </tr>
+    `;
+  }
+  tbody.innerHTML = html;
+}
+
+function renderBfsQueueTable(bfs, nums) {
+  const tbody = document.querySelector("#bfsQueueTable tbody");
+  if (!tbody) return;
+  if (!bfs.queueHistory || bfs.queueHistory.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="5" class="text-center text-muted">Data antrean FIFO belum tersedia.</td></tr>`;
+    return;
+  }
+  let html = "";
+  bfs.queueHistory.forEach(q => {
+    html += `
+      <tr>
+        <td><strong>Aras ${q.level}</strong></td>
+        <td><strong>${q.expanded} verteks</strong></td>
+        <td>${q.generated} cabang</td>
+        <td><code>|Q| = ${q.queueSize}</code></td>
+        <td><small>${escapeHtml(q.sample)}</small></td>
+      </tr>
+    `;
+  });
+  tbody.innerHTML = html;
+}
+
+function renderDfsStackTable(dfs, nums) {
+  const tbody = document.querySelector("#dfsStackTable tbody");
+  if (!tbody) return;
+  if (!dfs.stackHistory || dfs.stackHistory.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="5" class="text-center text-muted">Data tumpukan LIFO belum tersedia.</td></tr>`;
+    return;
+  }
+  let html = "";
+  dfs.stackHistory.forEach((s, idx) => {
+    html += `
+      <tr>
+        <td><strong>Fase ${idx + 1}</strong></td>
+        <td><code>${escapeHtml(formatActionShort(s.active))}</code></td>
+        <td><code>|S| = ${s.stackSize}</code></td>
+        <td>${escapeHtml(s.actionDesc)}</td>
+        <td><span class="badge badge-accent">LIFO</span></td>
+      </tr>
+    `;
+  });
+  tbody.innerHTML = html;
+}
+
+function renderAegtsEntropyTable(aegts, tau, alpha) {
+  const tbody = document.querySelector("#aegtsEntropyTable tbody");
+  if (!tbody) return;
+  if (!aegts.entropySchedule || aegts.entropySchedule.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="5" class="text-center text-muted">Data riwayat entropi belum tersedia.</td></tr>`;
+    return;
+  }
+  let html = "";
+  aegts.entropySchedule.forEach(e => {
+    const isBfs = e.entropy >= tau;
+    const condBadge = isBfs 
+      ? `<span class="badge badge-info">H̄ ≥ τ (${e.entropy} ≥ ${tau})</span>`
+      : `<span class="badge badge-success">H̄ &lt; τ (${e.entropy} &lt; ${tau})</span>`;
+    const pruneDesc = isBfs ? `α-Pruning aktif (V &lt; ${alpha})` : "Penyelaman terarah DFS (Hemat token)";
+    html += `
+      <tr>
+        <td><strong>Aras ${e.depth}</strong></td>
+        <td><strong>${e.entropy}</strong></td>
+        <td>${condBadge}</td>
+        <td><strong class="${isBfs ? 'text-cyan' : 'text-emerald'}">${e.mode}</strong></td>
+        <td>${pruneDesc}</td>
+      </tr>
+    `;
+  });
+  tbody.innerHTML = html;
+}
+
+function renderDynamicMorphology(data) {
+  if (!data || !data.strategies) return;
+  const nums = data.input_numbers || [4, 1, 3, 2];
+  const target = data.target || 24;
+  const strats = data.strategies;
+  const cot = strats.cot;
+  const bfs = strats.bfs;
+  const dfs = strats.dfs;
+  const aegts = strats.aegts;
+
+  const tau = parseFloat(document.getElementById("paramTau") ? document.getElementById("paramTau").value : 0.40) || 0.40;
+  const alpha = parseFloat(document.getElementById("paramAlpha") ? document.getElementById("paramAlpha").value : 0.30) || 0.30;
+  const delta = parseFloat(document.getElementById("paramDelta") ? document.getElementById("paramDelta").value : 0.25) || 0.25;
+
+  // 1. Header Information Update
+  const caseBadge = document.getElementById("morphologyActiveCaseBadge");
+  if (caseBadge) {
+    caseBadge.textContent = `[${nums.join(", ")}] → Target ${target}`;
+  }
+  const activeBadge = document.getElementById("morphologyActiveBadge");
+  if (activeBadge) {
+    activeBadge.textContent = `Kasus Aktif: [${nums.join(", ")}]`;
+  }
+
+  // 2. Subtab Pills Status
+  const setPill = (id, success) => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.textContent = success ? "SOLVED" : "FAILED";
+      el.className = `subtab-pill-status ${success ? "solved" : "failed"}`;
+    }
+  };
+  setPill("subtabPillCot", cot.success);
+  setPill("subtabPillBfs", bfs.success);
+  setPill("subtabPillDfs", dfs.success);
+  setPill("subtabPillAegts", aegts.success);
+
+  // 3. Subpane 0: Overview Cards (SVGs & Metadata)
+  const svgWrapCot = document.getElementById("morphSvgWrapCot");
+  if (svgWrapCot) svgWrapCot.innerHTML = renderMorphSvgCot(cot, nums, false);
+
+  const svgWrapBfs = document.getElementById("morphSvgWrapBfs");
+  if (svgWrapBfs) svgWrapBfs.innerHTML = renderMorphSvgBfs(bfs, nums, false);
+
+  const svgWrapDfs = document.getElementById("morphSvgWrapDfs");
+  if (svgWrapDfs) svgWrapDfs.innerHTML = renderMorphSvgDfs(dfs, nums, false);
+
+  const svgWrapAegts = document.getElementById("morphSvgWrapAegts");
+  if (svgWrapAegts) svgWrapAegts.innerHTML = renderMorphSvgAegts(aegts, nums, tau, alpha, delta, false);
+
+  // Overview Mermaid
+  const setMermaid = (id, code) => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = code;
+  };
+  setMermaid("morphMermaidCot", generateMermaidCot(cot, nums));
+  setMermaid("morphMermaidBfs", generateMermaidBfs(bfs, nums));
+  setMermaid("morphMermaidDfs", generateMermaidDfs(dfs, nums));
+  setMermaid("morphMermaidAegts", generateMermaidAegts(aegts, nums, tau, alpha));
+
+  // Overview Badges & Metadata
+  const setBadge = (id, success) => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.textContent = success ? "SOLVED" : "FAILED";
+      el.className = `badge ${success ? "badge-success" : "badge-danger"}`;
+    }
+  };
+  setBadge("badgeMorphCot", cot.success);
+  setBadge("badgeMorphBfs", bfs.success);
+  setBadge("badgeMorphDfs", dfs.success);
+  setBadge("badgeMorphAegts", aegts.success);
+
+  const setText = (id, val) => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = val;
+  };
+  setText("metaNodesCot", `${cot.nodes_evaluated} verteks`);
+  setText("metaMemCot", `${cot.peak_frontier} verteks`);
+  setText("metaNodesBfs", `${bfs.nodes_evaluated} verteks`);
+  setText("metaMemBfs", `${bfs.peak_frontier} verteks`);
+  setText("metaNodesDfs", `${dfs.nodes_evaluated} verteks`);
+  setText("metaMemDfs", `${dfs.peak_frontier} verteks`);
+  setText("metaNodesAegts", `${aegts.nodes_evaluated} verteks (Optimal)`);
+  setText("metaMemAegts", `${aegts.peak_frontier} verteks`);
+
+  const calloutAegts = document.getElementById("calloutAegtsSavings");
+  if (calloutAegts) {
+    const sDfs = data.summary ? data.summary.aegts_savings_vs_dfs_pct : 0;
+    const sBfs = data.summary ? data.summary.aegts_savings_vs_bfs_pct : 0;
+    calloutAegts.innerHTML = `<strong>Efisiensi Cerdas:</strong> Menghemat <strong>${sDfs}%</strong> evaluasi verteks vs DFS dan <strong>${sBfs}%</strong> vs BFS untuk kasus [${nums.join(", ")}].`;
+  }
+
+  // Overview Table
+  setText("tblNodesCot", `${cot.nodes_evaluated} verteks`);
+  setText("tblNodesBfs", `${bfs.nodes_evaluated} verteks`);
+  setText("tblNodesDfs", `${dfs.nodes_evaluated} verteks`);
+  setText("tblNodesAegts", `${aegts.nodes_evaluated} verteks (Paling efisien)`);
+
+  setText("tblMemCot", `${cot.peak_frontier} verteks`);
+  setText("tblMemBfs", `${bfs.peak_frontier} verteks`);
+  setText("tblMemDfs", `${dfs.peak_frontier} verteks`);
+  setText("tblMemAegts", `${aegts.peak_frontier} verteks`);
+
+  setText("tblTimeCot", `${cot.execution_time_ms} ms`);
+  setText("tblTimeBfs", `${bfs.execution_time_ms} ms`);
+  setText("tblTimeDfs", `${dfs.execution_time_ms} ms`);
+  setText("tblTimeAegts", `${aegts.execution_time_ms} ms`);
+
+  setText("tblStatusCot", cot.success ? "SOLVED ✅" : "FAILED ❌");
+  setText("tblStatusBfs", bfs.success ? "SOLVED ✅" : "FAILED ❌");
+  setText("tblStatusDfs", dfs.success ? "SOLVED ✅" : "FAILED ❌");
+  setText("tblStatusAegts", aegts.success ? "SOLVED ✅" : "FAILED ❌");
+
+  // 4. Subpane 1: Linear CoT Decomposition
+  const cotSvgDetail = document.getElementById("cotDetailSvgContainer");
+  if (cotSvgDetail) cotSvgDetail.innerHTML = renderMorphSvgCot(cot, nums, true);
+  renderCotTable(cot);
+  setText("cotDetailNodes", `${cot.nodes_evaluated} verteks`);
+  setText("cotDetailMem", `${cot.peak_frontier} verteks`);
+  setText("cotDetailTime", `${cot.execution_time_ms} ms`);
+  setText("cotDetailLength", `${(cot.chainNodes ? cot.chainNodes.length - 1 : 3)} edge`);
+  setMermaid("cotDetailMermaidCode", generateMermaidCot(cot, nums));
+  setBadge("decompBadgeCot", cot.success);
+
+  // 5. Subpane 2: Pure ToT-BFS Decomposition
+  const bfsSvgDetail = document.getElementById("bfsDetailSvgContainer");
+  if (bfsSvgDetail) bfsSvgDetail.innerHTML = renderMorphSvgBfs(bfs, nums, true);
+  renderBfsQueueTable(bfs, nums);
+  setText("bfsDetailNodes", `${bfs.nodes_evaluated} verteks`);
+  setText("bfsDetailMem", `${bfs.peak_frontier} verteks`);
+  setText("bfsDetailTime", `${bfs.execution_time_ms} ms`);
+  setMermaid("bfsDetailMermaidCode", generateMermaidBfs(bfs, nums));
+  setBadge("decompBadgeBfs", bfs.success);
+
+  // 6. Subpane 3: Pure ToT-DFS Decomposition
+  const dfsSvgDetail = document.getElementById("dfsDetailSvgContainer");
+  if (dfsSvgDetail) dfsSvgDetail.innerHTML = renderMorphSvgDfs(dfs, nums, true);
+  renderDfsStackTable(dfs, nums);
+  setText("dfsDetailNodes", `${dfs.nodes_evaluated} verteks`);
+  setText("dfsDetailMem", `${dfs.peak_frontier} verteks`);
+  setText("dfsDetailTime", `${dfs.execution_time_ms} ms`);
+  setMermaid("dfsDetailMermaidCode", generateMermaidDfs(dfs, nums));
+  setBadge("decompBadgeDfs", dfs.success);
+
+  // 7. Subpane 4: Adaptive AEGTS Decomposition
+  const aegtsSvgDetail = document.getElementById("aegtsDetailSvgContainer");
+  if (aegtsSvgDetail) aegtsSvgDetail.innerHTML = renderMorphSvgAegts(aegts, nums, tau, alpha, delta, true);
+  renderAegtsEntropyTable(aegts, tau, alpha);
+  setText("aegtsDetailNodes", `${aegts.nodes_evaluated} verteks`);
+  setText("aegtsDetailSavingsDfs", `+${data.summary ? data.summary.aegts_savings_vs_dfs_pct : 0}%`);
+  setText("aegtsDetailSavingsBfs", `+${data.summary ? data.summary.aegts_savings_vs_bfs_pct : 0}%`);
+  setText("aegtsDetailMem", `${aegts.peak_frontier} verteks`);
+  setMermaid("aegtsDetailMermaidCode", generateMermaidAegts(aegts, nums, tau, alpha));
+  setBadge("decompBadgeAegts", aegts.success);
+
+  // 8. Sync Quick Preset Active State in Page 2
+  const numsJoined = nums.join(",");
+  const quickBtns = document.querySelectorAll("#morphQuickPresetButtons .btn-quick-preset");
+  quickBtns.forEach(btn => {
+    if (btn.getAttribute("data-nums") === numsJoined) btn.classList.add("active");
+    else btn.classList.remove("active");
+  });
+}
+
+// ============================================================================
+// 7. GRAPH TRACING LOGIC (BAB III: GRAF 8 TITIK)
 // ============================================================================
 let currentGraphMode = "orig";
 
