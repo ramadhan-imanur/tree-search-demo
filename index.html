@@ -3,38 +3,64 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Simulasi Interaktif Tree Search & Machine Learning Reasoning</title>
+  <title>Simulasi Pohon Rentang & Penalaran Tree-of-Thoughts</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="katex/katex.min.css">
   <link rel="stylesheet" href="style.css">
+  <script>
+    (function() {
+      const savedTheme = localStorage.getItem("theme");
+      if (savedTheme === "dark" || (!savedTheme && window.matchMedia("(prefers-color-scheme: dark)").matches)) {
+        document.documentElement.setAttribute("data-theme", "dark");
+      } else {
+        document.documentElement.setAttribute("data-theme", "light");
+      }
+    })();
+  </script>
 </head>
 <body>
 
   <!-- Top Header Navigation -->
   <header class="site-header">
+    <!-- Organic Background Wave (Referencing Soothing/Claymorphic Motif) -->
+    <svg class="header-wave-bg" viewBox="0 0 500 200" preserveAspectRatio="none" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M0,80 C150,160 300,10 500,70 L500,0 L0,0 Z" fill="#FCEEE8" opacity="0.6"/>
+      <path d="M100,120 C240,190 380,50 500,110 L500,0 L100,0 Z" fill="#E8F2FA" opacity="0.55"/>
+    </svg>
+
     <div class="header-container">
       <div class="brand">
-        <div class="brand-badge">PERSONAL RESEARCH PROJECT</div>
-        <h1>Karakterisasi Tree & Spanning Tree</h1>
-        <p class="subtitle">Platform Demonstrasi Multi-Paradigma: Penelusuran Graf Diskrit & Machine Learning Reasoning (Tree-of-Thoughts)</p>
+        <div class="brand-badge">Riset Mandiri Matematika Diskrit</div>
+        <h1>Karakterisasi Tree &amp; Spanning Tree</h1>
+        <p class="subtitle">Simulasi penelusuran graf diskrit dan penalaran Tree-of-Thoughts dengan Adaptive Entropy-Guided Tree Search (AEGTS)</p>
       </div>
       <div class="header-meta">
+        <!-- Theme Toggle Button (Claymorphic) -->
+        <button id="themeToggleBtn" class="theme-toggle-btn" aria-label="Ganti Tema" title="Ganti Mode Gelap / Terang">
+          <span class="theme-icon" id="themeIcon">🌙</span>
+          <span class="theme-text" id="themeText">Mode Gelap</span>
+        </button>
+
         <div id="backendPill" class="backend-pill">
           <span class="status-indicator">●</span>
-          <span id="backendStatusText">Mendeteksi Backend...</span>
+          <span id="backendStatusText">Mendeteksi Mesin...</span>
         </div>
-        <span class="meta-tag">Open Source Demo</span>
+        <span class="meta-tag">Open Source</span>
       </div>
     </div>
 
     <!-- Navigation Tabs -->
     <nav class="nav-tabs">
       <button class="tab-btn active" data-tab="tab-ml">
-        <span class="icon">🧠</span> Inovasi Machine Learning (ToT & AEGTS)
+        Penalaran Mesin (ToT &amp; AEGTS)
       </button>
       <button class="tab-btn" data-tab="tab-graph">
-        <span class="icon">🕸️</span> Tracing Graf Uji 8 Titik (BFS vs DFS)
+        Penelusuran Graf 8 Titik (BFS vs DFS)
       </button>
       <button class="tab-btn" data-tab="tab-benchmark">
-        <span class="icon">📊</span> Laporan Benchmark & Teorema Matematis
+        Hasil Benchmark &amp; Landasan Teori
       </button>
     </nav>
   </header>
@@ -50,8 +76,8 @@
       <!-- Preset Bar -->
       <div class="card preset-card">
         <div class="card-header">
-          <h3>⚡ Pilih Kasus Uji Cepat (Benchmark Presets)</h3>
-          <span class="badge badge-info">Game of 24 Deductive Reasoning</span>
+          <h3>Pilihan Kasus Uji</h3>
+          <span class="badge badge-info">Game of 24</span>
         </div>
         <div class="preset-buttons" id="presetButtons">
           <!-- Populated by JS -->
@@ -59,19 +85,19 @@
             <strong>[1, 2, 3, 4]</strong> <small>Klasik Cepat</small>
           </button>
           <button class="btn btn-preset" data-nums="6,6,6,6">
-            <strong>[6, 6, 6, 6]</strong> <small>Simetri Ekstrem</small>
+            <strong>[6, 6, 6, 6]</strong> <small>Simetri</small>
           </button>
           <button class="btn btn-preset" data-nums="4,5,6,7">
-            <strong>[4, 5, 6, 7]</strong> <small>Kombinatorial Luas</small>
+            <strong>[4, 5, 6, 7]</strong> <small>Kombinatorial</small>
           </button>
           <button class="btn btn-preset" data-nums="4,1,8,7">
-            <strong>[4, 1, 8, 7]</strong> <small>Faktor Perkalian</small>
+            <strong>[4, 1, 8, 7]</strong> <small>Faktor Kali</small>
           </button>
           <button class="btn btn-preset" data-nums="2,4,6,8">
             <strong>[2, 4, 6, 8]</strong> <small>Genap Bertingkat</small>
           </button>
           <button class="btn btn-preset" data-nums="3,3,8,8">
-            <strong>[3, 3, 8, 8]</strong> <small>Pecahan Intermediat</small>
+            <strong>[3, 3, 8, 8]</strong> <small>Pecahan</small>
           </button>
         </div>
       </div>
@@ -81,7 +107,7 @@
         <!-- Number Input Panel -->
         <div class="card">
           <div class="card-header">
-            <h3>🔢 Konfigurasi Masalah Aritmetika Deduktif</h3>
+            <h3>Masukan Bilangan</h3>
           </div>
           <div class="card-body">
             <div class="input-row">
@@ -109,7 +135,7 @@
 
             <div class="action-row">
               <button id="btnRunSearch" class="btn btn-primary btn-large">
-                <span class="icon">🚀</span> Jalankan Komparasi 4 Algoritma
+                Bandingkan 4 Algoritma
               </button>
               <div id="searchSpinner" class="spinner hidden"></div>
             </div>
@@ -119,35 +145,35 @@
         <!-- Hyperparameters Tuning -->
         <div class="card">
           <div class="card-header">
-            <h3>⚙️ Parameter Adaptif AEGTS</h3>
+            <h3>Parameter Penelusuran AEGTS</h3>
             <span class="badge badge-accent">Teori Informasi</span>
           </div>
           <div class="card-body">
             <div class="slider-group">
               <div class="slider-label">
-                <span>Ambang Entropi (&tau;)</span>
+                <span>Ambang Entropi (\(\tau\))</span>
                 <strong id="tauVal">0.40</strong>
               </div>
               <input type="range" id="paramTau" min="0.10" max="0.90" step="0.05" value="0.40">
-              <small class="slider-desc">H &ge; &tau; : Mode BFS (Eksplorasi) | H &lt; &tau; : Mode DFS (Eksploitasi)</small>
+              <small class="slider-desc">\(H \ge \tau\) : Mode BFS (eksplorasi melebar) &nbsp;|&nbsp; \(H &lt; \tau\) : Mode DFS (eksploitasi mendalam)</small>
             </div>
 
             <div class="slider-group">
               <div class="slider-label">
-                <span>Value Pruning (&alpha;)</span>
+                <span>Value Pruning (\(\alpha\))</span>
                 <strong id="alphaVal">0.30</strong>
               </div>
               <input type="range" id="paramAlpha" min="0.10" max="0.60" step="0.05" value="0.30">
-              <small class="slider-desc">Batas nilai minimum simpul yang diizinkan masuk antrean BFS</small>
+              <small class="slider-desc">Batas nilai minimum simpul yang diizinkan masuk ke antrean BFS (\(V \ge \alpha\))</small>
             </div>
 
             <div class="slider-group">
               <div class="slider-label">
-                <span>Early Backtrack (&delta;)</span>
+                <span>Early Backtrack (\(\delta\))</span>
                 <strong id="deltaVal">0.25</strong>
               </div>
               <input type="range" id="paramDelta" min="0.10" max="0.60" step="0.05" value="0.25">
-              <small class="slider-desc">&Delta;V &lt; -&delta; : Pemotongan dini cabang penurun kualitas</small>
+              <small class="slider-desc">\(\Delta V &lt; -\delta\) : Pemangkasan cabang yang menurunkan nilai evaluasi</small>
             </div>
           </div>
         </div>
@@ -156,24 +182,24 @@
       <!-- KPI Summary Cards -->
       <div class="kpi-grid" id="kpiGrid">
         <div class="kpi-card highlight">
-          <div class="kpi-title">Penghematan Token vs DFS</div>
+          <div class="kpi-title">Penghematan Simpul vs DFS</div>
           <div class="kpi-value text-emerald" id="kpiSavingsDfs">+23.3%</div>
-          <div class="kpi-desc">Mereduksi evaluasi simpul yang sia-sia</div>
+          <div class="kpi-desc">Mengurangi evaluasi langkah yang tidak perlu</div>
         </div>
         <div class="kpi-card">
-          <div class="kpi-title">Penghematan Token vs BFS</div>
+          <div class="kpi-title">Penghematan Simpul vs BFS</div>
           <div class="kpi-value text-cyan" id="kpiSavingsBfs">+30.8%</div>
-          <div class="kpi-desc">Pemangkasan eksplorasi melebar berlebih</div>
+          <div class="kpi-desc">Memangkas eksplorasi cabang berlebih</div>
         </div>
         <div class="kpi-card">
           <div class="kpi-title">Memori Puncak Frontier</div>
           <div class="kpi-value" id="kpiPeakMemory">11 simpul</div>
-          <div class="kpi-desc">Frontier tumpukan & antrean gabungan</div>
+          <div class="kpi-desc">Maksimum simpul aktif di antrean atau tumpukan</div>
         </div>
         <div class="kpi-card">
           <div class="kpi-title">Waktu Komputasi Total</div>
           <div class="kpi-value" id="kpiTotalTime">14.2 ms</div>
-          <div class="kpi-desc">4 Algoritma dieksekusi paralel</div>
+          <div class="kpi-desc">Total waktu kalkulasi keempat algoritma</div>
         </div>
       </div>
 
@@ -198,8 +224,8 @@
               <span class="stat-label">Memori Puncak:</span>
               <span class="stat-val" id="memCot">1 simpul</span>
             </div>
-            <div class="expr-box" id="exprCot">(4 * (3 + (1 + 2))) = 24</div>
-            <p class="card-footer-text">Penalaran greedy satu arah tanpa percabangan.</p>
+            <div class="expr-box" id="exprCot">\(4 \times (3 + (1 + 2)) = 24\)</div>
+            <p class="card-footer-text">Penelusuran satu jalur berurutan tanpa cabang atau pelacakan balik.</p>
           </div>
         </div>
 
@@ -222,8 +248,8 @@
               <span class="stat-label">Memori Puncak:</span>
               <span class="stat-val" id="memBfs">4 simpul</span>
             </div>
-            <div class="expr-box" id="exprBfs">(4 * (3 + (1 + 2))) = 24</div>
-            <p class="card-footer-text">Antrean FIFO mengeksplorasi seluruh cabang per aras.</p>
+            <div class="expr-box" id="exprBfs">\(4 \times (3 + (1 + 2)) = 24\)</div>
+            <p class="card-footer-text">Antrean FIFO menelusuri seluruh cabang tingkat demi tingkat.</p>
           </div>
         </div>
 
@@ -246,17 +272,16 @@
               <span class="stat-label">Memori Puncak:</span>
               <span class="stat-val" id="memDfs">47 simpul</span>
             </div>
-            <div class="expr-box" id="exprDfs">(1 * (2 * (3 * 4))) = 24</div>
-            <p class="card-footer-text">Tumpukan LIFO menyelam dalam, boros saat salah arah.</p>
+            <div class="expr-box" id="exprDfs">\(1 \times (2 \times (3 \times 4)) = 24\)</div>
+            <p class="card-footer-text">Tumpukan LIFO menelusuri satu cabang hingga tuntas, lalu melacak balik.</p>
           </div>
         </div>
 
-        <!-- 4. Adaptive AEGTS (Our Innovation) -->
+        <!-- 4. Adaptive AEGTS -->
         <div class="card strategy-card star-card" id="cardAegts">
           <div class="card-header">
             <div class="star-title">
-              <span class="star-icon">★</span>
-              <h4>4. Adaptive AEGTS (Inovasi)</h4>
+              <h4>4. Adaptive AEGTS</h4>
             </div>
             <span class="badge badge-success" id="badgeAegts">SOLVED</span>
           </div>
@@ -266,7 +291,7 @@
               <strong class="stat-val text-emerald" id="nodesAegts">92 simpul</strong>
             </div>
             <div class="stat-row">
-              <span class="stat-label">Efisiensi Token:</span>
+              <span class="stat-label">Efisiensi Simpul:</span>
               <span class="badge badge-pill-emerald" id="savingsBadge">-23.3% vs DFS</span>
             </div>
             <div class="stat-row">
@@ -277,9 +302,9 @@
               <span class="stat-label">Memori Puncak:</span>
               <span class="stat-val" id="memAegts">11 simpul</span>
             </div>
-            <div class="expr-box highlight-expr" id="exprAegts">(4 * (3 + (1 + 2))) = 24</div>
+            <div class="expr-box highlight-expr" id="exprAegts">\(4 \times (3 + (1 + 2)) = 24\)</div>
             <div class="entropy-track" id="entropyTrack">
-              <small>Rerata Entropi Shannon: <strong>0.609</strong></small>
+              <small>Rerata Entropi Shannon (\(\bar{\mathcal{H}}\)): <strong>0.609</strong></small>
             </div>
           </div>
         </div>
@@ -290,7 +315,7 @@
         <!-- Visual Comparison Chart -->
         <div class="card">
           <div class="card-header">
-            <h3>📊 Perbandingan Ukuran Ruang Pencarian (Simpul Dievaluasi)</h3>
+            <h3>Perbandingan Jumlah Simpul yang Dievaluasi</h3>
           </div>
           <div class="card-body">
             <div class="chart-container" id="barChartContainer">
@@ -302,8 +327,8 @@
         <!-- Interactive Deductive Tree Visualizer -->
         <div class="card">
           <div class="card-header">
-            <h3>🌲 Pohon Penalaran Deduktif AEGTS (Thought Tree)</h3>
-            <span class="badge badge-accent">Root to Goal Path</span>
+            <h3>Pohon Pemikiran AEGTS</h3>
+            <span class="badge badge-accent">Lintasan Akar ke Solusi</span>
           </div>
           <div class="card-body">
             <div class="tree-container" id="treeContainer">
@@ -323,20 +348,20 @@
       <!-- Graph Controls Bar -->
       <div class="card">
         <div class="card-header">
-          <h3>🕸️ Studi Kasus Graf Uji 8 Titik (|V| = 8, |E| = 11) — Makalah Bab III</h3>
+          <h3>Studi Kasus Graf 8 Titik (\(|V| = 8\), \(|E| = 11\)), Makalah Bab III</h3>
           <div class="mode-toggles">
-            <button class="btn btn-mode active" id="btnModeOrig">Graf Asal (11 Sisi)</button>
-            <button class="btn btn-mode" id="btnModeBfs">Pohon BFS (h = 4, Geodesik)</button>
-            <button class="btn btn-mode" id="btnModeDfs">Pohon DFS (h = 7, Back Edges)</button>
+            <button class="btn btn-mode active" id="btnModeOrig">Graf Asal (\(|E| = 11\))</button>
+            <button class="btn btn-mode" id="btnModeBfs">Pohon Rentang BFS (\(h = 4\))</button>
+            <button class="btn btn-mode" id="btnModeDfs">Pohon Rentang DFS (\(h = 7\))</button>
           </div>
         </div>
         <div class="card-body">
           <div class="graph-legend">
-            <span class="legend-item"><span class="dot dot-root"></span> Akar (a)</span>
-            <span class="legend-item"><span class="dot dot-node"></span> Titik Graf (V)</span>
-            <span class="legend-item"><span class="line line-tree"></span> Sisi Pohon (Tree Edge)</span>
-            <span class="legend-item"><span class="line line-chord"></span> Sisi Chord / Dibuang</span>
-            <span class="legend-item"><span class="line line-back"></span> Back Edge (Deteksi Sikel)</span>
+            <span class="legend-item"><span class="dot dot-root"></span> Akar (\(v_0 = a\))</span>
+            <span class="legend-item"><span class="dot dot-node"></span> Titik Graf (\(V\))</span>
+            <span class="legend-item"><span class="line line-tree"></span> Sisi Pohon Rentang (\(E_T\))</span>
+            <span class="legend-item"><span class="line line-chord"></span> Sisi Non-Pohon (\(E \setminus E_T\))</span>
+            <span class="legend-item"><span class="line line-back"></span> Sisi Balik (\(\text{Back Edge}\))</span>
           </div>
 
           <!-- SVG Graph Visualizer -->
@@ -350,7 +375,7 @@
       <div class="grid grid-1-1">
         <div class="card">
           <div class="card-header">
-            <h3>📋 Tabel Penelusuran Langkah demi Langkah (Tracing Steps)</h3>
+            <h3>Tabel Penelusuran Langkah per Langkah</h3>
             <span class="badge badge-info" id="tracingBadge">Algoritma BFS Spanning Tree</span>
           </div>
           <div class="card-body">
@@ -375,7 +400,7 @@
 
         <div class="card">
           <div class="card-header">
-            <h3>⚖️ Analisis Komparatif Morfologi (BFS vs DFS)</h3>
+            <h3>Perbandingan Karakteristik BFS dan DFS</h3>
           </div>
           <div class="card-body">
             <table class="table table-bordered">
@@ -389,28 +414,28 @@
               <tbody>
                 <tr>
                   <td><strong>Struktur Data</strong></td>
-                  <td>Antrean FIFO (Queue)</td>
-                  <td>Tumpukan LIFO (Stack) / Rekursi</td>
+                  <td>Antrean FIFO (\(Q\))</td>
+                  <td>Tumpukan LIFO (\(S\))</td>
                 </tr>
                 <tr>
-                  <td><strong>Morfologi Pohon</strong></td>
-                  <td><span class="badge badge-info">Dangkal & Melebar</span> (h = 4)</td>
-                  <td><span class="badge badge-accent">Tinggi & Ramping</span> (h = 7)</td>
+                  <td><strong>Bentuk Pohon</strong></td>
+                  <td><span class="badge badge-info">Melebar</span> (\(h = 4\))</td>
+                  <td><span class="badge badge-accent">Mendalam</span> (\(h = 7\))</td>
                 </tr>
                 <tr>
                   <td><strong>Jarak Terpendek</strong></td>
-                  <td><strong class="text-emerald">Terjamin Mutlak</strong> (Geodesik)</td>
-                  <td>Tidak Terjamin (Memutar jauh)</td>
+                  <td><strong class="text-emerald">Terjamin</strong> (lintasan geodesik)</td>
+                  <td>Tidak terjamin (dapat memutar)</td>
                 </tr>
                 <tr>
-                  <td><strong>Tipe Sisi Non-Pohon</strong></td>
-                  <td>Cross-edges (Antarcabang)</td>
-                  <td><strong class="text-amber">Back Edges</strong> (Ke leluhur)</td>
+                  <td><strong>Sisi Non-Pohon</strong></td>
+                  <td>Sisi silang (\(\text{cross-edges}\))</td>
+                  <td><strong class="text-amber">Sisi balik</strong> (\(\text{back-edges}\))</td>
                 </tr>
                 <tr>
-                  <td><strong>Aplikasi Utama</strong></td>
-                  <td>STP Switch LAN, Rute Terpendek</td>
-                  <td>Deteksi Deadlock, Deteksi Sikel</td>
+                  <td><strong>Penerapan Umum</strong></td>
+                  <td>Protokol spanning tree jaringan, rute terpendek</td>
+                  <td>Deteksi siklus, analisis ketergantungan</td>
                 </tr>
               </tbody>
             </table>
@@ -429,8 +454,8 @@
         <!-- Benchmark Summary Table -->
         <div class="card">
           <div class="card-header">
-            <h3>📈 Rekapitulasi Uji Benchmark Riil (25 Kasus Game of 24)</h3>
-            <span class="badge badge-success">Data Terverifikasi</span>
+            <h3>Hasil Pengujian 25 Kasus Game of 24</h3>
+            <span class="badge badge-success">Hasil Uji</span>
           </div>
           <div class="card-body">
             <table class="table table-striped">
@@ -466,8 +491,8 @@
                   <td>40.1 simpul</td>
                 </tr>
                 <tr class="table-highlight">
-                  <td><strong>Adaptive AEGTS (Inovasi)</strong></td>
-                  <td><strong>60.0% – 80.0%</strong></td>
+                  <td><strong>Adaptive AEGTS</strong></td>
+                  <td><strong>60.0% s.d. 80.0%</strong></td>
                   <td><strong class="text-emerald">114.5 (s.d. 94.8)</strong></td>
                   <td><span class="badge badge-pill-emerald">Hemat 71.6%</span></td>
                   <td><strong>8.8 simpul</strong></td>
@@ -475,7 +500,7 @@
               </tbody>
             </table>
             <p class="card-footer-text">
-              *AEGTS menghemat <strong>71.6%</strong> simpul dibanding DFS murni dan <strong>28.6%</strong> dibanding BFS murni pada parameter &tau; = 0.70.
+              *Pada parameter \(\tau = 0.70\), AEGTS mengevaluasi <strong>71.6%</strong> lebih sedikit simpul dibanding DFS murni dan <strong>28.6%</strong> lebih sedikit dibanding BFS murni.
             </p>
           </div>
         </div>
@@ -483,21 +508,33 @@
         <!-- Mathematical Foundations Box -->
         <div class="card">
           <div class="card-header">
-            <h3>📐 Formulasi Matematis Kunci</h3>
-            <span class="badge badge-accent">Rigor Formal</span>
+            <h3>Rumus Matematis yang Digunakan</h3>
+            <span class="badge badge-accent">Landasan Teori</span>
           </div>
           <div class="card-body math-box">
             <h4>1. Teorema Invarian Pohon (Epp, 2020)</h4>
-            <div class="math-eq">T \text{ adalah Pohon} \implies |E| = |V| - 1</div>
-            <p class="math-desc">Dibuktikan dengan Induksi Matematika pada ordo titik menggunakan Lema Daun.</p>
+            <div class="math-eq" data-tex="T \text{ adalah pohon} \implies |E| = |V| - 1">
+              $$T \text{ adalah pohon} \implies |E| = |V| - 1$$
+            </div>
+            <p class="math-desc">Setiap pohon dengan \(|V|\) simpul selalu memiliki tepat \(|E| = |V| - 1\) sisi tanpa memuat sikel.</p>
 
-            <h4>2. Entropi Shannon Ternormalisasi (Cover & Thomas, 2006)</h4>
-            <div class="math-eq">\bar{\mathcal{H}}(s) = -\frac{1}{\ln k} \sum_{i=1}^{k} \pi_\theta(a_i|s) \ln \pi_\theta(a_i|s) \in [0, 1]</div>
-            <p class="math-desc">Mengukur ketidakpastian distribusi kebijakan untuk beralih antara rezim BFS dan DFS.</p>
+            <h4>2. Entropi Shannon Ternormalisasi (Cover &amp; Thomas, 2006)</h4>
+            <div class="math-eq" data-tex="\bar{\mathcal{H}}(s) = -\frac{1}{\ln k} \sum_{i=1}^{k} \pi_\theta(a_i \mid s) \ln \pi_\theta(a_i \mid s) \in [0, 1]">
+              $$\bar{\mathcal{H}}(s) = -\frac{1}{\ln k} \sum_{i=1}^{k} \pi_\theta(a_i \mid s) \ln \pi_\theta(a_i \mid s) \in [0, 1]$$
+            </div>
+            <p class="math-desc">Mengukur derajat ketidakpastian pilihan aksi (\(k = |\mathcal{A}(s)|\)) untuk menentukan peralihan adaptif antara mode BFS dan DFS.</p>
 
-            <h4>3. Syarat Pemotongan Dini (Predictive Early Backtracking)</h4>
-            <div class="math-eq">\Delta V(s, a) = V_\phi\big(\mathcal{T}(s, a)\big) - V_\phi(s) < -\delta</div>
-            <p class="math-desc">Mencegah akumulasi halusinasi dengan memotong subpohon sebelum menyelam lebih dalam.</p>
+            <h4>3. Kriteria Pemangkasan Dini (Early Backtracking)</h4>
+            <div class="math-eq" data-tex="\Delta V(s, a) = V_\phi\big(\mathcal{T}(s, a)\big) - V_\phi(s) < -\delta">
+              $$\Delta V(s, a) = V_\phi\big(\mathcal{T}(s, a)\big) - V_\phi(s) &lt; -\delta$$
+            </div>
+            <p class="math-desc">Memangkas subpohon evaluasi lebih awal saat penurunan evaluasi keadaan (\(\Delta V\)) melebihi batas toleransi parameter \(\delta\).</p>
+
+            <h4>4. Bilangan Siklomatik Graf (Euler &amp; Kirchhoff)</h4>
+            <div class="math-eq" data-tex="\mu(G) = |E| - |V| + 1 = 11 - 8 + 1 = 4">
+              $$\mu(G) = |E| - |V| + 1 = 11 - 8 + 1 = 4$$
+            </div>
+            <p class="math-desc">Jumlah independen siklus fundamental dalam graf terhubung \(G\), setara dengan jumlah sisi yang harus dieliminasi untuk mereduksi graf menjadi pohon rentang (\(|E \setminus E_T| = 4\)).</p>
           </div>
         </div>
       </div>
@@ -509,11 +546,14 @@
   <!-- Footer -->
   <footer class="site-footer">
     <div class="footer-container">
-      <p>© 2026 Interactive Tree Search &amp; Machine Learning Reasoning — Personal Project by Ramadhan Imanur.</p>
-      <p>Proyek eksplorasi terbuka untuk algoritma graf diskrit, Tree-of-Thoughts, dan Adaptive Entropy-Guided Tree Search (AEGTS).</p>
+      <p>© 2026 Interactive Tree Search &amp; Machine Learning Reasoning. Proyek mandiri Ramadhan Imanur.</p>
+      <p>Eksplorasi algoritma graf diskrit dan penalaran Tree-of-Thoughts (AEGTS).</p>
     </div>
   </footer>
 
+  <!-- Mathematical Typesetting (KaTeX) & Application Logic -->
+  <script src="katex/katex.min.js"></script>
+  <script src="katex/contrib/auto-render.min.js"></script>
   <script src="app.js"></script>
 </body>
 </html>

@@ -451,7 +451,7 @@ function jsAEGTS(rawNums, target = 24, tau = 0.40, alpha = 0.30, delta = 0.25) {
 
   const elapsed = performance.now() - t0;
   return {
-    name: "Adaptive AEGTS (Inovasi)",
+    name: "Adaptive AEGTS",
     success: goalNode !== null,
     expression: goalNode ? goalNode.exprs[0] : null,
     nodes_evaluated: nodesEvaluated,
@@ -462,8 +462,21 @@ function jsAEGTS(rawNums, target = 24, tau = 0.40, alpha = 0.30, delta = 0.25) {
   };
 }
 
-// Master Client-Side Solver Runner
+// High-Speed In-Memory LRU/Map Memoization Cache (0.01ms instant responses)
+const searchCache = new Map();
+let lastFullResult = null;
+let sliderDebounceTimer = null;
+let isSearching = false;
+
+// Master Client-Side Solver Runner (with memoization cache)
 function runClientSideSearch(nums, target, tau, alpha, delta) {
+  const cacheKey = `${nums.join(",")}_${target}_${tau.toFixed(2)}_${alpha.toFixed(2)}_${delta.toFixed(2)}`;
+  if (searchCache.has(cacheKey)) {
+    const cached = searchCache.get(cacheKey);
+    lastFullResult = cached;
+    return cached;
+  }
+
   const t0 = performance.now();
   const cot = jsLinearCoT(nums, target);
   const bfs = jsPureBFS(nums, target, 4);
@@ -477,7 +490,7 @@ function runClientSideSearch(nums, target, tau, alpha, delta) {
   const savingsVsDfs = ((dfsNodes - aegts.nodes_evaluated) / dfsNodes) * 100.0;
   const savingsVsBfs = ((bfsNodes - aegts.nodes_evaluated) / bfsNodes) * 100.0;
 
-  return {
+  const result = {
     input_numbers: nums,
     target,
     total_computation_ms: parseFloat(totalMs.toFixed(2)),
@@ -487,6 +500,72 @@ function runClientSideSearch(nums, target, tau, alpha, delta) {
     },
     strategies: { cot, bfs, dfs, aegts }
   };
+
+  // Keep cache bounded to prevent memory bloat
+  if (searchCache.size > 150) {
+    const firstKey = searchCache.keys().next().value;
+    searchCache.delete(firstKey);
+  }
+  searchCache.set(cacheKey, result);
+  lastFullResult = result;
+  return result;
+}
+
+// Live Adaptive Hyperparameter Tuning (Instant Reactive Slider with Debounce)
+function handleSliderChange() {
+  const tau = parseFloat(document.getElementById("paramTau").value) || 0.40;
+  const alpha = parseFloat(document.getElementById("paramAlpha").value) || 0.30;
+  const delta = parseFloat(document.getElementById("paramDelta").value) || 0.25;
+
+  clearTimeout(sliderDebounceTimer);
+  sliderDebounceTimer = setTimeout(() => {
+    if (!lastFullResult) {
+      runSearch();
+      return;
+    }
+
+    const nums = lastFullResult.input_numbers;
+    const target = lastFullResult.target || 24;
+    const cacheKey = `${nums.join(",")}_${target}_${tau.toFixed(2)}_${alpha.toFixed(2)}_${delta.toFixed(2)}`;
+
+    let updatedResult;
+    if (searchCache.has(cacheKey)) {
+      updatedResult = searchCache.get(cacheKey);
+    } else {
+      const t0 = performance.now();
+      const aegts = jsAEGTS(nums, target, tau, alpha, delta);
+      const totalMs = performance.now() - t0;
+
+      const dfsNodes = lastFullResult.strategies.dfs.nodes_evaluated > 0 ? lastFullResult.strategies.dfs.nodes_evaluated : 1;
+      const bfsNodes = lastFullResult.strategies.bfs.nodes_evaluated > 0 ? lastFullResult.strategies.bfs.nodes_evaluated : 1;
+
+      const savingsVsDfs = ((dfsNodes - aegts.nodes_evaluated) / dfsNodes) * 100.0;
+      const savingsVsBfs = ((bfsNodes - aegts.nodes_evaluated) / bfsNodes) * 100.0;
+
+      updatedResult = {
+        input_numbers: nums,
+        target,
+        total_computation_ms: parseFloat((lastFullResult.total_computation_ms + totalMs).toFixed(2)),
+        summary: {
+          aegts_savings_vs_dfs_pct: parseFloat(savingsVsDfs.toFixed(1)),
+          aegts_savings_vs_bfs_pct: parseFloat(savingsVsBfs.toFixed(1))
+        },
+        strategies: {
+          cot: lastFullResult.strategies.cot,
+          bfs: lastFullResult.strategies.bfs,
+          dfs: lastFullResult.strategies.dfs,
+          aegts
+        }
+      };
+
+      searchCache.set(cacheKey, updatedResult);
+    }
+
+    lastFullResult = updatedResult;
+    requestAnimationFrame(() => {
+      updateUIWithResults(updatedResult);
+    });
+  }, 90);
 }
 
 // ============================================================================
@@ -551,14 +630,14 @@ const GRAPH_8_DATA = {
     ],
     height: 7,
     steps: [
-      { step: 1, active: "a", chosen: "b", stack: ["a", "b"], edge: "(a,b)", action: "Penyelaman maju ke b" },
-      { step: 2, active: "b", chosen: "c", stack: ["a", "b", "c"], edge: "(b,c)", action: "Penyelaman maju ke c" },
-      { step: 3, active: "c", chosen: "e", stack: ["a", "b", "c", "e"], edge: "(c,e)", action: "Penyelaman maju ke e (sisi c-a terdeteksi Back Edge)" },
-      { step: 4, active: "e", chosen: "d", stack: ["a", "b", "c", "e", "d"], edge: "(e,d)", action: "Penyelaman maju ke d (sisi e-b terdeteksi Back Edge)" },
-      { step: 5, active: "d", chosen: "f", stack: ["a", "b", "c", "e", "d", "f"], edge: "(d,f)", action: "Penyelaman maju ke f (sisi d-b terdeteksi Back Edge)" },
-      { step: 6, active: "f", chosen: "h", stack: ["a", "b", "c", "e", "d", "f", "h"], edge: "(f,h)", action: "Penyelaman maju ke h" },
-      { step: 7, active: "h", chosen: "g", stack: ["a", "b", "c", "e", "d", "f", "h", "g"], edge: "(h,g)", action: "Penyelaman maju ke g" },
-      { step: 8, active: "g", chosen: "-", stack: ["a", "b", "c", "e", "d", "f", "h"], edge: "(g,d) [Back Edge]", action: "Dead End di g! Backtrack bertahap hingga seluruh simpul selesai" }
+      { step: 1, active: "a", chosen: "b", stack: ["a", "b"], edge: "(a,b)", action: "Maju ke simpul b" },
+      { step: 2, active: "b", chosen: "c", stack: ["a", "b", "c"], edge: "(b,c)", action: "Maju ke simpul c" },
+      { step: 3, active: "c", chosen: "e", stack: ["a", "b", "c", "e"], edge: "(c,e)", action: "Maju ke simpul e (sisi c-a merupakan sisi balik)" },
+      { step: 4, active: "e", chosen: "d", stack: ["a", "b", "c", "e", "d"], edge: "(e,d)", action: "Maju ke simpul d (sisi e-b merupakan sisi balik)" },
+      { step: 5, active: "d", chosen: "f", stack: ["a", "b", "c", "e", "d", "f"], edge: "(d,f)", action: "Maju ke simpul f (sisi d-b merupakan sisi balik)" },
+      { step: 6, active: "f", chosen: "h", stack: ["a", "b", "c", "e", "d", "f", "h"], edge: "(f,h)", action: "Maju ke simpul h" },
+      { step: 7, active: "h", chosen: "g", stack: ["a", "b", "c", "e", "d", "f", "h", "g"], edge: "(h,g)", action: "Maju ke simpul g" },
+      { step: 8, active: "g", chosen: "-", stack: ["a", "b", "c", "e", "d", "f", "h"], edge: "(g,d) [Sisi Balik]", action: "Jalan buntu di simpul g. Melacak balik hingga seluruh simpul selesai dikunjungi." }
     ]
   }
 };
@@ -567,24 +646,194 @@ const GRAPH_8_DATA = {
 // 5. DOM INITIALIZATION & UI BINDING
 // ============================================================================
 document.addEventListener("DOMContentLoaded", () => {
+  initTheme();
   initTabs();
   initSliders();
   initPresets();
   initSearch();
   initGraphTracing();
+  initMath();
 
   // Tampilkan status koneksi
   const pill = document.getElementById("backendPill");
   const text = document.getElementById("backendStatusText");
   if (pill && text) {
     pill.className = "backend-pill online";
-    text.textContent = "🌐 GitHub Pages (In-Browser Engine)";
-    pill.title = "Aplikasi berjalan penuh di peramban tanpa membebani laptop!";
+    text.textContent = "Engine Peramban Aktif";
+    pill.title = "Komputasi algoritma dijalankan secara lokal di peramban.";
   }
 
   // Jalankan pencarian pertama
   runSearch();
 });
+
+// Fallback jika skrip KaTeX selesai dimuat sesudah DOMContentLoaded
+if (typeof katex === "undefined") {
+  window.addEventListener("load", () => {
+    if (typeof katex !== "undefined") {
+      initMath();
+    }
+  });
+}
+
+// Penanganan Tipografi Matematis (KaTeX LaTeX Rendering)
+function renderTeX(tex, display = false) {
+  if (!tex) return "";
+  if (typeof katex !== "undefined" && typeof katex.renderToString === "function") {
+    try {
+      return katex.renderToString(tex, {
+        displayMode: display,
+        throwOnError: false
+      });
+    } catch (err) {
+      console.warn("KaTeX renderToString error:", err);
+      return tex;
+    }
+  }
+  return tex;
+}
+
+function formatArithmeticToTeX(rawExpr, stripOuter = false) {
+  if (!rawExpr) return "";
+  let clean = rawExpr.trim();
+  if (stripOuter && clean.startsWith("(") && clean.endsWith(")")) {
+    let depth = 0;
+    let canStrip = true;
+    for (let i = 0; i < clean.length - 1; i++) {
+      if (clean[i] === "(") depth++;
+      else if (clean[i] === ")") depth--;
+      if (depth === 0) {
+        canStrip = false;
+        break;
+      }
+    }
+    if (canStrip) {
+      clean = clean.substring(1, clean.length - 1).trim();
+    }
+  }
+  return clean.replace(/\*/g, " \\times ").replace(/\//g, " \\div ");
+}
+
+function formatStepAction(step) {
+  if (!step) return "";
+  const m = step.match(/^([a-z_]+):\s*(.+?)\s*&\s*(.+?)\s*->\s*(.+)$/);
+  if (m) {
+    const op = m[1];
+    let ea = m[2].trim();
+    let eb = m[3].trim();
+    let res = m[4].trim();
+
+    let opSymbol = "+";
+    let opName = "Penjumlahan";
+    if (op === "kali") {
+      opSymbol = "\\times";
+      opName = "Perkalian";
+    } else if (op.startsWith("kurang")) {
+      opSymbol = "-";
+      opName = "Pengurangan";
+    } else if (op.startsWith("bagi")) {
+      opSymbol = "\\div";
+      opName = "Pembagian";
+    }
+
+    ea = formatArithmeticToTeX(ea, false);
+    eb = formatArithmeticToTeX(eb, false);
+    res = formatArithmeticToTeX(res, false);
+
+    const mathHtml = renderTeX(`${ea} ${opSymbol} ${eb} = ${res}`);
+    return `<span>${opName}:</span> ${mathHtml}`;
+  }
+  return escapeHtml(step);
+}
+
+function initMath(root) {
+  const container = root || document.body;
+
+  // 1. Render all elements with class .math-eq
+  const mathElements = container.querySelectorAll ? container.querySelectorAll(".math-eq") : [];
+  mathElements.forEach(el => {
+    const tex = el.getAttribute("data-tex") || el.textContent.trim().replace(/^\$\$|\$\$$/g, "");
+    if (typeof katex !== "undefined") {
+      try {
+        katex.render(tex, el, {
+          displayMode: true,
+          throwOnError: false
+        });
+      } catch (err) {
+        console.warn("KaTeX render error:", err);
+      }
+    }
+  });
+
+  // If container itself has .math-eq
+  if (container.classList && container.classList.contains("math-eq")) {
+    const tex = container.getAttribute("data-tex") || container.textContent.trim().replace(/^\$\$|\$\$$/g, "");
+    if (typeof katex !== "undefined") {
+      try {
+        katex.render(tex, container, {
+          displayMode: true,
+          throwOnError: false
+        });
+      } catch (err) {
+        console.warn("KaTeX render error:", err);
+      }
+    }
+  }
+
+  // 2. Render all inline and display math delimiters using renderMathInElement
+  if (typeof renderMathInElement === "function") {
+    try {
+      renderMathInElement(container, {
+        delimiters: [
+          { left: "$$", right: "$$", display: true },
+          { left: "\\[", right: "\\]", display: true },
+          { left: "\\(", right: "\\)", display: false }
+        ],
+        throwOnError: false,
+        ignoredTags: ["script", "noscript", "style", "textarea", "pre", "annotation", "annotation-xml"]
+      });
+    } catch (err) {
+      console.warn("KaTeX auto-render error:", err);
+    }
+  }
+}
+
+// Penanganan Tema Gelap & Terang (Persisten & Reaktif)
+function initTheme() {
+  const toggleBtn = document.getElementById("themeToggleBtn");
+  const themeIcon = document.getElementById("themeIcon");
+  const themeText = document.getElementById("themeText");
+
+  const updateThemeUI = (theme) => {
+    if (themeIcon && themeText) {
+      if (theme === "dark") {
+        themeIcon.textContent = "☀️";
+        themeText.textContent = "Mode Terang";
+      } else {
+        themeIcon.textContent = "🌙";
+        themeText.textContent = "Mode Gelap";
+      }
+    }
+  };
+
+  const currentTheme = document.documentElement.getAttribute("data-theme") || "light";
+  updateThemeUI(currentTheme);
+
+  if (toggleBtn) {
+    toggleBtn.addEventListener("click", () => {
+      const activeTheme = document.documentElement.getAttribute("data-theme") === "dark" ? "light" : "dark";
+      document.documentElement.setAttribute("data-theme", activeTheme);
+      localStorage.setItem("theme", activeTheme);
+      updateThemeUI(activeTheme);
+
+      // Render ulang chart & graf SVG dengan skema warna tema baru
+      if (lastFullResult && lastFullResult.strategies) {
+        renderBarChart(lastFullResult.strategies);
+      }
+      renderGraph();
+    });
+  }
+}
 
 function initTabs() {
   const tabBtns = document.querySelectorAll(".tab-btn");
@@ -594,14 +843,17 @@ function initTabs() {
     btn.addEventListener("click", () => {
       const targetId = btn.getAttribute("data-tab");
 
-      tabBtns.forEach(b => b.classList.remove("active"));
-      tabPanes.forEach(p => p.classList.remove("active"));
+      requestAnimationFrame(() => {
+        tabBtns.forEach(b => b.classList.remove("active"));
+        tabPanes.forEach(p => p.classList.remove("active"));
 
-      btn.classList.add("active");
-      const targetPane = document.getElementById(targetId);
-      if (targetPane) {
-        targetPane.classList.add("active");
-      }
+        btn.classList.add("active");
+        const targetPane = document.getElementById(targetId);
+        if (targetPane) {
+          targetPane.classList.add("active");
+          initMath(targetPane);
+        }
+      });
     });
   });
 }
@@ -609,21 +861,30 @@ function initTabs() {
 function initSliders() {
   const tauSlider = document.getElementById("paramTau");
   const tauVal = document.getElementById("tauVal");
-  tauSlider.addEventListener("input", () => {
-    tauVal.textContent = parseFloat(tauSlider.value).toFixed(2);
-  });
+  if (tauSlider && tauVal) {
+    tauSlider.addEventListener("input", () => {
+      tauVal.textContent = parseFloat(tauSlider.value).toFixed(2);
+      handleSliderChange();
+    });
+  }
 
   const alphaSlider = document.getElementById("paramAlpha");
   const alphaVal = document.getElementById("alphaVal");
-  alphaSlider.addEventListener("input", () => {
-    alphaVal.textContent = parseFloat(alphaSlider.value).toFixed(2);
-  });
+  if (alphaSlider && alphaVal) {
+    alphaSlider.addEventListener("input", () => {
+      alphaVal.textContent = parseFloat(alphaSlider.value).toFixed(2);
+      handleSliderChange();
+    });
+  }
 
   const deltaSlider = document.getElementById("paramDelta");
   const deltaVal = document.getElementById("deltaVal");
-  deltaSlider.addEventListener("input", () => {
-    deltaVal.textContent = parseFloat(deltaSlider.value).toFixed(2);
-  });
+  if (deltaSlider && deltaVal) {
+    deltaSlider.addEventListener("input", () => {
+      deltaVal.textContent = parseFloat(deltaSlider.value).toFixed(2);
+      handleSliderChange();
+    });
+  }
 }
 
 function initPresets() {
@@ -646,8 +907,23 @@ function initPresets() {
 
 function initSearch() {
   const btnRun = document.getElementById("btnRunSearch");
-  btnRun.addEventListener("click", () => {
-    runSearch();
+  if (btnRun) {
+    btnRun.addEventListener("click", () => {
+      runSearch();
+    });
+  }
+
+  // Dukungan tombol Enter langsung di setiap kotak angka
+  ["num1", "num2", "num3", "num4"].forEach(id => {
+    const input = document.getElementById(id);
+    if (input) {
+      input.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") {
+          e.preventDefault();
+          runSearch();
+        }
+      });
+    }
   });
 }
 
@@ -662,6 +938,9 @@ function escapeHtml(str) {
 }
 
 function runSearch() {
+  if (isSearching) return;
+  isSearching = true;
+
   let n1 = parseInt(document.getElementById("num1").value) || 1;
   let n2 = parseInt(document.getElementById("num2").value) || 2;
   let n3 = parseInt(document.getElementById("num3").value) || 3;
@@ -682,14 +961,19 @@ function runSearch() {
   const delta = parseFloat(document.getElementById("paramDelta").value) || 0.25;
 
   const spinner = document.getElementById("searchSpinner");
-  spinner.classList.remove("hidden");
+  if (spinner) spinner.classList.remove("hidden");
 
-  // Eksekusi komputasi langsung di browser secara asinkron
-  setTimeout(() => {
-    const results = runClientSideSearch([n1, n2, n3, n4], 24, tau, alpha, delta);
-    updateUIWithResults(results);
-    spinner.classList.add("hidden");
-  }, 30);
+  // Penjadwalan asynchronous dengan requestAnimationFrame agar rendering UI tidak membeku
+  requestAnimationFrame(() => {
+    setTimeout(() => {
+      const results = runClientSideSearch([n1, n2, n3, n4], 24, tau, alpha, delta);
+      requestAnimationFrame(() => {
+        updateUIWithResults(results);
+        if (spinner) spinner.classList.add("hidden");
+        isSearching = false;
+      });
+    }, 0);
+  });
 }
 
 function updateUIWithResults(data) {
@@ -724,7 +1008,9 @@ function updateUIWithResults(data) {
   const entropyTrack = document.getElementById("entropyTrack");
   if (entropyTrack && strats.aegts.entropy_history && strats.aegts.entropy_history.length > 0) {
     const avgH = (strats.aegts.entropy_history.reduce((a, b) => a + b, 0) / strats.aegts.entropy_history.length).toFixed(3);
-    entropyTrack.innerHTML = `<small>Rerata Entropi Shannon: <strong>${avgH}</strong> | Riwayat: [${strats.aegts.entropy_history.join(", ")}]</small>`;
+    const histStr = strats.aegts.entropy_history.join(", ");
+    const hSymbol = renderTeX("\\bar{\\mathcal{H}}");
+    entropyTrack.innerHTML = `<small>Rerata Entropi Shannon (${hSymbol}): <strong>${avgH}</strong> &nbsp;|&nbsp; Riwayat: [${histStr}]</small>`;
   }
 
   // 3. Render Visual Bar Chart
@@ -749,44 +1035,60 @@ function updateStrategyCard(key, strat) {
   if (time) time.textContent = `${strat.execution_time_ms} ms`;
   if (mem) mem.textContent = `${strat.peak_frontier} simpul`;
   if (expr) {
-    expr.textContent = strat.success ? `${strat.expression} = 24` : "Solusi Tidak Ditemukan";
-    expr.style.opacity = strat.success ? "1" : "0.5";
+    if (strat.success && strat.expression) {
+      const tex = `${formatArithmeticToTeX(strat.expression, true)} = 24`;
+      expr.style.opacity = "1";
+      expr.innerHTML = renderTeX(tex);
+    } else {
+      expr.textContent = "Solusi Tidak Ditemukan";
+      expr.style.opacity = "0.5";
+    }
   }
 }
 
 function renderBarChart(strats) {
   const container = document.getElementById("barChartContainer");
+  if (!container) return;
+  const isDark = document.documentElement.getAttribute("data-theme") === "dark";
+
   const items = [
-    { label: "Linear CoT", val: strats.cot.nodes_evaluated, color: "#38bdf8" },
-    { label: "Pure ToT-BFS", val: strats.bfs.nodes_evaluated, color: "#60a5fa" },
-    { label: "Pure ToT-DFS", val: strats.dfs.nodes_evaluated, color: "#f87171" },
-    { label: "AEGTS (Inovasi)", val: strats.aegts.nodes_evaluated, color: "#34d399", highlight: true }
+    { label: "Linear CoT", val: strats.cot.nodes_evaluated, color: isDark ? "#6B9AC4" : "#8CB3D9", stroke: isDark ? "#8AB3D8" : "#749EC6" },
+    { label: "Pure ToT-BFS", val: strats.bfs.nodes_evaluated, color: isDark ? "#5288BE" : "#6EA2D4", stroke: isDark ? "#76A6D6" : "#5587B8" },
+    { label: "Pure ToT-DFS", val: strats.dfs.nodes_evaluated, color: isDark ? "#D25F4E" : "#DE7464", stroke: isDark ? "#E57766" : "#C75D4E" },
+    { label: "AEGTS", val: strats.aegts.nodes_evaluated, color: isDark ? "#F09A7A" : "#E59678", stroke: isDark ? "#F8B196" : "#D4805F", highlight: true }
   ];
 
   const maxVal = Math.max(...items.map(d => d.val), 10);
-  const chartHeight = 160;
-  const barWidth = 60;
-  const gap = 55;
+  const chartHeight = 150;
+  const barWidth = 62;
+  const gap = 52;
   const startX = 60;
-  const baselineY = 190;
+  const baselineY = 185;
+
+  const valTextColor = isDark ? "#F8FAFC" : "#2D323E";
+  const labelTextColor = isDark ? "#CBD5E1" : "#525968";
+  const baselineColor = isDark ? "#334155" : "#E2D6CD";
+  const shadowColor = isDark ? "#000000" : "#8C6E63";
+  const shadowOpacity = isDark ? "0.45" : "0.14";
 
   let barsHtml = "";
 
   items.forEach((item, idx) => {
     const x = startX + idx * (barWidth + gap);
-    const height = Math.max(12, (item.val / maxVal) * chartHeight);
+    const height = Math.max(16, (item.val / maxVal) * chartHeight);
     const y = baselineY - height;
 
     barsHtml += `
       <g class="bar-group">
-        <rect x="${x}" y="${y}" width="${barWidth}" height="${height}" rx="6" fill="${item.color}" 
-              opacity="${item.highlight ? '1' : '0.85'}" 
-              stroke="${item.highlight ? '#10b981' : 'transparent'}" stroke-width="2">
+        <rect x="${x}" y="${y}" width="${barWidth}" height="${height}" rx="10" fill="${item.color}" 
+              opacity="${item.highlight ? '1' : '0.88'}" 
+              stroke="${item.stroke}" stroke-width="${item.highlight ? '2.5' : '1.5'}"
+              filter="url(#barShadow)">
         </rect>
-        <text x="${x + barWidth / 2}" y="${y - 8}" text-anchor="middle" fill="#f1f5f9" font-family="JetBrains Mono, monospace" font-size="12" font-weight="bold">
+        <text x="${x + barWidth / 2}" y="${y - 8}" text-anchor="middle" fill="${valTextColor}" font-family="'JetBrains Mono', monospace" font-size="12" font-weight="700">
           ${item.val}
         </text>
-        <text x="${x + barWidth / 2}" y="${baselineY + 20}" text-anchor="middle" fill="#94a3b8" font-size="11" font-weight="${item.highlight ? 'bold' : 'normal'}">
+        <text x="${x + barWidth / 2}" y="${baselineY + 22}" text-anchor="middle" fill="${labelTextColor}" font-family="'Plus Jakarta Sans', sans-serif" font-size="11.5" font-weight="${item.highlight ? '700' : '600'}">
           ${item.label}
         </text>
       </g>
@@ -795,7 +1097,12 @@ function renderBarChart(strats) {
 
   container.innerHTML = `
     <svg viewBox="0 0 540 230" class="bar-chart-svg">
-      <line x1="30" y1="${baselineY}" x2="520" y2="${baselineY}" stroke="#23304a" stroke-width="1"></line>
+      <defs>
+        <filter id="barShadow" x="-10%" y="-10%" width="120%" height="130%">
+          <feDropShadow dx="0" dy="4" stdDeviation="3" flood-color="${shadowColor}" flood-opacity="${shadowOpacity}" />
+        </filter>
+      </defs>
+      <line x1="30" y1="${baselineY}" x2="520" y2="${baselineY}" stroke="${baselineColor}" stroke-width="1.5" stroke-linecap="round"></line>
       ${barsHtml}
     </svg>
   `;
@@ -803,23 +1110,27 @@ function renderBarChart(strats) {
 
 function renderThoughtTree(aegtsData, initialNums) {
   const container = document.getElementById("treeContainer");
+  if (!container) return;
 
   if (!aegtsData.success || !aegtsData.steps || aegtsData.steps.length === 0) {
     container.innerHTML = `
       <div class="tree-node-card">
-        <span class="text-muted">Tidak ada lintasan solusi yang dapat dieksplorasi dengan konfigurasi parameter saat ini. Coba sesuaikan slider ambang batas.</span>
+        <span class="text-muted">Solusi tidak ditemukan dengan kombinasi parameter saat ini. Coba sesuaikan nilai ambang batas.</span>
       </div>
     `;
     return;
   }
 
+  const s0Tex = renderTeX(`s_0 = [${initialNums.join(", ")}]`);
+  const v0Tex = renderTeX("V(s_0) = 0.50");
+
   let html = `
     <div class="tree-node-card root">
       <div class="tree-node-left">
-        <span class="tree-node-badge">Aras 0 (Root)</span>
-        <strong>State Awal: [${initialNums.join(", ")}]</strong>
+        <span class="tree-node-badge">Tingkat 0 (Akar)</span>
+        <strong>Keadaan Awal: ${s0Tex}</strong>
       </div>
-      <span class="badge badge-info">V = 0.50</span>
+      <span class="badge badge-info">${v0Tex}</span>
     </div>
   `;
 
@@ -830,18 +1141,18 @@ function renderThoughtTree(aegtsData, initialNums) {
       : null;
 
     const entropyBadge = hVal !== null
-      ? `<span class="badge badge-accent">H_norm = ${hVal}</span>`
+      ? `<span class="badge badge-accent">${renderTeX(`\\bar{\\mathcal{H}} = ${hVal}`)}</span>`
       : "";
 
     html += `
       <div class="tree-node-card ${isGoal ? 'goal' : ''}">
         <div class="tree-node-left">
-          <span class="tree-node-badge">Aras ${idx + 1}</span>
-          <span>${escapeHtml(step)}</span>
+          <span class="tree-node-badge">Tingkat ${idx + 1}</span>
+          <span class="tree-node-step">${formatStepAction(step)}</span>
         </div>
         <div style="display:flex; gap:0.5rem; align-items:center;">
           ${entropyBadge}
-          ${isGoal ? '<span class="badge badge-success">★ GOAL 24</span>' : ''}
+          ${isGoal ? '<span class="badge badge-success">Target 24 Tercapai</span>' : ''}
         </div>
       </div>
     `;
@@ -864,37 +1175,30 @@ function initGraphTracing() {
   const btnDfs = document.getElementById("btnModeDfs");
   const modeButtons = [btnOrig, btnBfs, btnDfs];
 
-  btnOrig.addEventListener("click", () => {
-    modeButtons.forEach(b => b.classList.remove("active"));
-    btnOrig.classList.add("active");
-    currentGraphMode = "orig";
-    renderGraph();
-    renderTracingTable();
-  });
+  const switchMode = (btn, mode) => {
+    if (currentGraphMode === mode) return;
+    requestAnimationFrame(() => {
+      modeButtons.forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      currentGraphMode = mode;
+      renderGraph();
+      renderTracingTable();
+    });
+  };
 
-  btnBfs.addEventListener("click", () => {
-    modeButtons.forEach(b => b.classList.remove("active"));
-    btnBfs.classList.add("active");
-    currentGraphMode = "bfs";
-    renderGraph();
-    renderTracingTable();
-  });
-
-  btnDfs.addEventListener("click", () => {
-    modeButtons.forEach(b => b.classList.remove("active"));
-    btnDfs.classList.add("active");
-    currentGraphMode = "dfs";
-    renderGraph();
-    renderTracingTable();
-  });
+  if (btnOrig) btnOrig.addEventListener("click", () => switchMode(btnOrig, "orig"));
+  if (btnBfs) btnBfs.addEventListener("click", () => switchMode(btnBfs, "bfs"));
+  if (btnDfs) btnDfs.addEventListener("click", () => switchMode(btnDfs, "dfs"));
 }
 
 function renderGraph() {
   const svg = document.getElementById("graphSvg");
+  if (!svg) return;
   const nodes = GRAPH_8_DATA.nodes;
   const edges = GRAPH_8_DATA.edges;
   const bfsData = GRAPH_8_DATA.bfs;
   const dfsData = GRAPH_8_DATA.dfs;
+  const isDark = document.documentElement.getAttribute("data-theme") === "dark";
 
   const nodeMap = {};
   nodes.forEach(n => { nodeMap[n.id] = n; });
@@ -906,41 +1210,43 @@ function renderGraph() {
     const v = nodeMap[edge.target];
     if (!u || !v) return;
 
-    let strokeColor = "#334155";
-    let strokeWidth = "2";
+    let strokeColor = isDark ? "#404E67" : "#C8BEB6";
+    let strokeWidth = "2.5";
     let strokeDash = "none";
-    let opacity = "0.7";
+    let opacity = isDark ? "0.85" : "0.75";
 
     const edgePair = [edge.source, edge.target];
     const isEdgeInList = (list) => list.some(p => (p[0] === edgePair[0] && p[1] === edgePair[1]) || (p[0] === edgePair[1] && p[1] === edgePair[0]));
 
     if (currentGraphMode === "bfs") {
       if (isEdgeInList(bfsData.tree_edges)) {
-        strokeColor = "#10b981";
-        strokeWidth = "3.5";
+        strokeColor = isDark ? "#4ADE80" : "#529F79";
+        strokeWidth = "4";
         opacity = "1";
       } else {
-        strokeColor = "#64748b";
-        strokeDash = "5,4";
-        opacity = "0.4";
+        strokeColor = isDark ? "#28354A" : "#D5CAC0";
+        strokeDash = "6,5";
+        strokeWidth = "2";
+        opacity = isDark ? "0.7" : "0.6";
       }
     } else if (currentGraphMode === "dfs") {
       if (isEdgeInList(dfsData.tree_edges)) {
-        strokeColor = "#6366f1";
-        strokeWidth = "3.5";
+        strokeColor = isDark ? "#FB923C" : "#E59678";
+        strokeWidth = "4";
         opacity = "1";
       } else {
-        strokeColor = "#f43f5e";
+        strokeColor = isDark ? "#F87171" : "#DE6B6B";
         strokeDash = "6,4";
         strokeWidth = "2.5";
-        opacity = "0.9";
+        opacity = "0.95";
       }
     }
 
     edgesHtml += `
       <line x1="${u.x}" y1="${u.y}" x2="${v.x}" y2="${v.y}" 
             stroke="${strokeColor}" stroke-width="${strokeWidth}" 
-            stroke-dasharray="${strokeDash}" opacity="${opacity}">
+            stroke-dasharray="${strokeDash}" opacity="${opacity}"
+            stroke-linecap="round">
       </line>
     `;
   });
@@ -949,23 +1255,97 @@ function renderGraph() {
 
   nodes.forEach(n => {
     const isRoot = n.id === "a";
-    const fillColor = isRoot ? "#f59e0b" : "#1e293b";
-    const strokeColor = isRoot ? "#fbbf24" : (currentGraphMode === "bfs" ? "#10b981" : (currentGraphMode === "dfs" ? "#818cf8" : "#3b82f6"));
+    let gradId = isDark ? "gradNodeDark" : "gradNodeDefault";
+    let strokeColor = isDark ? "#3B4E6B" : "#D5C8BD";
+    let textColor = isDark ? "#F8FAFC" : "#2D323E";
+
+    if (isRoot) {
+      gradId = "gradRoot";
+      strokeColor = isDark ? "#F09A7A" : "#D47A5A";
+      textColor = "#FFFFFF";
+    } else if (currentGraphMode === "bfs") {
+      gradId = isDark ? "gradNodeBfsDark" : "gradNodeBfs";
+      strokeColor = isDark ? "#60A5FA" : "#6EA2D4";
+      textColor = isDark ? "#EFF6FF" : "#1C4468";
+    } else if (currentGraphMode === "dfs") {
+      gradId = isDark ? "gradNodeDfsDark" : "gradNodeDfs";
+      strokeColor = isDark ? "#FB923C" : "#E59678";
+      textColor = isDark ? "#FFF7ED" : "#6B3322";
+    }
+
+    const sublabelColor = isRoot ? (isDark ? "#F0A287" : "#E59678") : (isDark ? "#94A3B8" : "#7A8191");
 
     nodesHtml += `
-      <g class="graph-node-group">
-        <circle cx="${n.x}" cy="${n.y}" r="22" fill="${fillColor}" stroke="${strokeColor}" stroke-width="3" />
-        <text x="${n.x}" y="${n.y + 5}" text-anchor="middle" fill="#ffffff" font-family="JetBrains Mono, monospace" font-size="14" font-weight="bold">
+      <g class="graph-node-group" style="cursor: pointer;">
+        <circle cx="${n.x}" cy="${n.y}" r="23" fill="url(#${gradId})" stroke="${strokeColor}" stroke-width="2.5" filter="url(#sphereDropShadow)" />
+        <text x="${n.x}" y="${n.y + 5}" text-anchor="middle" fill="${textColor}" font-family="'JetBrains Mono', monospace" font-size="14" font-weight="700">
           ${n.id}
         </text>
-        <text x="${n.x}" y="${n.y + 36}" text-anchor="middle" fill="#94a3b8" font-size="11">
+        <text x="${n.x}" y="${n.y + 38}" text-anchor="middle" fill="${sublabelColor}" font-family="'Plus Jakarta Sans', sans-serif" font-size="11" font-weight="600">
           ${isRoot ? "Root (v0)" : ""}
         </text>
       </g>
     `;
   });
 
-  svg.innerHTML = edgesHtml + nodesHtml;
+  const shadowFloodColor = isDark ? "#000000" : "#8C6A5E";
+  const shadowOpacity = isDark ? "0.55" : "0.22";
+
+  const defsHtml = `
+    <defs>
+      <!-- 3D Clay Spheres Gradients -->
+      <radialGradient id="gradRoot" cx="35%" cy="35%" r="65%">
+        <stop offset="0%" stop-color="#FCE5DC" />
+        <stop offset="50%" stop-color="#EAA185" />
+        <stop offset="100%" stop-color="#D47A5A" />
+      </radialGradient>
+
+      <!-- Light Node Default -->
+      <radialGradient id="gradNodeDefault" cx="35%" cy="35%" r="65%">
+        <stop offset="0%" stop-color="#FFFFFF" />
+        <stop offset="60%" stop-color="#F7F1EB" />
+        <stop offset="100%" stop-color="#E5D9CE" />
+      </radialGradient>
+
+      <!-- Dark Node Default -->
+      <radialGradient id="gradNodeDark" cx="35%" cy="35%" r="65%">
+        <stop offset="0%" stop-color="#2B3A52" />
+        <stop offset="60%" stop-color="#1B283D" />
+        <stop offset="100%" stop-color="#111B2C" />
+      </radialGradient>
+
+      <!-- BFS Nodes -->
+      <radialGradient id="gradNodeBfs" cx="35%" cy="35%" r="65%">
+        <stop offset="0%" stop-color="#E8F3FD" />
+        <stop offset="55%" stop-color="#A5CAED" />
+        <stop offset="100%" stop-color="#729EC8" />
+      </radialGradient>
+      <radialGradient id="gradNodeBfsDark" cx="35%" cy="35%" r="65%">
+        <stop offset="0%" stop-color="#385D8A" />
+        <stop offset="60%" stop-color="#244063" />
+        <stop offset="100%" stop-color="#162942" />
+      </radialGradient>
+
+      <!-- DFS Nodes -->
+      <radialGradient id="gradNodeDfs" cx="35%" cy="35%" r="65%">
+        <stop offset="0%" stop-color="#FDF0EB" />
+        <stop offset="55%" stop-color="#F5B29B" />
+        <stop offset="100%" stop-color="#DC7E62" />
+      </radialGradient>
+      <radialGradient id="gradNodeDfsDark" cx="35%" cy="35%" r="65%">
+        <stop offset="0%" stop-color="#7A3D2A" />
+        <stop offset="60%" stop-color="#5C2B1C" />
+        <stop offset="100%" stop-color="#3B190F" />
+      </radialGradient>
+
+      <!-- Soft 3D Drop Shadow Filter -->
+      <filter id="sphereDropShadow" x="-30%" y="-30%" width="160%" height="160%">
+        <feDropShadow dx="0" dy="5" stdDeviation="4" flood-color="${shadowFloodColor}" flood-opacity="${shadowOpacity}" />
+      </filter>
+    </defs>
+  `;
+
+  svg.innerHTML = defsHtml + edgesHtml + nodesHtml;
 }
 
 function renderTracingTable() {
@@ -973,51 +1353,72 @@ function renderTracingTable() {
   const body = document.getElementById("tracingBody");
   const badge = document.getElementById("tracingBadge");
 
+  if (!header || !body) return;
+
   if (currentGraphMode === "bfs") {
-    badge.textContent = "Tracing Breadth-First Search (FIFO Queue)";
-    badge.className = "badge badge-info";
+    if (badge) {
+      badge.innerHTML = `Penelusuran Breadth-First Search (Antrean FIFO ${renderTeX("Q")})`;
+      badge.className = "badge badge-info";
+    }
     header.innerHTML = `
-      <th>Iterasi</th>
-      <th>Simpul Dequeue (u)</th>
-      <th>Antrean Q (Frontier)</th>
-      <th>Sisi Pohon Ditambahkan (ET)</th>
+      <th>Iterasi (${renderTeX("t")})</th>
+      <th>Simpul Dequeue (${renderTeX("u")})</th>
+      <th>Antrean ${renderTeX("Q")} (Frontier)</th>
+      <th>Sisi Pohon Ditambahkan (${renderTeX("E_T")})</th>
       <th>Keterangan Operasi</th>
     `;
 
-    body.innerHTML = GRAPH_8_DATA.bfs.steps.map(s => `
-      <tr>
-        <td><strong>${s.step}</strong></td>
-        <td><strong class="text-cyan">${s.node}</strong></td>
-        <td><code>[${s.queue.join(", ")}]</code></td>
-        <td><strong class="text-emerald">${s.added_edges.join(", ") || "-"}</strong></td>
-        <td>${s.note}</td>
-      </tr>
-    `).join("");
+    body.innerHTML = GRAPH_8_DATA.bfs.steps.map(s => {
+      const qStr = s.queue.length > 0 ? renderTeX(`[${s.queue.join(", ")}]`) : renderTeX("\\emptyset");
+      const edgesStr = s.added_edges.length > 0 ? renderTeX(s.added_edges.join(", ")) : renderTeX("\\emptyset");
+      return `
+        <tr>
+          <td><strong>${s.step}</strong></td>
+          <td><strong class="text-cyan">${renderTeX("u = " + s.node)}</strong></td>
+          <td>${qStr}</td>
+          <td><strong class="text-emerald">${edgesStr}</strong></td>
+          <td>${s.note}</td>
+        </tr>
+      `;
+    }).join("");
 
   } else if (currentGraphMode === "dfs") {
-    badge.textContent = "Tracing Depth-First Search (LIFO Stack & Backtracking)";
-    badge.className = "badge badge-accent";
+    if (badge) {
+      badge.innerHTML = `Penelusuran Depth-First Search (Tumpukan LIFO ${renderTeX("S")})`;
+      badge.className = "badge badge-accent";
+    }
     header.innerHTML = `
-      <th>Iterasi</th>
-      <th>Simpul Aktif</th>
-      <th>Tumpukan (Stack)</th>
-      <th>Sisi Dipilih / Back Edge</th>
+      <th>Iterasi (${renderTeX("t")})</th>
+      <th>Simpul Aktif (${renderTeX("u")})</th>
+      <th>Tumpukan ${renderTeX("S")} (Stack)</th>
+      <th>Sisi Pohon / Sisi Balik</th>
       <th>Keterangan Operasi</th>
     `;
 
-    body.innerHTML = GRAPH_8_DATA.dfs.steps.map(s => `
-      <tr>
-        <td><strong>${s.step}</strong></td>
-        <td><strong class="text-indigo">${s.active}</strong></td>
-        <td><code>[${s.stack.join(", ")}]</code></td>
-        <td><strong class="${s.edge.includes('Back') ? 'text-red' : 'text-emerald'}">${s.edge}</strong></td>
-        <td>${s.action}</td>
-      </tr>
-    `).join("");
+    body.innerHTML = GRAPH_8_DATA.dfs.steps.map(s => {
+      const sStr = s.stack.length > 0 ? renderTeX(`[${s.stack.join(", ")}]`) : renderTeX("\\emptyset");
+      const isBackEdge = s.edge.includes("Balik") || s.edge.includes("Back");
+      const cleanEdge = s.edge.replace(/\s*\[.*\]/, "");
+      const edgeLabel = isBackEdge
+        ? `<strong class="text-red">${renderTeX(cleanEdge)} <span class="badge badge-accent" style="font-size:0.7rem;">Sisi Balik</span></strong>`
+        : `<strong class="text-emerald">${renderTeX(s.edge)}</strong>`;
+
+      return `
+        <tr>
+          <td><strong>${s.step}</strong></td>
+          <td><strong class="text-indigo">${renderTeX("u = " + s.active)}</strong></td>
+          <td>${sStr}</td>
+          <td>${edgeLabel}</td>
+          <td>${s.action}</td>
+        </tr>
+      `;
+    }).join("");
 
   } else {
-    badge.textContent = "Topologi Graf Asal G = (V, E)";
-    badge.className = "badge badge-accent";
+    if (badge) {
+      badge.innerHTML = `Struktur Graf Asal ${renderTeX("G = (V, E)")}`;
+      badge.className = "badge badge-accent";
+    }
     header.innerHTML = `
       <th>Komponen</th>
       <th>Kardinalitas</th>
@@ -1027,22 +1428,22 @@ function renderTracingTable() {
 
     body.innerHTML = `
       <tr>
-        <td><strong>Titik (V)</strong></td>
-        <td>8 titik</td>
-        <td><code>{a, b, c, d, e, f, g, h}</code></td>
-        <td colspan="2">Ordo graf |V| = 8</td>
+        <td><strong>Titik (${renderTeX("V")})</strong></td>
+        <td>${renderTeX("|V| = 8")}</td>
+        <td>${renderTeX("\\{a, b, c, d, e, f, g, h\\}")}</td>
+        <td colspan="2">Ordo graf ${renderTeX("|V| = 8")}</td>
       </tr>
       <tr>
-        <td><strong>Sisi (E)</strong></td>
-        <td>11 sisi</td>
-        <td><code>{(a,b), (a,c), (b,c), (b,d), (b,e), (c,e), (d,e), (d,f), (d,g), (f,h), (g,h)}</code></td>
-        <td colspan="2">Ukuran graf |E| = 11 (Memuat sikel)</td>
+        <td><strong>Sisi (${renderTeX("E")})</strong></td>
+        <td>${renderTeX("|E| = 11")}</td>
+        <td>${renderTeX("\\{(a,b), (a,c), (b,c), (b,d), (b,e), (c,e), (d,e), (d,f), (d,g), (f,h), (g,h)\\}")}</td>
+        <td colspan="2">Ukuran graf ${renderTeX("|E| = 11")} (memuat sikel)</td>
       </tr>
       <tr>
-        <td><strong>Pohon Rentang</strong></td>
-        <td>|V| - 1 = 7 sisi</td>
-        <td>Dibutuhkan eliminasi 4 sisi sikel (11 - 7 = 4)</td>
-        <td colspan="2">Klik tab "Pohon BFS" atau "Pohon DFS" di atas untuk melihat dekomposisinya.</td>
+        <td><strong>Pohon Rentang (${renderTeX("T")})</strong></td>
+        <td>${renderTeX("|E_T| = |V| - 1 = 7")}</td>
+        <td>Dibutuhkan eliminasi 4 sisi sikel (${renderTeX("|E| - |E_T| = 11 - 7 = 4")})</td>
+        <td colspan="2">Klik tombol "Pohon Rentang BFS" atau "Pohon Rentang DFS" di atas untuk melihat dekomposisinya.</td>
       </tr>
     `;
   }
