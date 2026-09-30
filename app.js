@@ -1426,7 +1426,7 @@ function renderMorphSvgCot(cot, nums, isDetail = false) {
     }
   });
 
-  const captionText = `Urutan Edge: Rantai tunggal tanpa percabangan (${chain.length - 1} edge). Panjang rantai k = ${chain.length - 1}, greedy murni.`;
+  const captionText = `Urutan Edge: Rantai tunggal tanpa cabang (${chain.length - 1} edge) dengan pendekatan greedy.`;
 
   return `
     <svg viewBox="0 0 ${w} ${h}" class="morphology-svg" xmlns="http://www.w3.org/2000/svg">
@@ -1497,8 +1497,8 @@ function renderMorphSvgBfs(bfs, nums, isDetail = false) {
   }
 
   const caption = bfs.success
-    ? `Urutan Edge: Ekstraksi Lapis 1 menyeluruh (FIFO) ➔ ekspansi Lapis 2 ➔ Rute Geodesik Target 24 Tercapai (${bfs.nodes_evaluated} verteks dievaluasi).`
-    : `Urutan Edge: Ekstraksi Lapis 1 menyeluruh (FIFO) ➔ baru ekspansi cabang Lapis 2 secara rimbun.`;
+    ? `Urutan Edge: Evaluasi menyeluruh lapis demi lapis (FIFO) hingga menemukan rute terpendek ke target 24 (${bfs.nodes_evaluated} verteks).`
+    : `Urutan Edge: Evaluasi menyeluruh lapis demi lapis (FIFO) sebelum masuk ke tingkat berikutnya.`;
 
   return `
     <svg viewBox="0 0 ${w} ${h}" class="morphology-svg" xmlns="http://www.w3.org/2000/svg">
@@ -1542,8 +1542,8 @@ function renderMorphSvgDfs(dfs, nums, isDetail = false) {
   const deepNum2 = deepNum1 * (nums[2] || 6);
 
   const caption = dfs.success
-    ? `Urutan Edge: Penyelaman vertikal LIFO hingga mentok ➔ Backtrack berulang-ulang ➔ Solusi ditemukan (${dfs.nodes_evaluated} verteks).`
-    : `Urutan Edge: Penyelaman vertikal LIFO hingga mentok ➔ Backtrack mundur berulang-ulang.`;
+    ? `Urutan Edge: Menyelam ke cabang pertama (LIFO), melacak balik jika buntu, hingga target 24 tercapai (${dfs.nodes_evaluated} verteks).`
+    : `Urutan Edge: Menyelam ke cabang pertama (LIFO) lalu melacak balik saat buntu.`;
 
   return `
     <svg viewBox="0 0 ${w} ${h}" class="morphology-svg" xmlns="http://www.w3.org/2000/svg">
@@ -1625,7 +1625,7 @@ function renderMorphSvgAegts(aegts, nums, tau = 0.40, alpha = 0.30, delta = 0.25
     ? `${aegts.expression.replace(/\*/g, '×')} = 24 🎉`
     : `(Target 24 Tercapai! 🎉)`;
 
-  const caption = `Urutan Edge: BFS terpandu di akar ➔ pangkas cabang buruk (α-Pruning) ➔ DFS cepat langsung ke target.`;
+  const caption = `Urutan Edge: Melebar di awal (BFS), pangkas cabang lemah (α-Pruning), lalu menyelam cepat (DFS) ke target 24.`;
 
   return `
     <svg viewBox="0 0 ${w} ${h}" class="morphology-svg" xmlns="http://www.w3.org/2000/svg">
@@ -1651,7 +1651,7 @@ function renderMorphSvgAegts(aegts, nums, tau = 0.40, alpha = 0.30, delta = 0.25
       <g class="m-node" transform="translate(${rightX}, 72)">
         <rect width="${rightBoxW}" height="${boxH}" rx="10" class="svg-node-box success-box" />
         <text x="${rightBoxW / 2}" y="18" class="svg-node-val text-emerald font-bold" text-anchor="middle">Cabang [${goodExample}] (V ≥ α ✅)</text>
-        <text x="${rightBoxW / 2}" y="33" class="svg-node-sub text-emerald" text-anchor="middle">Ambiguitas Turun: H̄ &lt; τ ➔ Beralih ke DFS</text>
+        <text x="${rightBoxW / 2}" y="33" class="svg-node-sub text-emerald" text-anchor="middle">Arah Jelas: H̄ &lt; τ (Beralih ke DFS)</text>
       </g>
 
       <line x1="${rightX + rightBoxW / 2}" y1="${72 + boxH}" x2="${rightX + rightBoxW / 2}" y2="132" stroke="${arrowColor}" stroke-width="3" marker-end="url(#arrowAegts)" />
@@ -1801,7 +1801,7 @@ function renderAegtsEntropyTable(aegts, tau, alpha) {
     const condBadge = isBfs 
       ? `<span class="badge badge-info">H̄ ≥ τ (${e.entropy} ≥ ${tau})</span>`
       : `<span class="badge badge-success">H̄ &lt; τ (${e.entropy} &lt; ${tau})</span>`;
-    const pruneDesc = isBfs ? `α-Pruning aktif (V &lt; ${alpha})` : "Penyelaman terarah DFS (Hemat token)";
+    const pruneDesc = isBfs ? `α-Pruning aktif (V &lt; ${alpha})` : "Penelusuran terarah DFS";
     html += `
       <tr>
         <td><strong>Aras ${e.depth}</strong></td>
@@ -1898,14 +1898,14 @@ function renderDynamicMorphology(data) {
   setText("metaMemBfs", `${bfs.peak_frontier} verteks`);
   setText("metaNodesDfs", `${dfs.nodes_evaluated} verteks`);
   setText("metaMemDfs", `${dfs.peak_frontier} verteks`);
-  setText("metaNodesAegts", `${aegts.nodes_evaluated} verteks (Optimal)`);
+  setText("metaNodesAegts", `${aegts.nodes_evaluated} verteks (Paling Efisien)`);
   setText("metaMemAegts", `${aegts.peak_frontier} verteks`);
 
   const calloutAegts = document.getElementById("calloutAegtsSavings");
   if (calloutAegts) {
     const sDfs = data.summary ? data.summary.aegts_savings_vs_dfs_pct : 0;
     const sBfs = data.summary ? data.summary.aegts_savings_vs_bfs_pct : 0;
-    calloutAegts.innerHTML = `<strong>Efisiensi Cerdas:</strong> Menghemat <strong>${sDfs}%</strong> evaluasi verteks vs DFS dan <strong>${sBfs}%</strong> vs BFS untuk kasus [${nums.join(", ")}].`;
+    calloutAegts.innerHTML = `<strong>Hasil Evaluasi:</strong> Menghemat <strong>${sDfs}%</strong> evaluasi verteks dibanding DFS dan <strong>${sBfs}%</strong> dibanding BFS untuk kasus [${nums.join(", ")}].`;
   }
 
   // Overview Table
@@ -1936,7 +1936,8 @@ function renderDynamicMorphology(data) {
   setText("cotDetailNodes", `${cot.nodes_evaluated} verteks`);
   setText("cotDetailMem", `${cot.peak_frontier} verteks`);
   setText("cotDetailTime", `${cot.execution_time_ms} ms`);
-  setText("cotDetailLength", `${(cot.chainNodes ? cot.chainNodes.length - 1 : 3)} edge`);
+  const elCotLen = document.getElementById("cotDetailLength");
+  if (elCotLen) elCotLen.innerHTML = `${(cot.chainNodes ? cot.chainNodes.length - 1 : 3)} <em>edge</em>`;
   setMermaid("cotDetailMermaidCode", generateMermaidCot(cot, nums));
   setBadge("decompBadgeCot", cot.success);
 

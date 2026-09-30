@@ -33,8 +33,8 @@
     <div class="header-container">
       <div class="brand">
         <div class="brand-badge">Riset Mandiri Matematika Diskrit</div>
-        <h1>Karakterisasi Tree &amp; Spanning Tree</h1>
-        <p class="subtitle">Simulasi penelusuran graf diskrit dan penalaran Tree-of-Thoughts dengan Adaptive Entropy-Guided Tree Search (AEGTS)</p>
+        <h1>Pohon Penelusuran &amp; <em>Spanning Tree</em></h1>
+        <p class="subtitle">Simulasi interaktif penelusuran graf dan penalaran Tree-of-Thoughts pada Game of 24 menggunakan Adaptive Entropy-Guided Tree Search (AEGTS).</p>
       </div>
       <div class="header-meta">
         <!-- Theme Toggle Button (Claymorphic) -->
@@ -54,16 +54,16 @@
     <!-- Navigation Tabs -->
     <nav class="nav-tabs">
       <button class="tab-btn active" data-tab="tab-ml">
-        Penalaran Mesin (ToT &amp; AEGTS)
+        1. Penalaran Mesin (Game of 24)
       </button>
       <button class="tab-btn" data-tab="tab-morphology">
-        Morfologi &amp; Urutan <em>Spanning Tree</em>
+        2. Morfologi &amp; <em>Spanning Tree</em>
       </button>
       <button class="tab-btn" data-tab="tab-graph">
-        Penelusuran Graf 8 Titik (BFS vs DFS)
+        3. Graf Uji 8 Titik (BFS vs DFS)
       </button>
       <button class="tab-btn" data-tab="tab-benchmark">
-        Hasil Benchmark &amp; Landasan Teori
+        4. Hasil Pengujian &amp; Teori
       </button>
     </nav>
   </header>
@@ -158,7 +158,7 @@
                 <strong id="tauVal">0.40</strong>
               </div>
               <input type="range" id="paramTau" min="0.10" max="0.90" step="0.05" value="0.40">
-              <small class="slider-desc"><strong>Kendali ragu vs yakin:</strong> Saat ragu (\(H \ge \tau\)), telusuri melebar (BFS). Saat yakin (\(H &lt; \tau\)), fokus selami opsi terbaik (DFS).</small>
+              <small class="slider-desc"><strong>Batas keyakinan:</strong> Saat ragu (\(H \ge \tau\)), telusuri melebar (BFS) untuk melihat pilihan. Saat arahnya jelas (\(H &lt; \tau\)), langsung fokus selami cabang terbaik (DFS).</small>
             </div>
 
             <div class="slider-group">
@@ -167,7 +167,7 @@
                 <strong id="alphaVal">0.30</strong>
               </div>
               <input type="range" id="paramAlpha" min="0.10" max="0.60" step="0.05" value="0.30">
-              <small class="slider-desc"><strong>Filter mutu langkah:</strong> Hanya langkah berprospek (\(V \ge \alpha\)) yang diuji; cabang buruk langsung dibuang agar hemat memori.</small>
+              <small class="slider-desc"><strong>Penyaring cabang:</strong> Membuang cabang dengan nilai prospek rendah (\(V &lt; \alpha\)) sejak awal agar hemat memori dan langkah.</small>
             </div>
 
             <div class="slider-group">
@@ -176,7 +176,7 @@
                 <strong id="deltaVal">0.25</strong>
               </div>
               <input type="range" id="paramDelta" min="0.10" max="0.60" step="0.05" value="0.25">
-              <small class="slider-desc"><strong>Rem darurat jalan buntu:</strong> Langsung putar balik (<em>backtrack</em>) jika langkah baru memperburuk solusi (\(\Delta V &lt; -\delta\)), mencegah tersesat.</small>
+              <small class="slider-desc"><strong>Batas penurunan nilai:</strong> Langsung putar balik (<em>backtrack</em>) jika operasi yang diambil justru memperburuk evaluasi (\(\Delta V &lt; -\delta\)).</small>
             </div>
           </div>
         </div>
@@ -187,17 +187,17 @@
         <div class="kpi-card highlight">
           <div class="kpi-title">Penghematan Verteks vs DFS</div>
           <div class="kpi-value text-emerald" id="kpiSavingsDfs">+23.3%</div>
-          <div class="kpi-desc">Mengurangi evaluasi langkah yang tidak perlu</div>
+          <div class="kpi-desc">Mengurangi langkah coba-coba dibanding DFS</div>
         </div>
         <div class="kpi-card">
           <div class="kpi-title">Penghematan Verteks vs BFS</div>
           <div class="kpi-value text-cyan" id="kpiSavingsBfs">+30.8%</div>
-          <div class="kpi-desc">Memangkas eksplorasi cabang berlebih</div>
+          <div class="kpi-desc">Menghindari penelusuran cabang yang tidak potensial</div>
         </div>
         <div class="kpi-card">
           <div class="kpi-title">Memori Puncak Frontier</div>
           <div class="kpi-value" id="kpiPeakMemory">11 verteks</div>
-          <div class="kpi-desc">Maksimum verteks aktif di antrean atau tumpukan</div>
+          <div class="kpi-desc">Jumlah verteks terbanyak yang disimpan bersamaan</div>
         </div>
         <div class="kpi-card">
           <div class="kpi-title">Waktu Komputasi Total</div>
@@ -228,7 +228,7 @@
               <span class="stat-val" id="memCot">1 verteks</span>
             </div>
             <div class="expr-box" id="exprCot">\(4 \times (3 + (1 + 2)) = 24\)</div>
-            <p class="card-footer-text">Penelusuran satu jalur berurutan tanpa cabang atau pelacakan balik.</p>
+            <p class="card-footer-text">Memilih satu langkah terbaik di setiap tahap tanpa alternatif. Jika salah langkah, pencarian langsung gagal.</p>
           </div>
         </div>
 
@@ -252,7 +252,7 @@
               <span class="stat-val" id="memBfs">4 verteks</span>
             </div>
             <div class="expr-box" id="exprBfs">\(4 \times (3 + (1 + 2)) = 24\)</div>
-            <p class="card-footer-text">Antrean FIFO menelusuri seluruh cabang tingkat demi tingkat.</p>
+            <p class="card-footer-text">Memeriksa semua cabang lapis demi lapis dengan antrean FIFO. Selalu menemukan rute terpendek, tetapi boros evaluasi.</p>
           </div>
         </div>
 
@@ -276,7 +276,7 @@
               <span class="stat-val" id="memDfs">47 verteks</span>
             </div>
             <div class="expr-box" id="exprDfs">\(1 \times (2 \times (3 \times 4)) = 24\)</div>
-            <p class="card-footer-text">Tumpukan LIFO menelusuri satu cabang hingga tuntas, lalu melacak balik.</p>
+            <p class="card-footer-text">Menyelami satu cabang sampai ujung dengan tumpukan LIFO, lalu melacak balik jika buntu. Rawan membuang waktu jika cabang awal salah.</p>
           </div>
         </div>
 
@@ -309,6 +309,7 @@
             <div class="entropy-track" id="entropyTrack">
               <small>Rerata Entropi Shannon (\(\bar{\mathcal{H}}\)): <strong>0.609</strong></small>
             </div>
+            <p class="card-footer-text text-emerald" style="margin-top:0.5rem;">Menggabungkan BFS dan DFS secara adaptif: melebar saat ragu, langsung menyelam cepat saat arah solusi mulai jelas.</p>
           </div>
         </div>
       </div>
@@ -352,9 +353,9 @@
       <div class="card intro-morphology-card">
         <div class="card-header">
           <div>
-            <h3>Urutan Proses Penentuan <em>Spanning Tree</em> dari Setiap Metode</h3>
+            <h3>Bentuk Graf &amp; Pembentukan <em>Spanning Tree</em></h3>
             <p class="card-subtitle">
-              Dekomposisi komparatif pembentukan subgraf penelusuran (<em>search spanning tree</em>) untuk kasus aktif: 
+              Melihat bagaimana setiap metode membentuk pohon penelusuran (<em>search spanning tree</em>) untuk angka aktif: 
               <strong id="morphologyActiveCaseBadge" class="active-case-text">[4, 1, 3, 2] &rarr; Target 24</strong>
             </p>
           </div>
@@ -363,13 +364,13 @@
         
         <!-- Quick Preset Switcher Bar -->
         <div class="morphology-quick-bar">
-          <span class="quick-bar-label">⚡ Ganti Angka Preset Cepat:</span>
+          <span class="quick-bar-label">⚡ Pilihan Angka Cepat:</span>
           <div class="quick-preset-buttons" id="morphQuickPresetButtons">
             <button type="button" class="btn-quick-preset active" data-nums="4,1,3,2">[4, 1, 3, 2] Standar</button>
             <button type="button" class="btn-quick-preset" data-nums="6,6,6,6">[6, 6, 6, 6] Simetris</button>
             <button type="button" class="btn-quick-preset" data-nums="1,5,5,5">[1, 5, 5, 5] Pecahan</button>
-            <button type="button" class="btn-quick-preset" data-nums="3,3,8,8">[3, 3, 8, 8] Sulit</button>
-            <button type="button" class="btn-quick-preset" data-nums="1,2,7,7">[1, 2, 7, 7] Pencarian Dalam</button>
+            <button type="button" class="btn-quick-preset" data-nums="3,3,8,8">[3, 3, 8, 8] Pecahan Sulit</button>
+            <button type="button" class="btn-quick-preset" data-nums="1,2,7,7">[1, 2, 7, 7] Cabang Dalam</button>
           </div>
         </div>
       </div>
@@ -422,7 +423,7 @@
             </div>
             <div class="card-body">
               <div class="method-spec">
-                <strong>Karakteristik Graf:</strong> Berbentuk rantai tunggal (<em>bamboo graph</em> / <em>linear path</em>). Model memilih satu aksi terbaik (<em>greedy</em>) di setiap aras tanpa menyimpan alternatif cabang lain dan tanpa kemampuan berputar balik (<em>backtracking</em>).
+                <strong>Bentuk Graf:</strong> Membentuk satu garis lurus tanpa percabangan (<em>linear path</em>). Algoritma hanya memilih satu langkah terbaik di setiap tahap secara langsung (<em>greedy</em>) tanpa menyimpan pilihan alternatif dan tanpa kemampuan putar balik (<em>backtracking</em>).
               </div>
               <div class="morphology-diagram-wrapper" id="morphSvgWrapCot">
                 <!-- Dynamically populated SVG -->
@@ -442,7 +443,7 @@
                 </div>
               </div>
               <div class="method-callout callout-danger" id="calloutCot">
-                <strong>Kelemahan:</strong> Jika langkah awal memilih cabang yang salah, CoT langsung gagal total karena tiadanya memori percabangan.
+                <strong>Kelemahan:</strong> Jika langkah pertama memilih cabang yang salah, pencarian langsung gagal total karena tidak ada pilihan alternatif yang disimpan.
               </div>
             </div>
           </div>
@@ -458,7 +459,7 @@
             </div>
             <div class="card-body">
               <div class="method-spec">
-                <strong>Karakteristik Graf:</strong> Pohon melebar rimbun (<em>bushy tree</em>). Menggunakan antrean FIFO. Seluruh verteks pada Aras 1 harus dievaluasi terlebih dahulu sebelum algoritma diizinkan masuk ke Aras 2.
+                <strong>Bentuk Graf:</strong> Pohon melebar rimbun (<em>bushy tree</em>). Menggunakan antrean FIFO. Semua verteks pada satu tingkat kedalaman harus dievaluasi terlebih dahulu sebelum algoritma diizinkan masuk ke tingkat berikutnya.
               </div>
               <div class="morphology-diagram-wrapper" id="morphSvgWrapBfs">
                 <!-- Dynamically populated SVG -->
@@ -478,7 +479,7 @@
                 </div>
               </div>
               <div class="method-callout callout-info">
-                <strong>Karakter:</strong> Menjamin ditemukannya rute geodesik (langkah terpendek), namun boros evaluasi karena mengeksplorasi cabang-cabang non-potensial secara menyeluruh.
+                <strong>Karakteristik:</strong> Menjamin rute terpendek (geodesik), tetapi membutuhkan banyak evaluasi karena memeriksa semua cabang, termasuk angka yang tidak potensial.
               </div>
             </div>
           </div>
@@ -494,7 +495,7 @@
             </div>
             <div class="card-body">
               <div class="method-spec">
-                <strong>Karakteristik Graf:</strong> Menyelam tinggi-ramping (<em>stringy tree</em>) dengan tumpukan LIFO. Algoritma menyelam ke cabang pertama hingga ke daun paling bawah. Jika buntu, terjadi <em>backtracking</em> (mundur kembali) berulang-ulang.
+                <strong>Bentuk Graf:</strong> Pohon memanjang ke bawah (<em>stringy tree</em>). Menggunakan tumpukan LIFO. Algoritma menyelami cabang pertama hingga ke daun paling bawah. Jika buntu, algoritma melacak balik (<em>backtrack</em>) untuk mencoba cabang lain.
               </div>
               <div class="morphology-diagram-wrapper" id="morphSvgWrapDfs">
                 <!-- Dynamically populated SVG -->
@@ -514,7 +515,7 @@
                 </div>
               </div>
               <div class="method-callout callout-danger">
-                <strong>Kelemahan:</strong> Mengalami <em>blind deep diving</em>. Begitu terjebak di cabang angka yang menjauh dari 24, DFS tetap menghabiskan kuota evaluasi hingga daun sebelum mundur.
+                <strong>Kelemahan:</strong> Jika cabang awal keliru, DFS tetap memeriksa cabang tersebut sampai ke ujung sebelum berputar balik. Hal ini membuang banyak langkah evaluasi.
               </div>
             </div>
           </div>
@@ -523,14 +524,14 @@
           <div class="card morphology-method-card star-card" id="morphCardAegts">
             <div class="card-header">
               <div>
-                <span class="method-num text-emerald">Metode 4 (Optimal)</span>
+                <span class="method-num text-emerald">Metode 4 (Paling Efisien)</span>
                 <h4>4. Adaptive AEGTS (Entropy-Guided)</h4>
               </div>
               <span class="badge badge-success" id="badgeMorphAegts">SOLVED</span>
             </div>
             <div class="card-body">
               <div class="method-spec">
-                <strong>Karakteristik Graf:</strong> Pohon adaptif cerdas. Memanfaatkan Entropi Shannon (\(\bar{\mathcal{H}}\)), pemangkasan dini (\(\alpha\)-<em>pruning</em>), dan deteksi penurunan nilai (\(\delta\)-<em>early backtrack</em>):
+                <strong>Bentuk Graf:</strong> Pohon terpandu yang ramping. Algoritma beralih antara mode BFS dan DFS berdasarkan Entropi Shannon (\(\bar{\mathcal{H}}\)), membuang cabang lemah dengan pemangkasan (\(\alpha\)), dan langsung putar balik jika nilai evaluasi menurun (\(\delta\)).
               </div>
               <div class="morphology-diagram-wrapper" id="morphSvgWrapAegts">
                 <!-- Dynamically populated SVG -->
@@ -542,7 +543,7 @@
               <div class="method-meta-grid">
                 <div class="meta-pill highlight">
                   <span class="meta-lbl">Evaluasi Verteks</span>
-                  <strong class="text-emerald" id="metaNodesAegts">-- verteks (Optimal)</strong>
+                  <strong class="text-emerald" id="metaNodesAegts">-- verteks (Paling Efisien)</strong>
                 </div>
                 <div class="meta-pill highlight">
                   <span class="meta-lbl">Memori Puncak</span>
@@ -550,7 +551,7 @@
                 </div>
               </div>
               <div class="method-callout callout-success" id="calloutAegtsSavings">
-                <strong>Efisiensi:</strong> Memangkas evaluasi verteks secara signifikan tanpa risiko kegagalan fatal seperti Linear CoT.
+                <strong>Efisiensi:</strong> Memangkas evaluasi verteks secara signifikan dan tetap menjaga peluang menemukan solusi.
               </div>
             </div>
           </div>
@@ -561,17 +562,17 @@
         <div class="card" style="margin-top: 1.5rem;">
           <div class="card-header">
             <div>
-              <h3>Ringkasan Perbandingan Morfologi Graf untuk Kasus Aktif</h3>
-              <p class="card-subtitle">Perbandingan karakteristik struktural pohon pencarian deduktif dari keempat paradigma.</p>
+              <h3>Ringkasan Perbandingan Karakteristik Graf</h3>
+              <p class="card-subtitle">Perbandingan bentuk pohon penelusuran dan kinerja keempat metode pada kasus aktif.</p>
             </div>
-            <span class="badge badge-accent">Sintesis Teoretis</span>
+            <span class="badge badge-accent">Ringkasan Analisis</span>
           </div>
           <div class="card-body">
             <div class="table-responsive">
               <table class="table table-bordered table-striped" id="morphSummaryTable">
                 <thead>
                   <tr>
-                    <th>Metrik / Aspek</th>
+                    <th>Aspek Evaluasi</th>
                     <th>Linear CoT</th>
                     <th>Pure ToT-BFS</th>
                     <th>Pure ToT-DFS</th>
@@ -582,9 +583,9 @@
                   <tr>
                     <td><strong>Bentuk Graf</strong></td>
                     <td>Rantai lurus tunggal</td>
-                    <td>Pohon melebar (<em>bushy</em>)</td>
-                    <td>Pohon ramping zig-zag (<em>stringy</em>)</td>
-                    <td><strong class="text-emerald">Pohon ramping terfokus</strong></td>
+                    <td>Pohon melebar rimbun (<em>bushy</em>)</td>
+                    <td>Pohon memanjang ke bawah (<em>stringy</em>)</td>
+                    <td><strong class="text-emerald">Pohon terpandu yang ramping</strong></td>
                   </tr>
                   <tr>
                     <td><strong>Verteks Dievaluasi</strong></td>
@@ -615,18 +616,18 @@
                     <td><strong class="text-emerald" id="tblStatusAegts">--</strong></td>
                   </tr>
                   <tr>
-                    <td><strong>Strategi Transisi</strong></td>
+                    <td><strong>Strategi Penelusuran</strong></td>
                     <td><em>Greedy</em> satu arah</td>
-                    <td>Antrean FIFO lapis per lapis</td>
-                    <td>Tumpukan LIFO + <em>Backtrack</em> buta</td>
-                    <td><strong class="text-emerald">Hibrida Dinamis (Entropi Shannon)</strong></td>
+                    <td>Antrean FIFO lapis demi lapis</td>
+                    <td>Tumpukan LIFO dengan <em>backtracking</em></td>
+                    <td><strong class="text-emerald">Hibrida Adaptif (Entropi Shannon)</strong></td>
                   </tr>
                   <tr>
                     <td><strong>Pemangkasan Cabang</strong></td>
                     <td>Tidak ada</td>
                     <td>Tidak ada</td>
                     <td>Tidak ada</td>
-                    <td><strong class="text-emerald">Ada (\(\alpha\)-<em>pruning</em> &amp; <em>early rollback</em>)</strong></td>
+                    <td><strong class="text-emerald">Ada (\(\alpha\)-pruning &amp; \(\delta\)-early backtrack)</strong></td>
                   </tr>
                 </tbody>
               </table>
@@ -636,28 +637,28 @@
       </div>
 
       <!-- ================================================================= -->
-      <!-- SUBPANE 1: LINEAR CHAIN-OF-THOUGHT (DEKOMPOSISI MENDALAM)         -->
+      <!-- SUBPANE 1: LINEAR CHAIN-OF-THOUGHT                                -->
       <!-- ================================================================= -->
       <div class="morphology-subpane" id="subpane-cot">
         <div class="card decomposition-header-card">
           <div class="card-header">
             <div>
-              <span class="method-num">Dekomposisi Mendalam Metode 1</span>
-              <h3>Linear Chain-of-Thought (CoT): Karakteristik Lintasan Tunggal</h3>
-              <p class="card-subtitle">Representasi graf rantai tunggal (<em>bamboo graph</em>) tanpa percabangan cabang alternatif (\(\deg(v) \le 2\)).</p>
+              <span class="method-num">Penjelasan Detail: Metode 1</span>
+              <h3>Linear Chain-of-Thought (CoT): Penelusuran Jalur Tunggal</h3>
+              <p class="card-subtitle">Graf rantai lurus (<em>bamboo graph</em>) tanpa cabang alternatif (\(\deg(v) \le 2\)).</p>
             </div>
             <span class="badge badge-danger" id="decompBadgeCot">Status: SOLVED</span>
           </div>
           <div class="card-body">
-            <p>Pada paradigma Linear CoT, model menghasilkan urutan pemikiran deterministik satu langkah demi satu langkah secara <em>greedy</em>. Di setiap aras, hanya 1 kandidat transisi dengan nilai probabilitas tertinggi yang diekspansi. Model tidak pernah menyimpan cabang cadangan ke memori dan tidak memiliki operator pelacakan balik (<em>backtracking</em>).</p>
+            <p>Pada metode Linear CoT, sistem memilih satu keputusan terbaik di setiap langkah secara langsung (<em>greedy</em>). Sistem tidak menyimpan cabang cadangan di memori dan tidak memiliki kemampuan untuk melacak balik (<em>backtracking</em>). Jika tebakan pertamanya keliru, pencarian langsung menemui jalan buntu.</p>
           </div>
         </div>
 
         <!-- Big SVG Graph Card -->
         <div class="card detail-graph-card">
           <div class="card-header">
-            <h4>Visualisasi Graf Pembentukan <em>Spanning Tree</em> CoT</h4>
-            <span class="badge badge-accent">Lintasan Sekuensial Aras 0 &rarr; Aras 3</span>
+            <h4>Bagan Pembentukan <em>Spanning Tree</em> CoT</h4>
+            <span class="badge badge-accent">Lintasan Sekuensial Tingkat 0 &rarr; Tingkat 3</span>
           </div>
           <div class="card-body">
             <div class="detail-diagram-large" id="cotDetailSvgContainer">
@@ -670,7 +671,7 @@
         <div class="info-cards-split">
           <div class="card">
             <div class="card-header">
-              <h4>Rekonstruksi Urutan <em>Edge</em> Transisi</h4>
+              <h4>Urutan <em>Edge</em> Transisi</h4>
             </div>
             <div class="card-body">
               <div class="table-responsive">
@@ -681,7 +682,7 @@
                       <th>Verteks Asal</th>
                       <th>Operasi <em>Edge</em></th>
                       <th>Verteks Tujuan</th>
-                      <th>Evaluasi (\(V\))</th>
+                      <th>Nilai Evaluasi (\(V\))</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -694,7 +695,7 @@
 
           <div class="card">
             <div class="card-header">
-              <h4>Metrik &amp; Analisis Kritis CoT</h4>
+              <h4>Analisis Kinerja CoT</h4>
             </div>
             <div class="card-body">
               <div class="method-meta-grid">
@@ -716,7 +717,7 @@
                 </div>
               </div>
               <div class="method-callout callout-danger" style="margin-top:0.75rem;">
-                <strong>Kelemahan Fatal:</strong> Linear CoT hanya efisien jika probabilitas langkah pertama langsung mengarah ke rute yang benar. Bila langkah awal memilih kombinasi yang salah (misal pengurangan atau pembagian yang menghasilkan angka buntu), CoT akan gagal 100% karena tidak memiliki mekanisme putar balik (<em>backtracking</em>).
+                <strong>Kelemahan Utama:</strong> Linear CoT hanya berhasil jika langkah pertama kebetulan langsung menuju solusi. Jika langkah awal memilih operasi yang keliru (misalnya menghasilkan angka yang terlalu besar), pencarian langsung gagal tanpa ada kesempatan mencoba cabang lain.
               </div>
               <details class="mermaid-details" style="margin-top:1rem;">
                 <summary>Lihat Sintaks Mermaid Diagram Linear CoT</summary>
@@ -728,28 +729,28 @@
       </div>
 
       <!-- ================================================================= -->
-      <!-- SUBPANE 2: PURE TOT-BFS (DEKOMPOSISI MENDALAM)                     -->
+      <!-- SUBPANE 2: PURE TOT-BFS                                           -->
       <!-- ================================================================= -->
       <div class="morphology-subpane" id="subpane-bfs">
         <div class="card decomposition-header-card">
           <div class="card-header">
             <div>
-              <span class="method-num">Dekomposisi Mendalam Metode 2</span>
+              <span class="method-num">Penjelasan Detail: Metode 2</span>
               <h3>Pure ToT-BFS: Pohon Melebar &amp; Antrean FIFO</h3>
-              <p class="card-subtitle">Eksplorasi lapis demi lapis (<em>breadth-first</em>) yang menjamin lintasan terpendek (geodesik).</p>
+              <p class="card-subtitle">Penelusuran lapis demi lapis yang menjamin lintasan terpendek (geodesik).</p>
             </div>
             <span class="badge badge-info" id="decompBadgeBfs">Status: SOLVED</span>
           </div>
           <div class="card-body">
-            <p>Pure Tree-of-Thoughts BFS memanfaatkan antrean FIFO (<em>First-In, First-Out</em>). Seluruh anak cabang pada suatu aras (tingkat kedalaman) harus dimasukkan ke antrean dan dievaluasi terlebih dahulu sebelum algoritma diizinkan mengekspansi aras berikutnya. Hal ini membentuk morfologi pohon yang sangat rimbun (<em>bushy tree</em>).</p>
+            <p>Pure Tree-of-Thoughts BFS memanfaatkan antrean FIFO (<em>First-In, First-Out</em>). Setiap cabang baru pada satu tingkat kedalaman dimasukkan ke dalam antrean dan dievaluasi terlebih dahulu sebelum algoritma melangkah ke tingkat berikutnya. Pola ini menghasilkan struktur pohon yang rimbun (<em>bushy tree</em>).</p>
           </div>
         </div>
 
         <!-- Big SVG Graph Card -->
         <div class="card detail-graph-card">
           <div class="card-header">
-            <h4>Visualisasi Graf Pembentukan <em>Spanning Tree</em> BFS</h4>
-            <span class="badge badge-accent">Ekspansi Menyeluruh Lapis demi Lapis</span>
+            <h4>Bagan Pembentukan <em>Spanning Tree</em> BFS</h4>
+            <span class="badge badge-accent">Pemeriksaan Menyeluruh Lapis demi Lapis</span>
           </div>
           <div class="card-body">
             <div class="detail-diagram-large" id="bfsDetailSvgContainer">
@@ -769,11 +770,11 @@
                 <table class="table table-bordered table-striped" id="bfsQueueTable">
                   <thead>
                     <tr>
-                      <th>Aras</th>
+                      <th>Tingkat</th>
                       <th>Verteks Diekspansi</th>
-                      <th>Cabang Dibangkitkan</th>
-                      <th>Antrean Aktif (\(Q\))</th>
-                      <th>Kandidat Solusi</th>
+                      <th>Cabang Baru</th>
+                      <th>Isi Antrean (\(Q\))</th>
+                      <th>Contoh Cabang</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -786,7 +787,7 @@
 
           <div class="card">
             <div class="card-header">
-              <h4>Metrik &amp; Analisis Kritis BFS</h4>
+              <h4>Analisis Kinerja BFS</h4>
             </div>
             <div class="card-body">
               <div class="method-meta-grid">
@@ -804,11 +805,11 @@
                 </div>
                 <div class="meta-pill">
                   <span class="meta-lbl">Jaminan Geodesik</span>
-                  <strong class="text-emerald">Ya (Optimal Steps)</strong>
+                  <strong class="text-emerald">Ya (Langkah Terpendek)</strong>
                 </div>
               </div>
               <div class="method-callout callout-info" style="margin-top:0.75rem;">
-                <strong>Kelebihan &amp; Biaya:</strong> BFS menjamin menemukan solusi dengan jumlah operasi paling sedikit (rute geodesik). Namun demikian, BFS menderita ledakan kombinatorial karena mengevaluasi cabang-cabang yang secara matematis tidak berprospek (seperti angka yang melonjak ke ratusan atau bernilai 0).
+                <strong>Kelebihan dan Biaya Komputasi:</strong> BFS selalu menjamin solusi dengan jumlah operasi paling sedikit. Namun, metode ini membutuhkan banyak evaluasi karena harus memeriksa semua kemungkinan cabang, termasuk angka yang jelas-jelas tidak berpeluang menghasilkan 24.
               </div>
               <details class="mermaid-details" style="margin-top:1rem;">
                 <summary>Lihat Sintaks Mermaid Diagram BFS</summary>
@@ -820,27 +821,27 @@
       </div>
 
       <!-- ================================================================= -->
-      <!-- SUBPANE 3: PURE TOT-DFS (DEKOMPOSISI MENDALAM)                     -->
+      <!-- SUBPANE 3: PURE TOT-DFS                                           -->
       <!-- ================================================================= -->
       <div class="morphology-subpane" id="subpane-dfs">
         <div class="card decomposition-header-card">
           <div class="card-header">
             <div>
-              <span class="method-num">Dekomposisi Mendalam Metode 3</span>
+              <span class="method-num">Penjelasan Detail: Metode 3</span>
               <h3>Pure ToT-DFS: Penyelaman Mendalam &amp; Tumpukan LIFO</h3>
-              <p class="card-subtitle">Eksplorasi tinggi-ramping (<em>depth-first</em>) dengan mekanisme pelacakan balik (<em>backtracking</em>).</p>
+              <p class="card-subtitle">Penelusuran memanjang ke bawah dengan pelacakan balik (<em>backtracking</em>).</p>
             </div>
             <span class="badge badge-accent" id="decompBadgeDfs">Status: SOLVED</span>
           </div>
           <div class="card-body">
-            <p>Pure Tree-of-Thoughts DFS menggunakan tumpukan LIFO (<em>Last-In, First-Out</em>). Algoritma memilih satu cabang dan menyelam sedalam-dalamnya hingga mencapai daun terminal. Jika daun tersebut bukan target (24), algoritma melakukan <em>backtracking</em> (mundur kembali ke verteks induk) lalu mencoba cabang alternatif.</p>
+            <p>Pure Tree-of-Thoughts DFS menggunakan tumpukan LIFO (<em>Last-In, First-Out</em>). Algoritma memilih satu cabang lalu menelusurinya sedalam mungkin hingga ke verteks daun. Jika daun tersebut belum mencapai target 24, algoritma berputar balik (<em>backtrack</em>) ke verteks sebelumnya untuk mencoba cabang lain.</p>
           </div>
         </div>
 
         <!-- Big SVG Graph Card -->
         <div class="card detail-graph-card">
           <div class="card-header">
-            <h4>Visualisasi Graf Pembentukan <em>Spanning Tree</em> DFS</h4>
+            <h4>Bagan Pembentukan <em>Spanning Tree</em> DFS</h4>
             <span class="badge badge-accent">Penyelaman Vertikal &amp; Lintasan <em>Backtracking</em></span>
           </div>
           <div class="card-body">
@@ -863,9 +864,9 @@
                     <tr>
                       <th>Fase</th>
                       <th>Verteks Aktif</th>
-                      <th>Tumpukan (\(S\))</th>
+                      <th>Isi Tumpukan (\(S\))</th>
                       <th>Aksi Navigasi</th>
-                      <th>Keterangan Morfologi</th>
+                      <th>Struktur Data</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -878,7 +879,7 @@
 
           <div class="card">
             <div class="card-header">
-              <h4>Metrik &amp; Analisis Kritis DFS</h4>
+              <h4>Analisis Kinerja DFS</h4>
             </div>
             <div class="card-body">
               <div class="method-meta-grid">
@@ -895,12 +896,12 @@
                   <strong id="dfsDetailTime">-- ms</strong>
                 </div>
                 <div class="meta-pill">
-                  <span class="meta-lbl">Pola Pohon</span>
-                  <strong>Tinggi-Ramping (<em>Stringy</em>)</strong>
+                  <span class="meta-lbl">Bentuk Pohon</span>
+                  <strong>Memanjang ke Bawah (<em>Stringy</em>)</strong>
                 </div>
               </div>
               <div class="method-callout callout-danger" style="margin-top:0.75rem;">
-                <strong>Kelemahan Blind Deep Dive:</strong> DFS sangat rentan terjebak dalam penyelaman buta. Jika cabang pertama mengarah ke hasil antara yang tidak efisien, DFS tetap mengeksplorasi cabang tersebut hingga kedalaman batas sebelum berputar balik, menyebabkan pembengkakan evaluasi verteks.
+                <strong>Risiko Penelusuran Terlalu Dalam:</strong> DFS rentan membuang banyak evaluasi pada cabang yang keliru. Jika pilihan cabang awal menghasilkan angka yang menjauh dari solusi, DFS tetap menelusurinya sampai ke dasar sebelum menyadari jalan buntu dan memutar balik.
               </div>
               <details class="mermaid-details" style="margin-top:1rem;">
                 <summary>Lihat Sintaks Mermaid Diagram DFS</summary>
@@ -912,28 +913,28 @@
       </div>
 
       <!-- ================================================================= -->
-      <!-- SUBPANE 4: ADAPTIVE AEGTS (DEKOMPOSISI MENDALAM)                  -->
+      <!-- SUBPANE 4: ADAPTIVE AEGTS                                         -->
       <!-- ================================================================= -->
       <div class="morphology-subpane" id="subpane-aegts">
         <div class="card decomposition-header-card star-card">
           <div class="card-header">
             <div>
-              <span class="method-num text-emerald">Dekomposisi Mendalam Metode 4 (Optimal)</span>
-              <h3>Adaptive AEGTS: Sintesis Entropi Shannon &amp; Pemangkasan Adaptif</h3>
-              <p class="card-subtitle">Peralihan dinamis BFS \(\to\) DFS berbasis ambang entropi (\(\tau\)) disertai pemangkasan (\(\alpha\)) dan rem darurat (\(\delta\)).</p>
+              <span class="method-num text-emerald">Penjelasan Detail: Metode 4 (Paling Efisien)</span>
+              <h3>Adaptive AEGTS: Pemandu Entropi Shannon &amp; Pemangkasan Cabang</h3>
+              <p class="card-subtitle">Peralihan dinamis BFS ke DFS berdasarkan ambang entropi (\(\tau\)), pemangkasan nilai (\(\alpha\)), dan batas penurunan (\(\delta\)).</p>
             </div>
             <span class="badge badge-success" id="decompBadgeAegts">Status: SOLVED</span>
           </div>
           <div class="card-body">
-            <p>AEGTS mengukur ketidakpastian distribusi probabilitas kebijakan menggunakan Entropi Shannon ternormalisasi (\(\bar{\mathcal{H}}\)). Saat ambiguitas tinggi (\(\bar{\mathcal{H}} \ge \tau\)), algoritma mengaktifkan eksplorasi BFS dengan pemangkasan nilai (\(V &lt; \alpha\)). Begitu ambiguitas mereda (\(\bar{\mathcal{H}} &lt; \tau\)), sistem seketika beralih ke eksploitasi cepat DFS terarah menuju target 24.</p>
+            <p>AEGTS memanfaatkan Entropi Shannon ternormalisasi (\(\bar{\mathcal{H}}\)) untuk mengukur tingkat ketidakpastian langkah. Saat pilihan langkah masih membingungkan (\(\bar{\mathcal{H}} \ge \tau\)), algoritma memeriksa cabang secara melebar (BFS) sembari membuang cabang bernilai rendah (\(V &lt; \alpha\)). Begitu arah menuju solusi mulai jelas (\(\bar{\mathcal{H}} &lt; \tau\)), algoritma langsung beralih ke penelusuran mendalam (DFS) menuju target 24.</p>
           </div>
         </div>
 
         <!-- Big SVG Graph Card -->
         <div class="card detail-graph-card">
           <div class="card-header">
-            <h4>Visualisasi Graf Pembentukan <em>Spanning Tree</em> AEGTS</h4>
-            <span class="badge badge-accent">Pohon Adaptif Cerdas &amp; Titik \(\alpha\)-Pruning</span>
+            <h4>Bagan Pembentukan <em>Spanning Tree</em> AEGTS</h4>
+            <span class="badge badge-accent">Pohon Terpandu &amp; Pemangkasan Cabang (\(\alpha\)-Pruning)</span>
           </div>
           <div class="card-body">
             <div class="detail-diagram-large" id="aegtsDetailSvgContainer">
@@ -946,18 +947,18 @@
         <div class="info-cards-split">
           <div class="card">
             <div class="card-header">
-              <h4>Jadwal Entropi Shannon &amp; Transisi Mode</h4>
+              <h4>Jadwal Entropi Shannon &amp; Pergantian Mode</h4>
             </div>
             <div class="card-body">
               <div class="table-responsive">
                 <table class="table table-bordered table-striped" id="aegtsEntropyTable">
                   <thead>
                     <tr>
-                      <th>Aras</th>
+                      <th>Tingkat</th>
                       <th>Entropi (\(\bar{\mathcal{H}}\))</th>
-                      <th>Kondisi vs Ambang (\(\tau\))</th>
+                      <th>Perbandingan vs Ambang (\(\tau\))</th>
                       <th>Mode Aktif</th>
-                      <th>Aksi Pemangkasan</th>
+                      <th>Tindakan Pemangkasan</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -970,7 +971,7 @@
 
           <div class="card">
             <div class="card-header">
-              <h4>Metrik &amp; Keunggulan Teori Informasi</h4>
+              <h4>Analisis Efisiensi AEGTS</h4>
             </div>
             <div class="card-body">
               <div class="method-meta-grid">
@@ -992,7 +993,7 @@
                 </div>
               </div>
               <div class="method-callout callout-success" style="margin-top:0.75rem;">
-                <strong>Optimalitas Matematika:</strong> Dengan memadukan Teori Informasi (Shannon Entropy) dan Teori Graf (*spanning tree* terpandu), AEGTS memangkas cabang buruk di tahap paling awal sehingga subgraf penelusuran menjadi ramping, hemat token, dan sangat cepat.
+                <strong>Keunggulan Pendekatan Terpandu:</strong> Dengan memadukan teori informasi dan penelusuran graf, AEGTS membuang cabang tidak potensial sejak awal. Hasilnya, pohon penelusuran (<em>spanning tree</em>) menjadi jauh lebih ramping, hemat memori, dan cepat menemukan solusi.
               </div>
               <details class="mermaid-details" style="margin-top:1rem;">
                 <summary>Lihat Sintaks Mermaid Diagram AEGTS</summary>
@@ -1111,7 +1112,7 @@
     </section>
 
     <!-- =================================================================== -->
-    <!-- TAB 3: BENCHMARK LAPORAN & TEOREMA MATEMATIS                        -->
+    <!-- TAB 4: HASIL PENGUJIAN & TEORI                                      -->
     <!-- =================================================================== -->
     <section id="tab-benchmark" class="tab-pane">
       
@@ -1181,25 +1182,25 @@
             <div class="math-eq" data-tex="T \text{ adalah pohon} \implies |E| = |V| - 1">
               $$T \text{ adalah pohon} \implies |E| = |V| - 1$$
             </div>
-            <p class="math-desc">Setiap pohon dengan \(|V|\) verteks selalu memiliki tepat \(|E| = |V| - 1\) <em>edge</em> tanpa memuat sikel.</p>
+            <p class="math-desc">Setiap pohon dengan \(|V|\) verteks selalu memiliki tepat \(|E| = |V| - 1\) <em>edge</em> dan tidak memuat sikel.</p>
 
             <h4>2. Entropi Shannon Ternormalisasi (Cover &amp; Thomas, 2006)</h4>
             <div class="math-eq" data-tex="\bar{\mathcal{H}}(s) = -\frac{1}{\ln k} \sum_{i=1}^{k} \pi_\theta(a_i \mid s) \ln \pi_\theta(a_i \mid s) \in [0, 1]">
               $$\bar{\mathcal{H}}(s) = -\frac{1}{\ln k} \sum_{i=1}^{k} \pi_\theta(a_i \mid s) \ln \pi_\theta(a_i \mid s) \in [0, 1]$$
             </div>
-            <p class="math-desc">Mengukur derajat ketidakpastian pilihan aksi (\(k = |\mathcal{A}(s)|\)) untuk menentukan peralihan adaptif antara mode BFS dan DFS.</p>
+            <p class="math-desc">Mengukur tingkat ketidakpastian pilihan aksi (\(k = |\mathcal{A}(s)|\)) untuk menentukan kapan harus beralih antara mode penelusuran melebar (BFS) dan mendalam (DFS).</p>
 
             <h4>3. Kriteria Pemangkasan Dini (Early Backtracking)</h4>
             <div class="math-eq" data-tex="\Delta V(s, a) = V_\phi\big(\mathcal{T}(s, a)\big) - V_\phi(s) < -\delta">
               $$\Delta V(s, a) = V_\phi\big(\mathcal{T}(s, a)\big) - V_\phi(s) &lt; -\delta$$
             </div>
-            <p class="math-desc">Memangkas subpohon evaluasi lebih awal saat penurunan evaluasi keadaan (\(\Delta V\)) melebihi batas toleransi parameter \(\delta\).</p>
+            <p class="math-desc">Membatalkan penelusuran cabang lebih awal saat penurunan evaluasi keadaan (\(\Delta V\)) melebihi batas toleransi parameter \(\delta\).</p>
 
             <h4>4. Bilangan Siklomatik Graf (Euler &amp; Kirchhoff)</h4>
             <div class="math-eq" data-tex="\mu(G) = |E| - |V| + 1 = 11 - 8 + 1 = 4">
               $$\mu(G) = |E| - |V| + 1 = 11 - 8 + 1 = 4$$
             </div>
-            <p class="math-desc">Jumlah independen siklus fundamental dalam graf terhubung \(G\), setara dengan jumlah <em>edge</em> yang harus dieliminasi untuk mereduksi graf menjadi <em>spanning tree</em> (\(|E \setminus E_T| = 4\)).</p>
+            <p class="math-desc">Jumlah sikel independen dalam graf terhubung \(G\). Nilai ini sama dengan banyaknya <em>edge</em> yang harus dihilangkan agar graf terhubung berubah menjadi <em>spanning tree</em> (\(|E \setminus E_T| = 4\)).</p>
           </div>
         </div>
       </div>
