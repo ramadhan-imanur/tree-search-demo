@@ -1553,3 +1553,350 @@ code {
 [data-theme="dark"] .entropy-track .katex {
   color: #F8B196;
 }
+
+/* ==========================================================================
+   Morphology & Spanning Tree Process Tab
+   ========================================================================== */
+.card-subtitle {
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  margin-top: 0.25rem;
+}
+
+.morphology-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(460px, 1fr));
+  gap: 1.5rem;
+  margin-top: 1.25rem;
+}
+
+.morphology-method-card {
+  display: flex;
+  flex-direction: column;
+}
+
+.method-num {
+  display: block;
+  font-size: 0.72rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  margin-bottom: 0.2rem;
+}
+
+.method-spec {
+  font-size: 0.88rem;
+  line-height: 1.55;
+  color: var(--text-main);
+  margin-bottom: 1rem;
+}
+
+.method-bullets {
+  margin: 0.5rem 0 0 1.25rem;
+  padding: 0;
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
+
+.morphology-diagram-wrapper {
+  background: var(--bg-main);
+  border: 1px solid var(--border-card);
+  border-radius: 16px;
+  padding: 0.75rem;
+  margin-bottom: 1rem;
+  box-shadow: inset 2px 2px 6px rgba(0, 0, 0, 0.04);
+}
+
+.morphology-svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* SVG Elements Styling */
+.svg-node-box {
+  fill: #FFFFFF;
+  stroke: #CBD5E1;
+  stroke-width: 1.5;
+  transition: all 0.2s ease;
+}
+
+.root-box {
+  fill: #FFF8F4;
+  stroke: #E59678;
+  stroke-width: 2;
+}
+
+.bfs-box {
+  fill: #F0F7FF;
+  stroke: #6EA2D4;
+}
+
+.danger-box {
+  fill: #FEF2F2;
+  stroke: #F87171;
+}
+
+.pruned-box {
+  fill: #FFF1F2;
+  stroke: #FDA4AF;
+  stroke-dasharray: 4, 3;
+}
+
+.success-box {
+  fill: #ECFDF5;
+  stroke: #529F79;
+  stroke-width: 2;
+}
+
+.goal-box {
+  fill: #D1FAE5;
+  stroke: #10B981;
+  stroke-width: 2.5;
+}
+
+.svg-node-title {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 9.5px;
+  font-weight: 700;
+  fill: #64748B;
+}
+
+.svg-node-val {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  font-weight: 700;
+  fill: #1E293B;
+}
+
+.svg-node-sub {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 9px;
+  font-weight: 600;
+}
+
+.svg-edge-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  font-weight: 600;
+  fill: #64748B;
+}
+
+.svg-caption {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 10px;
+  font-weight: 600;
+  fill: #64748B;
+}
+
+.svg-layer-tag {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  font-weight: 700;
+  fill: #6EA2D4;
+}
+
+/* Collapsible Mermaid */
+.mermaid-details {
+  background: rgba(0, 0, 0, 0.02);
+  border: 1px solid var(--border-card);
+  border-radius: 12px;
+  margin-bottom: 1rem;
+  overflow: hidden;
+}
+
+.mermaid-details summary {
+  padding: 0.5rem 0.85rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  cursor: pointer;
+  background: var(--bg-card);
+  user-select: none;
+}
+
+.mermaid-details summary:hover {
+  color: var(--clay-blue-dark);
+}
+
+.mermaid-code {
+  margin: 0;
+  padding: 0.85rem;
+  background: #1E293B;
+  color: #F8FAFC;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.78rem;
+  line-height: 1.45;
+  overflow-x: auto;
+}
+
+/* Method Meta Pills */
+.method-meta-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.meta-pill {
+  background: var(--bg-card);
+  border: 1px solid var(--border-card);
+  border-radius: 12px;
+  padding: 0.55rem 0.8rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.meta-pill.highlight {
+  border-color: rgba(82, 159, 121, 0.4);
+  background: rgba(82, 159, 121, 0.05);
+}
+
+.meta-lbl {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.meta-pill strong {
+  font-size: 0.95rem;
+  font-family: var(--font-mono);
+}
+
+/* Method Callouts */
+.method-callout {
+  font-size: 0.82rem;
+  line-height: 1.45;
+  padding: 0.75rem 0.95rem;
+  border-radius: 14px;
+}
+
+.callout-danger {
+  background: #FEF2F2;
+  border: 1px solid #FECACA;
+  color: #991B1B;
+}
+
+.callout-info {
+  background: #F0F9FF;
+  border: 1px solid #BAE6FD;
+  color: #0369A1;
+}
+
+.callout-success {
+  background: #ECFDF5;
+  border: 1px solid #A7F3D0;
+  color: #065F46;
+}
+
+.table-header-highlight {
+  background: rgba(82, 159, 121, 0.12) !important;
+  color: #065F46 !important;
+  font-weight: 800;
+}
+
+/* Dark Mode Overrides for Morphology */
+[data-theme="dark"] .morphology-diagram-wrapper {
+  background: #0B111D;
+  border-color: #1E293B;
+  box-shadow: inset 2px 2px 8px rgba(0, 0, 0, 0.7);
+}
+
+[data-theme="dark"] .svg-node-box {
+  fill: #1E293B;
+  stroke: #334155;
+}
+
+[data-theme="dark"] .root-box {
+  fill: #2C1A14;
+  stroke: #E59678;
+}
+
+[data-theme="dark"] .bfs-box {
+  fill: #13273D;
+  stroke: #38BDF8;
+}
+
+[data-theme="dark"] .danger-box {
+  fill: #331518;
+  stroke: #F87171;
+}
+
+[data-theme="dark"] .pruned-box {
+  fill: #261215;
+  stroke: #FB7185;
+}
+
+[data-theme="dark"] .success-box {
+  fill: #0F2D21;
+  stroke: #34D399;
+}
+
+[data-theme="dark"] .goal-box {
+  fill: #064E3B;
+  stroke: #10B981;
+}
+
+[data-theme="dark"] .svg-node-title {
+  fill: #94A3B8;
+}
+
+[data-theme="dark"] .svg-node-val {
+  fill: #F1F5F9;
+}
+
+[data-theme="dark"] .svg-edge-label {
+  fill: #CBD5E1;
+}
+
+[data-theme="dark"] .svg-caption {
+  fill: #94A3B8;
+}
+
+[data-theme="dark"] .mermaid-details {
+  background: #0F172A;
+  border-color: #1E293B;
+}
+
+[data-theme="dark"] .mermaid-details summary {
+  background: #1E293B;
+  color: #CBD5E1;
+}
+
+[data-theme="dark"] .mermaid-code {
+  background: #090E17;
+  color: #E2E8F0;
+}
+
+[data-theme="dark"] .callout-danger {
+  background: rgba(239, 68, 68, 0.12);
+  border-color: rgba(239, 68, 68, 0.3);
+  color: #FCA5A5;
+}
+
+[data-theme="dark"] .callout-info {
+  background: rgba(14, 165, 233, 0.12);
+  border-color: rgba(14, 165, 233, 0.3);
+  color: #7DD3FC;
+}
+
+[data-theme="dark"] .callout-success {
+  background: rgba(16, 185, 129, 0.12);
+  border-color: rgba(16, 185, 129, 0.3);
+  color: #6EE7B7;
+}
+
+[data-theme="dark"] .table-header-highlight {
+  background: rgba(52, 211, 153, 0.15) !important;
+  color: #6EE7B7 !important;
+}
+
+@media (max-width: 768px) {
+  .morphology-grid {
+    grid-template-columns: 1fr;
+  }
+}

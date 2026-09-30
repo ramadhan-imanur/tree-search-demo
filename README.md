@@ -21,7 +21,7 @@ Aplikasi web simulasi ini telah di-deploy dan dapat diakses secara publik melalu
 
 ## 📌 Ringkasan Fitur Aplikasi Web
 
-Aplikasi web interaktif ini memvisualisasikan riset komparasi algoritma dan penelusuran graf secara komprehensif melalui 3 tab utama:
+Aplikasi web interaktif ini memvisualisasikan riset komparasi algoritma dan penelusuran graf secara komprehensif melalui 4 tab utama:
 
 ### 1. 🧠 Inovasi Machine Learning (Tree-of-Thoughts & AEGTS)
 * **Komparasi 4 Paradigma Penelusuran Pohon Keadaan:**
@@ -35,7 +35,16 @@ Aplikasi web interaktif ini memvisualisasikan riset komparasi algoritma dan pene
 * **Preset Kasus Cepat & Kustomisasi Bilangan:** Pilihan instan `[1, 2, 3, 4]`, `[6, 6, 6, 6]`, `[4, 5, 6, 7]`, `[4, 1, 8, 7]`, `[2, 4, 6, 8]`, `[3, 3, 8, 8]`, atau memasukkan 4 angka bebas.
 * **Tuning Hyperparameter:** Slider interaktif untuk ambang entropi $\tau$, pemangkasan nilai $\alpha$, dan toleransi rollback $\delta$.
 
-### 2. 🕸️ Teori Graf Diskrit: Tracing Graf Uji 8 Titik (BFS vs DFS)
+### 2. 🌳 Morfologi & Urutan Proses Penentuan *Spanning Tree* (4 Metode)
+* **Dekomposisi Urutan Pembentukan *Edge*:** Memvisualisasikan alur penentuan *spanning tree* dari setiap metode pada kasus Game of 24 `[6, 6, 6, 6]`.
+* **Diagram Visual & Sintaks Mermaid:**
+  * *Linear CoT:* Rantai tunggal (*bamboo graph*), panjang jalur $k=3$, tanpa percabangan (evaluasi 61 verteks, memori 1 verteks).
+  * *Pure ToT-BFS:* Pohon rimbun melebar (*bushy tree*), evaluasi antrean FIFO lapis demi lapis (evaluasi 113 verteks, memori 4 verteks).
+  * *Pure ToT-DFS:* Pohon tinggi ramping (*stringy tree*), penyelaman vertikal buta dengan *backtracking* (evaluasi 132 verteks, memori 15 verteks).
+  * *Adaptive AEGTS:* Pohon terfokus adaptif, kombinasi dinamis BFS dipandu Entropi $\bar{\mathcal{H}} \ge \tau$ dengan pemangkasan $\alpha$ dan penyelaman DFS cepat $\bar{\mathcal{H}} < \tau$ (evaluasi 74 verteks, hemat 43.9% vs DFS).
+* **Tabel Perbandingan Morfologi Graf:** Ringkasan komparasi bentuk graf, verteks dievaluasi, memori frontier, strategi transisi, dan pemangkasan cabang.
+
+### 3. 🕸️ Teori Graf Diskrit: Tracing Graf Uji 8 Titik (BFS vs DFS)
 * **Kanvas Graf Interaktif (SVG):** Menampilkan graf uji acuan terhubung seragam berordo 8 titik ($|V|=8$) dan berukuran 11 *edge* ($|E|=11$).
 * **Tombol Alih Mode Rekonstruksi:**
   * *Graf Asal:* Menampilkan seluruh 11 *edge* awal.
@@ -44,7 +53,7 @@ Aplikasi web interaktif ini memvisualisasikan riset komparasi algoritma dan pene
 * **Tabel Penelusuran Langkah demi Langkah:** Status antrean FIFO vs tumpukan LIFO & peristiwa *backtracking*.
 * **Tabel Analisis Komparatif Morfologi:** Kontras dangkal-lebar (*bushy*) vs tinggi-ramping (*stringy*), jaminan geodesik, dan skenario penerapan (STP IEEE 802.1D vs deteksi deadlock).
 
-### 3. 📊 Laporan Benchmark & Teorema Matematis
+### 4. 📊 Laporan Benchmark & Teorema Matematis
 * **Rekapitulasi 25 Kasus Uji Baku Game of 24** (Mudah, Sedang, Sulit).
 * **Formulasi Teorema Formal:**
   * Relasi Invarian Pohon: $|E| = |V| - 1$ (Induksi Matematika via Lema Daun).
