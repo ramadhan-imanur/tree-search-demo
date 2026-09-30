@@ -1396,7 +1396,7 @@ function renderMorphSvgCot(cot, nums, isDetail = false) {
 
     const titleText = isRoot ? "Aras 0 (Root)" : isTerminal ? `Aras ${idx} (Terminal)` : `Aras ${idx}`;
     const valText = isTerminal 
-      ? (isSuccess ? `[${node.numbers.join(", ")}] ✅` : `[${node.numbers.join(", ")}] ❌`)
+      ? (isSuccess ? `[${node.numbers.join(", ")}] (Target)` : `[${node.numbers.join(", ")}] (Buntu)`)
       : `[${node.numbers.join(", ")}]`;
 
     nodesSvg += `
@@ -1573,7 +1573,7 @@ function renderMorphSvgDfs(dfs, nums, isDetail = false) {
       <line x1="${leftX + boxW / 2}" y1="98" x2="${leftX + boxW / 2}" y2="116" stroke="${diveArrow}" stroke-width="2.5" marker-end="url(#arrowDfs)" />
       <g class="m-node" transform="translate(${leftX}, 116)">
         <rect width="${boxW}" height="${boxH}" rx="8" class="svg-node-box danger-box" />
-        <text x="${boxW / 2}" y="19" class="svg-node-val text-red" text-anchor="middle">2. [${deepNum2}] ❌ Buntu</text>
+        <text x="${boxW / 2}" y="19" class="svg-node-val text-red" text-anchor="middle">2. [${deepNum2}] (Buntu)</text>
       </g>
 
       <path d="M ${leftX + boxW} 128 C ${w / 2} 125, ${w / 2} 48, ${rootX + 10} 35" fill="none" stroke="${backArrow}" stroke-width="2" stroke-dasharray="5,4" marker-end="url(#arrowBackDfs)" />
@@ -1588,7 +1588,7 @@ function renderMorphSvgDfs(dfs, nums, isDetail = false) {
       <line x1="${rightX + (boxW + 15) / 2}" y1="98" x2="${rightX + (boxW + 15) / 2}" y2="116" stroke="${succArrow}" stroke-width="2.5" marker-end="url(#arrowSuccDfs)" />
       <g class="m-node" transform="translate(${rightX - 10}, 116)">
         <rect width="${boxW + 35}" height="${boxH}" rx="8" class="svg-node-box goal-box" />
-        <text x="${(boxW + 35) / 2}" y="19" class="svg-node-val text-emerald font-bold" text-anchor="middle">5. 🎉 Target 24 Solusi</text>
+        <text x="${(boxW + 35) / 2}" y="19" class="svg-node-val text-emerald font-bold" text-anchor="middle">5. Target 24 (Solusi)</text>
       </g>
 
       <text x="${w / 2}" y="${h - 8}" class="svg-caption" text-anchor="middle">${caption}</text>
@@ -1622,8 +1622,8 @@ function renderMorphSvgAegts(aegts, nums, tau = 0.40, alpha = 0.30, delta = 0.25
   const goodExample = `${n1}+${n2}=${n1 + n2}`;
 
   const exprText = aegts.success && aegts.expression
-    ? `${aegts.expression.replace(/\*/g, '×')} = 24 🎉`
-    : `(Target 24 Tercapai! 🎉)`;
+    ? `${aegts.expression.replace(/\*/g, '×')} = 24`
+    : `(Target 24 Tercapai)`;
 
   const caption = `Urutan Edge: Melebar di awal (BFS), pangkas cabang lemah (α-Pruning), lalu menyelam cepat (DFS) ke target 24.`;
 
@@ -1644,13 +1644,13 @@ function renderMorphSvgAegts(aegts, nums, tau = 0.40, alpha = 0.30, delta = 0.25
       <g class="m-node" transform="translate(${leftX}, 72)">
         <rect width="${leftBoxW}" height="${boxH}" rx="10" class="svg-node-box pruned-box" />
         <text x="${leftBoxW / 2}" y="18" class="svg-node-val text-muted" text-anchor="middle">Cabang [${badExample}, ...]</text>
-        <text x="${leftBoxW / 2}" y="33" class="svg-node-sub text-red" text-anchor="middle">✂️ α-Pruning (Dipangkas!)</text>
+        <text x="${leftBoxW / 2}" y="33" class="svg-node-sub text-red" text-anchor="middle">α-Pruning (Dipangkas)</text>
       </g>
 
       <line x1="${rootX + rootW - 30}" y1="${rootY + rootH}" x2="${rightX + rightBoxW / 2}" y2="72" stroke="${arrowColor}" stroke-width="3" marker-end="url(#arrowAegts)" />
       <g class="m-node" transform="translate(${rightX}, 72)">
         <rect width="${rightBoxW}" height="${boxH}" rx="10" class="svg-node-box success-box" />
-        <text x="${rightBoxW / 2}" y="18" class="svg-node-val text-emerald font-bold" text-anchor="middle">Cabang [${goodExample}] (V ≥ α ✅)</text>
+        <text x="${rightBoxW / 2}" y="18" class="svg-node-val text-emerald font-bold" text-anchor="middle">Cabang [${goodExample}] (V ≥ α)</text>
         <text x="${rightBoxW / 2}" y="33" class="svg-node-sub text-emerald" text-anchor="middle">Arah Jelas: H̄ &lt; τ (Beralih ke DFS)</text>
       </g>
 
@@ -1702,9 +1702,9 @@ function generateMermaidDfs(dfs, nums) {
   Root["[${nums.join(", ")}] (Root)"]
   Root -->|1. Selam Utama LIFO| D1["[${n1 * n2}, ...]"]
   D1 -->|2. Selam Dalam| D2["Daun Terminal"]
-  D2 -->|3. Dead End| D3["❌ Buntu"]
-  D3 -.->|4. Backtrack Buta| Root
-  Root -->|5. Coba Ulang| D4["Cabang Alternatif ✅"]`;
+  D2 -->|3. Dead End| D3["Buntu"]
+  D3 -.->|4. Backtrack| Root
+  Root -->|5. Coba Cabang Lain| D4["Cabang Alternatif"]`;
 }
 
 function generateMermaidAegts(aegts, nums, tau, alpha) {
@@ -1712,10 +1712,10 @@ function generateMermaidAegts(aegts, nums, tau, alpha) {
   const n1 = nums[0], n2 = nums[1];
   return `graph TD
   Root["[${nums.join(", ")}] (H̄ = ${h0} ${h0 >= tau ? '>=' : '<'} tau)"]
-  Root -->|Mode BFS: Cabang Prospek| S1["[${n1 + n2}, ...] (V >= alpha ✅ Lolos)"]
-  Root -.->|alpha-Pruning| S2["[${n1 * n2}, ...] ✂️ Dipangkas"]
-  Root -.->|alpha-Pruning| S3["Cabang Buruk ✂️ Dipangkas"]
-  S1 -->|Mode DFS: H̄ < tau (Cepat)| Goal["${aegts.expression || '24'} 🎉 Target"]`;
+  Root -->|Mode BFS: Cabang Prospek| S1["[${n1 + n2}, ...] (V >= alpha Lolos)"]
+  Root -.->|alpha-Pruning| S2["[${n1 * n2}, ...] Dipangkas"]
+  Root -.->|alpha-Pruning| S3["Cabang Buruk Dipangkas"]
+  S1 -->|Mode DFS: H̄ < tau| Goal["${aegts.expression || '24'} (Target)"]`;
 }
 
 function renderCotTable(cot) {
@@ -1924,10 +1924,10 @@ function renderDynamicMorphology(data) {
   setText("tblTimeDfs", `${dfs.execution_time_ms} ms`);
   setText("tblTimeAegts", `${aegts.execution_time_ms} ms`);
 
-  setText("tblStatusCot", cot.success ? "SOLVED ✅" : "FAILED ❌");
-  setText("tblStatusBfs", bfs.success ? "SOLVED ✅" : "FAILED ❌");
-  setText("tblStatusDfs", dfs.success ? "SOLVED ✅" : "FAILED ❌");
-  setText("tblStatusAegts", aegts.success ? "SOLVED ✅" : "FAILED ❌");
+  setText("tblStatusCot", cot.success ? "SOLVED" : "FAILED");
+  setText("tblStatusBfs", bfs.success ? "SOLVED" : "FAILED");
+  setText("tblStatusDfs", dfs.success ? "SOLVED" : "FAILED");
+  setText("tblStatusAegts", aegts.success ? "SOLVED" : "FAILED");
 
   // 4. Subpane 1: Linear CoT Decomposition
   const cotSvgDetail = document.getElementById("cotDetailSvgContainer");
