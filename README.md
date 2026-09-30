@@ -1,84 +1,91 @@
-# Platform Simulasi Interaktif: Karakterisasi Tree & Spanning Tree
-## Serta Pengembangan Algoritma Hibrida Adaptif pada Machine Learning Reasoning (Tree-of-Thoughts)
+# Pohon Penelusuran & *Spanning Tree*
 
-**Author:** Ramadhan Imanur  
-**Repository:** [ramadhan-imanur/tree-search-demo](https://github.com/ramadhan-imanur/tree-search-demo)  
-**Project Type:** Proyek Riset Mandiri (Independent Open Source Project)  
+Simulasi interaktif algoritma penelusuran graf dan penalaran *Tree-of-Thoughts* pada Game of 24 menggunakan *Adaptive Entropy-Guided Tree Search* (AEGTS).
 
----
-
-## 🌐 Akses Live Demo Interaktif (Online Deployment)
-
-Aplikasi web simulasi ini telah di-deploy dan dapat diakses secara publik melalui dua tautan *cloud* berikut (100% *serverless*, bebas beban prosesor, dan dapat dibuka di HP, laptop, maupun tablet):
-
-* 🚀 **Vercel Deployment (Utama):**  
-  👉 **[https://tree-search-demo.vercel.app/](https://tree-search-demo.vercel.app/)**
-
-* 🐙 **GitHub Pages Deployment (Mirror):**  
-  👉 **[https://ramadhan-imanur.github.io/tree-search-demo/](https://ramadhan-imanur.github.io/tree-search-demo/)**
+* **Penulis:** Ramadhan Imanur
+* **Repositori:** [ramadhan-imanur/tree-search-demo](https://github.com/ramadhan-imanur/tree-search-demo)
+* **Lisensi:** Open Source
 
 ---
 
-## 📌 Ringkasan Fitur Aplikasi Web
+## Demo Interaktif
 
-Aplikasi web interaktif ini memvisualisasikan riset komparasi algoritma dan penelusuran graf secara komprehensif melalui 4 tab utama:
+Aplikasi ini dapat langsung diakses melalui peramban tanpa instalasi:
 
-### 1. 🧠 Inovasi Machine Learning (Tree-of-Thoughts & AEGTS)
-* **Komparasi 4 Paradigma Penelusuran Pohon Keadaan:**
-  1. *Linear Chain-of-Thought (CoT)* — Penalaran greedy linear.
-  2. *Pure ToT-BFS* — Eksplorasi melebar menggunakan antrean FIFO berpenjamin geodesik.
-  3. *Pure ToT-DFS* — Penyelaman mendalam tumpukan LIFO dengan backtracking.
-  4. *Adaptive AEGTS (Adaptive Entropy-Guided Tree Search)* — Penelusuran hibrida terpandu Entropi Shannon $\bar{\mathcal{H}}(s)$ dengan *Predictive Early Backtracking* $\Delta V < -\delta$.
-* **Penghematan Komputasi Riil:** Membuktikan reduksi evaluasi verteks hingga **>70%** dibandingkan DFS murni.
-* **Diagram Pohon Deduktif Interaktif (*Thought Tree*):** Menampilkan hierarki langkah pemikiran dari Aras 0 (*Root*) ke Aras 3 (*Goal 24*) beserta badge nilai entropi ternormalisasi.
-* **Grafik Batang Perbandingan Ukuran Ruang Pencarian (*SVG Bar Chart*).**
-* **Preset Kasus Cepat & Kustomisasi Bilangan:** Pilihan instan `[1, 2, 3, 4]`, `[6, 6, 6, 6]`, `[4, 5, 6, 7]`, `[4, 1, 8, 7]`, `[2, 4, 6, 8]`, `[3, 3, 8, 8]`, atau memasukkan 4 angka bebas.
-* **Tuning Hyperparameter:** Slider interaktif untuk ambang entropi $\tau$, pemangkasan nilai $\alpha$, dan toleransi rollback $\delta$.
-
-### 2. 🌳 Morfologi & Urutan Proses Penentuan *Spanning Tree* (4 Metode)
-* **Dekomposisi Urutan Pembentukan *Edge*:** Memvisualisasikan alur penentuan *spanning tree* dari setiap metode pada kasus Game of 24 `[6, 6, 6, 6]`.
-* **Diagram Visual & Sintaks Mermaid:**
-  * *Linear CoT:* Rantai tunggal (*bamboo graph*), panjang jalur $k=3$, tanpa percabangan (evaluasi 61 verteks, memori 1 verteks).
-  * *Pure ToT-BFS:* Pohon rimbun melebar (*bushy tree*), evaluasi antrean FIFO lapis demi lapis (evaluasi 113 verteks, memori 4 verteks).
-  * *Pure ToT-DFS:* Pohon tinggi ramping (*stringy tree*), penyelaman vertikal buta dengan *backtracking* (evaluasi 132 verteks, memori 15 verteks).
-  * *Adaptive AEGTS:* Pohon terfokus adaptif, kombinasi dinamis BFS dipandu Entropi $\bar{\mathcal{H}} \ge \tau$ dengan pemangkasan $\alpha$ dan penyelaman DFS cepat $\bar{\mathcal{H}} < \tau$ (evaluasi 74 verteks, hemat 43.9% vs DFS).
-* **Tabel Perbandingan Morfologi Graf:** Ringkasan komparasi bentuk graf, verteks dievaluasi, memori frontier, strategi transisi, dan pemangkasan cabang.
-
-### 3. 🕸️ Teori Graf Diskrit: Tracing Graf Uji 8 Titik (BFS vs DFS)
-* **Kanvas Graf Interaktif (SVG):** Menampilkan graf uji acuan terhubung seragam berordo 8 titik ($|V|=8$) dan berukuran 11 *edge* ($|E|=11$).
-* **Tombol Alih Mode Rekonstruksi:**
-  * *Graf Asal:* Menampilkan seluruh 11 *edge* awal.
-  * **Spanning Tree* BFS ($h=4$):* Menyorot 7 *edge* pohon berwarna hijau dan 4 *edge* tali busur (*chords*) putus-putus abu-abu.
-  * **Spanning Tree* DFS ($h=7$):* Menyorot 7 *edge* rantai pohon berwarna ungu dan 4 *edge* kembali (*back edges*) berwarna merah untuk deteksi sikel.
-* **Tabel Penelusuran Langkah demi Langkah:** Status antrean FIFO vs tumpukan LIFO & peristiwa *backtracking*.
-* **Tabel Analisis Komparatif Morfologi:** Kontras dangkal-lebar (*bushy*) vs tinggi-ramping (*stringy*), jaminan geodesik, dan skenario penerapan (STP IEEE 802.1D vs deteksi deadlock).
-
-### 4. 📊 Laporan Benchmark & Teorema Matematis
-* **Rekapitulasi 25 Kasus Uji Baku Game of 24** (Mudah, Sedang, Sulit).
-* **Formulasi Teorema Formal:**
-  * Relasi Invarian Pohon: $|E| = |V| - 1$ (Induksi Matematika via Lema Daun).
-  * Entropi Ternormalisasi Shannon: $\bar{\mathcal{H}}(s) = -\frac{1}{\ln k} \sum p_i \ln p_i$.
-  * Syarat Pemotongan Dini: $\Delta V < -\delta$.
+* **Vercel:** [https://tree-search-demo.vercel.app/](https://tree-search-demo.vercel.app/)
+* **GitHub Pages:** [https://ramadhan-imanur.github.io/tree-search-demo/](https://ramadhan-imanur.github.io/tree-search-demo/)
 
 ---
 
-## 👤 Pengembang Proyek
+## Fitur Utama
 
-Proyek ini dikembangkan secara mandiri oleh **Ramadhan Imanur** sebagai eksplorasi interdisipliner antara matematika diskrit (teori graf dan algoritma penelusuran pohon) dan penalaran model kecerdasan buatan (*Machine Learning / Tree-of-Thoughts Reasoning*).
+Aplikasi ini mendemonstrasikan perbandingan algoritma penelusuran graf dan penalaran model melalui empat bagian utama:
+
+### 1. Penalaran Mesin (Game of 24)
+* **Perbandingan Empat Metode Penelusuran:**
+  1. *Linear Chain-of-Thought (CoT):* penelusuran satu jalur langsung (*greedy*) tanpa cabang cadangan.
+  2. *Pure ToT-BFS:* penelusuran melebar dengan antrean FIFO yang menjamin rute terpendek.
+  3. *Pure ToT-DFS:* penelusuran mendalam dengan tumpukan LIFO dan pelacakan balik (*backtracking*).
+  4. *Adaptive AEGTS:* penelusuran terpandu Entropi Shannon $\bar{\mathcal{H}}(s)$ yang beralih antara BFS dan DFS secara adaptif disertai pemangkasan cabang.
+* **Efisiensi Langkah:** Menghemat evaluasi verteks hingga lebih dari 70% dibanding DFS murni pada parameter yang sesuai.
+* **Pohon Pemikiran (*Thought Tree*):** Visualisasi hierarki langkah dari verteks akar sampai solusi target 24 beserta nilai entropinya.
+* **Grafik Batang Komparatif:** Perbandingan jumlah verteks yang dievaluasi oleh masing-masing metode.
+* **Preset dan Kustomisasi:** Pilihan bilangan cepat (`[1, 2, 3, 4]`, `[6, 6, 6, 6]`, `[4, 5, 6, 7]`, `[4, 1, 8, 7]`, `[2, 4, 6, 8]`, `[3, 3, 8, 8]`) atau input angka mandiri.
+* **Pengaturan Parameter:** Slider interaktif untuk ambang entropi $\tau$, batas pemangkasan nilai $\alpha$, dan ambang penurunan nilai $\delta$.
+
+### 2. Morfologi Graf & *Spanning Tree*
+* **Dekomposisi Pembentukan *Edge*:** Memperlihatkan bagaimana setiap metode membentuk subgraf penelusuran (*search spanning tree*) untuk angka aktif.
+* **Karakteristik Setiap Metode:**
+  * *Linear CoT:* rantai lurus (*bamboo graph*) dengan panjang jalur $k=3$ tanpa percabangan.
+  * *Pure ToT-BFS:* pohon melebar rimbun (*bushy tree*) yang mengevaluasi antrean lapis demi lapis.
+  * *Pure ToT-DFS:* pohon memanjang ke bawah (*stringy tree*) dengan penyelaman ke satu cabang dan pelacakan balik saat buntu.
+  * *Adaptive AEGTS:* pohon terpandu yang ramping, memadukan BFS saat ragu ($\bar{\mathcal{H}} \ge \tau$) dan DFS saat arah solusi mulai jelas ($\bar{\mathcal{H}} < \tau$).
+* **Dekomposisi Khusus Per Metode:** Sub-tampilan individual untuk melihat alur detail, urutan transisi *edge*, dinamika antrean/tumpukan, dan diagram Mermaid tiap metode.
+* **Tabel Ringkasan Morfologi:** Perbandingan bentuk graf, verteks yang dievaluasi, memori puncak, strategi penelusuran, dan mekanisme pemangkasan.
+
+### 3. Graf Uji 8 Titik (BFS vs DFS)
+* **Visualisasi Graf Interaktif (SVG):** Menampilkan graf terhubung dengan 8 verteks ($|V|=8$) dan 11 *edge* ($|E|=11$).
+* **Pilihan Mode Tampilan:**
+  * *Graf Asal:* menampilkan seluruh 11 *edge* awal.
+  * *Spanning Tree* BFS ($h=4$): menyorot 7 *edge* pohon penelusuran melebar dan 4 *edge* silang (*cross-edges*).
+  * *Spanning Tree* DFS ($h=7$): menyorot 7 *edge* pohon penelusuran mendalam dan 4 *edge* balik (*back-edges*) untuk deteksi sikel.
+* **Tabel Tracing Langkah per Langkah:** Riwayat perubahan struktur data (antrean FIFO vs tumpukan LIFO) serta pencatatan *edge* yang ditambahkan ke pohon.
+* **Perbandingan Teoretis:** Analisis perbedaan bentuk pohon (melebar vs mendalam), jaminan rute terpendek, dan kasus penggunaannya.
+
+### 4. Hasil Pengujian & Teori
+* **Hasil Pengujian 25 Kasus:** Rekapitulasi perbandingan performa akurasi, rerata verteks, dan memori puncak dari keempat metode.
+* **Rumus Matematis:**
+  * Teorema Invarian Pohon: $|E| = |V| - 1$ untuk setiap pohon dengan $|V|$ verteks.
+  * Entropi Shannon Ternormalisasi: $\bar{\mathcal{H}}(s) = -\frac{1}{\ln k} \sum_{i=1}^{k} \pi(a_i \mid s) \ln \pi(a_i \mid s)$.
+  * Kriteria Pemangkasan Dini: $\Delta V < -\delta$.
+  * Bilangan Siklomatik Graf: $\mu(G) = |E| - |V| + 1 = 4$, yaitu jumlah *edge* yang perlu dieliminasi untuk membentuk *spanning tree*.
 
 ---
 
-## 🛠️ Menjalankan Secara Lokal (Opsional)
+## Menjalankan Secara Lokal
 
-Jika ingin menjalankan aplikasi secara lokal di komputer:
+Aplikasi ini berjalan langsung pada peramban (*client-side* menggunakan HTML, CSS, dan JavaScript) tanpa memerlukan server backend:
+
 ```bash
-# Clone repositori
+# Klon repositori
 git clone git@github.com:ramadhan-imanur/tree-search-demo.git
 cd tree-search-demo
 
-# Buka langsung file index.html di browser atau gunakan Five Server di VS Code:
-# Klik kanan index.html -> Open with Five Server
+# Buka file index.html langsung di peramban:
+# Linux
+xdg-open index.html
+
+# macOS
+open index.html
+
+# Windows
+start index.html
 ```
 
+Atau gunakan ekstensi server lokal seperti *Live Server* / *Five Server* di VS Code.
+
 ---
-*© 2026 Ramadhan Imanur. Proyek Riset Mandiri (Independent Open Source Project).*
+
+## Lisensi
+
+Proyek riset mandiri oleh Ramadhan Imanur (2026). Dirilis di bawah lisensi terbuka untuk keperluan edukasi dan riset.
