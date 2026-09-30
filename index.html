@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Simulasi Pohon Rentang & Penalaran Tree-of-Thoughts</title>
+  <title>Simulasi Spanning Tree & Penalaran Tree-of-Thoughts</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
@@ -164,7 +164,7 @@
                 <strong id="alphaVal">0.30</strong>
               </div>
               <input type="range" id="paramAlpha" min="0.10" max="0.60" step="0.05" value="0.30">
-              <small class="slider-desc">Batas nilai minimum simpul yang diizinkan masuk ke antrean BFS (\(V \ge \alpha\))</small>
+              <small class="slider-desc">Batas nilai minimum verteks yang diizinkan masuk ke antrean BFS (\(V \ge \alpha\))</small>
             </div>
 
             <div class="slider-group">
@@ -182,19 +182,19 @@
       <!-- KPI Summary Cards -->
       <div class="kpi-grid" id="kpiGrid">
         <div class="kpi-card highlight">
-          <div class="kpi-title">Penghematan Simpul vs DFS</div>
+          <div class="kpi-title">Penghematan Verteks vs DFS</div>
           <div class="kpi-value text-emerald" id="kpiSavingsDfs">+23.3%</div>
           <div class="kpi-desc">Mengurangi evaluasi langkah yang tidak perlu</div>
         </div>
         <div class="kpi-card">
-          <div class="kpi-title">Penghematan Simpul vs BFS</div>
+          <div class="kpi-title">Penghematan Verteks vs BFS</div>
           <div class="kpi-value text-cyan" id="kpiSavingsBfs">+30.8%</div>
           <div class="kpi-desc">Memangkas eksplorasi cabang berlebih</div>
         </div>
         <div class="kpi-card">
           <div class="kpi-title">Memori Puncak Frontier</div>
-          <div class="kpi-value" id="kpiPeakMemory">11 simpul</div>
-          <div class="kpi-desc">Maksimum simpul aktif di antrean atau tumpukan</div>
+          <div class="kpi-value" id="kpiPeakMemory">11 verteks</div>
+          <div class="kpi-desc">Maksimum verteks aktif di antrean atau tumpukan</div>
         </div>
         <div class="kpi-card">
           <div class="kpi-title">Waktu Komputasi Total</div>
@@ -213,8 +213,8 @@
           </div>
           <div class="card-body">
             <div class="stat-row">
-              <span class="stat-label">Simpul Dievaluasi:</span>
-              <strong class="stat-val" id="nodesCot">61 simpul</strong>
+              <span class="stat-label">Verteks Dievaluasi:</span>
+              <strong class="stat-val" id="nodesCot">61 verteks</strong>
             </div>
             <div class="stat-row">
               <span class="stat-label">Waktu Eksekusi:</span>
@@ -222,7 +222,7 @@
             </div>
             <div class="stat-row">
               <span class="stat-label">Memori Puncak:</span>
-              <span class="stat-val" id="memCot">1 simpul</span>
+              <span class="stat-val" id="memCot">1 verteks</span>
             </div>
             <div class="expr-box" id="exprCot">\(4 \times (3 + (1 + 2)) = 24\)</div>
             <p class="card-footer-text">Penelusuran satu jalur berurutan tanpa cabang atau pelacakan balik.</p>
@@ -237,8 +237,8 @@
           </div>
           <div class="card-body">
             <div class="stat-row">
-              <span class="stat-label">Simpul Dievaluasi:</span>
-              <strong class="stat-val" id="nodesBfs">133 simpul</strong>
+              <span class="stat-label">Verteks Dievaluasi:</span>
+              <strong class="stat-val" id="nodesBfs">133 verteks</strong>
             </div>
             <div class="stat-row">
               <span class="stat-label">Waktu Eksekusi:</span>
@@ -246,7 +246,7 @@
             </div>
             <div class="stat-row">
               <span class="stat-label">Memori Puncak:</span>
-              <span class="stat-val" id="memBfs">4 simpul</span>
+              <span class="stat-val" id="memBfs">4 verteks</span>
             </div>
             <div class="expr-box" id="exprBfs">\(4 \times (3 + (1 + 2)) = 24\)</div>
             <p class="card-footer-text">Antrean FIFO menelusuri seluruh cabang tingkat demi tingkat.</p>
@@ -261,8 +261,8 @@
           </div>
           <div class="card-body">
             <div class="stat-row">
-              <span class="stat-label">Simpul Dievaluasi:</span>
-              <strong class="stat-val text-red" id="nodesDfs">120 simpul</strong>
+              <span class="stat-label">Verteks Dievaluasi:</span>
+              <strong class="stat-val text-red" id="nodesDfs">120 verteks</strong>
             </div>
             <div class="stat-row">
               <span class="stat-label">Waktu Eksekusi:</span>
@@ -270,7 +270,7 @@
             </div>
             <div class="stat-row">
               <span class="stat-label">Memori Puncak:</span>
-              <span class="stat-val" id="memDfs">47 simpul</span>
+              <span class="stat-val" id="memDfs">47 verteks</span>
             </div>
             <div class="expr-box" id="exprDfs">\(1 \times (2 \times (3 \times 4)) = 24\)</div>
             <p class="card-footer-text">Tumpukan LIFO menelusuri satu cabang hingga tuntas, lalu melacak balik.</p>
@@ -287,11 +287,11 @@
           </div>
           <div class="card-body">
             <div class="stat-row">
-              <span class="stat-label">Simpul Dievaluasi:</span>
-              <strong class="stat-val text-emerald" id="nodesAegts">92 simpul</strong>
+              <span class="stat-label">Verteks Dievaluasi:</span>
+              <strong class="stat-val text-emerald" id="nodesAegts">92 verteks</strong>
             </div>
             <div class="stat-row">
-              <span class="stat-label">Efisiensi Simpul:</span>
+              <span class="stat-label">Efisiensi Verteks:</span>
               <span class="badge badge-pill-emerald" id="savingsBadge">-23.3% vs DFS</span>
             </div>
             <div class="stat-row">
@@ -300,7 +300,7 @@
             </div>
             <div class="stat-row">
               <span class="stat-label">Memori Puncak:</span>
-              <span class="stat-val" id="memAegts">11 simpul</span>
+              <span class="stat-val" id="memAegts">11 verteks</span>
             </div>
             <div class="expr-box highlight-expr" id="exprAegts">\(4 \times (3 + (1 + 2)) = 24\)</div>
             <div class="entropy-track" id="entropyTrack">
@@ -315,7 +315,7 @@
         <!-- Visual Comparison Chart -->
         <div class="card">
           <div class="card-header">
-            <h3>Perbandingan Jumlah Simpul yang Dievaluasi</h3>
+            <h3>Perbandingan Jumlah Verteks yang Dievaluasi</h3>
           </div>
           <div class="card-body">
             <div class="chart-container" id="barChartContainer">
@@ -351,17 +351,17 @@
           <h3>Studi Kasus Graf 8 Titik (\(|V| = 8\), \(|E| = 11\)), Makalah Bab III</h3>
           <div class="mode-toggles">
             <button class="btn btn-mode active" id="btnModeOrig">Graf Asal (\(|E| = 11\))</button>
-            <button class="btn btn-mode" id="btnModeBfs">Pohon Rentang BFS (\(h = 4\))</button>
-            <button class="btn btn-mode" id="btnModeDfs">Pohon Rentang DFS (\(h = 7\))</button>
+            <button class="btn btn-mode" id="btnModeBfs"><em>Spanning Tree</em> BFS (\(h = 4\))</button>
+            <button class="btn btn-mode" id="btnModeDfs"><em>Spanning Tree</em> DFS (\(h = 7\))</button>
           </div>
         </div>
         <div class="card-body">
           <div class="graph-legend">
             <span class="legend-item"><span class="dot dot-root"></span> Akar (\(v_0 = a\))</span>
             <span class="legend-item"><span class="dot dot-node"></span> Titik Graf (\(V\))</span>
-            <span class="legend-item"><span class="line line-tree"></span> Sisi Pohon Rentang (\(E_T\))</span>
-            <span class="legend-item"><span class="line line-chord"></span> Sisi Non-Pohon (\(E \setminus E_T\))</span>
-            <span class="legend-item"><span class="line line-back"></span> Sisi Balik (\(\text{Back Edge}\))</span>
+            <span class="legend-item"><span class="line line-tree"></span> <em>Edge Spanning Tree</em> (\(E_T\))</span>
+            <span class="legend-item"><span class="line line-chord"></span> <em>Edge</em> Non-Pohon (\(E \setminus E_T\))</span>
+            <span class="legend-item"><span class="line line-back"></span> <em>Edge</em> Balik (\(\text{Back Edge}\))</span>
           </div>
 
           <!-- SVG Graph Visualizer -->
@@ -376,7 +376,7 @@
         <div class="card">
           <div class="card-header">
             <h3>Tabel Penelusuran Langkah per Langkah</h3>
-            <span class="badge badge-info" id="tracingBadge">Algoritma BFS Spanning Tree</span>
+            <span class="badge badge-info" id="tracingBadge">Algoritma BFS <em>Spanning Tree</em></span>
           </div>
           <div class="card-body">
             <div class="table-responsive">
@@ -384,9 +384,9 @@
                 <thead>
                   <tr id="tracingHeader">
                     <th>Iterasi</th>
-                    <th>Simpul Aktif</th>
+                    <th>Verteks Aktif</th>
                     <th>Status Struktur Data</th>
-                    <th>Sisi Pohon Ditambahkan</th>
+                    <th><em>Edge</em> Pohon Ditambahkan</th>
                     <th>Keterangan Operasi</th>
                   </tr>
                 </thead>
@@ -428,13 +428,13 @@
                   <td>Tidak terjamin (dapat memutar)</td>
                 </tr>
                 <tr>
-                  <td><strong>Sisi Non-Pohon</strong></td>
-                  <td>Sisi silang (\(\text{cross-edges}\))</td>
-                  <td><strong class="text-amber">Sisi balik</strong> (\(\text{back-edges}\))</td>
+                  <td><strong><em>Edge</em> Non-Pohon</strong></td>
+                  <td><em>Edge</em> silang (\(\text{cross-edges}\))</td>
+                  <td><strong class="text-amber"><em>Edge</em> balik</strong> (\(\text{back-edges}\))</td>
                 </tr>
                 <tr>
                   <td><strong>Penerapan Umum</strong></td>
-                  <td>Protokol spanning tree jaringan, rute terpendek</td>
+                  <td>Protokol <em>spanning tree</em> jaringan, rute terpendek</td>
                   <td>Deteksi siklus, analisis ketergantungan</td>
                 </tr>
               </tbody>
@@ -463,7 +463,7 @@
                 <tr>
                   <th>Strategi Penelusuran</th>
                   <th>Akurasi</th>
-                  <th>Rerata Simpul</th>
+                  <th>Rerata Verteks</th>
                   <th>Hemat vs DFS</th>
                   <th>Memori Puncak</th>
                 </tr>
@@ -474,33 +474,33 @@
                   <td>44.0%</td>
                   <td>61.0</td>
                   <td>-81.7%</td>
-                  <td>1.0 simpul</td>
+                  <td>1.0 verteks</td>
                 </tr>
                 <tr>
                   <td>Pure ToT-BFS</td>
                   <td>60.0%</td>
                   <td>132.7</td>
                   <td>-60.2%</td>
-                  <td>4.0 simpul</td>
+                  <td>4.0 verteks</td>
                 </tr>
                 <tr>
                   <td>Pure ToT-DFS</td>
                   <td><strong>84.0%</strong></td>
                   <td>333.6</td>
                   <td>Acuan (0%)</td>
-                  <td>40.1 simpul</td>
+                  <td>40.1 verteks</td>
                 </tr>
                 <tr class="table-highlight">
                   <td><strong>Adaptive AEGTS</strong></td>
                   <td><strong>60.0% s.d. 80.0%</strong></td>
                   <td><strong class="text-emerald">114.5 (s.d. 94.8)</strong></td>
                   <td><span class="badge badge-pill-emerald">Hemat 71.6%</span></td>
-                  <td><strong>8.8 simpul</strong></td>
+                  <td><strong>8.8 verteks</strong></td>
                 </tr>
               </tbody>
             </table>
             <p class="card-footer-text">
-              *Pada parameter \(\tau = 0.70\), AEGTS mengevaluasi <strong>71.6%</strong> lebih sedikit simpul dibanding DFS murni dan <strong>28.6%</strong> lebih sedikit dibanding BFS murni.
+              *Pada parameter \(\tau = 0.70\), AEGTS mengevaluasi <strong>71.6%</strong> lebih sedikit verteks dibanding DFS murni dan <strong>28.6%</strong> lebih sedikit dibanding BFS murni.
             </p>
           </div>
         </div>
@@ -516,7 +516,7 @@
             <div class="math-eq" data-tex="T \text{ adalah pohon} \implies |E| = |V| - 1">
               $$T \text{ adalah pohon} \implies |E| = |V| - 1$$
             </div>
-            <p class="math-desc">Setiap pohon dengan \(|V|\) simpul selalu memiliki tepat \(|E| = |V| - 1\) sisi tanpa memuat sikel.</p>
+            <p class="math-desc">Setiap pohon dengan \(|V|\) verteks selalu memiliki tepat \(|E| = |V| - 1\) <em>edge</em> tanpa memuat sikel.</p>
 
             <h4>2. Entropi Shannon Ternormalisasi (Cover &amp; Thomas, 2006)</h4>
             <div class="math-eq" data-tex="\bar{\mathcal{H}}(s) = -\frac{1}{\ln k} \sum_{i=1}^{k} \pi_\theta(a_i \mid s) \ln \pi_\theta(a_i \mid s) \in [0, 1]">
@@ -534,7 +534,7 @@
             <div class="math-eq" data-tex="\mu(G) = |E| - |V| + 1 = 11 - 8 + 1 = 4">
               $$\mu(G) = |E| - |V| + 1 = 11 - 8 + 1 = 4$$
             </div>
-            <p class="math-desc">Jumlah independen siklus fundamental dalam graf terhubung \(G\), setara dengan jumlah sisi yang harus dieliminasi untuk mereduksi graf menjadi pohon rentang (\(|E \setminus E_T| = 4\)).</p>
+            <p class="math-desc">Jumlah independen siklus fundamental dalam graf terhubung \(G\), setara dengan jumlah <em>edge</em> yang harus dieliminasi untuk mereduksi graf menjadi <em>spanning tree</em> (\(|E \setminus E_T| = 4\)).</p>
           </div>
         </div>
       </div>

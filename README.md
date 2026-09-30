@@ -29,18 +29,18 @@ Aplikasi web interaktif ini memvisualisasikan riset komparasi algoritma dan pene
   2. *Pure ToT-BFS* — Eksplorasi melebar menggunakan antrean FIFO berpenjamin geodesik.
   3. *Pure ToT-DFS* — Penyelaman mendalam tumpukan LIFO dengan backtracking.
   4. *Adaptive AEGTS (Adaptive Entropy-Guided Tree Search)* — Penelusuran hibrida terpandu Entropi Shannon $\bar{\mathcal{H}}(s)$ dengan *Predictive Early Backtracking* $\Delta V < -\delta$.
-* **Penghematan Komputasi Riil:** Membuktikan reduksi evaluasi simpul hingga **>70%** dibandingkan DFS murni.
+* **Penghematan Komputasi Riil:** Membuktikan reduksi evaluasi verteks hingga **>70%** dibandingkan DFS murni.
 * **Diagram Pohon Deduktif Interaktif (*Thought Tree*):** Menampilkan hierarki langkah pemikiran dari Aras 0 (*Root*) ke Aras 3 (*Goal 24*) beserta badge nilai entropi ternormalisasi.
 * **Grafik Batang Perbandingan Ukuran Ruang Pencarian (*SVG Bar Chart*).**
 * **Preset Kasus Cepat & Kustomisasi Bilangan:** Pilihan instan `[1, 2, 3, 4]`, `[6, 6, 6, 6]`, `[4, 5, 6, 7]`, `[4, 1, 8, 7]`, `[2, 4, 6, 8]`, `[3, 3, 8, 8]`, atau memasukkan 4 angka bebas.
 * **Tuning Hyperparameter:** Slider interaktif untuk ambang entropi $\tau$, pemangkasan nilai $\alpha$, dan toleransi rollback $\delta$.
 
 ### 2. 🕸️ Teori Graf Diskrit: Tracing Graf Uji 8 Titik (BFS vs DFS)
-* **Kanvas Graf Interaktif (SVG):** Menampilkan graf uji acuan terhubung seragam berordo 8 titik ($|V|=8$) dan berukuran 11 sisi ($|E|=11$).
+* **Kanvas Graf Interaktif (SVG):** Menampilkan graf uji acuan terhubung seragam berordo 8 titik ($|V|=8$) dan berukuran 11 *edge* ($|E|=11$).
 * **Tombol Alih Mode Rekonstruksi:**
-  * *Graf Asal:* Menampilkan seluruh 11 sisi awal.
-  * *Pohon Rentang BFS ($h=4$):* Menyorot 7 sisi pohon berwarna hijau dan 4 sisi tali busur (*chords*) putus-putus abu-abu.
-  * *Pohon Rentang DFS ($h=7$):* Menyorot 7 sisi rantai pohon berwarna ungu dan 4 sisi kembali (*Back Edges*) berwarna merah untuk deteksi sikel.
+  * *Graf Asal:* Menampilkan seluruh 11 *edge* awal.
+  * **Spanning Tree* BFS ($h=4$):* Menyorot 7 *edge* pohon berwarna hijau dan 4 *edge* tali busur (*chords*) putus-putus abu-abu.
+  * **Spanning Tree* DFS ($h=7$):* Menyorot 7 *edge* rantai pohon berwarna ungu dan 4 *edge* kembali (*back edges*) berwarna merah untuk deteksi sikel.
 * **Tabel Penelusuran Langkah demi Langkah:** Status antrean FIFO vs tumpukan LIFO & peristiwa *backtracking*.
 * **Tabel Analisis Komparatif Morfologi:** Kontras dangkal-lebar (*bushy*) vs tinggi-ramping (*stringy*), jaminan geodesik, dan skenario penerapan (STP IEEE 802.1D vs deteksi deadlock).
 

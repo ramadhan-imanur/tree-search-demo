@@ -54,7 +54,7 @@ class JSStateNode {
 function evaluateStateValue(numbers, target = 24) {
   if (!numbers || numbers.length === 0) return 0.0;
 
-  // 1. Simpul Daun
+  // 1. Verteks Daun
   if (numbers.length === 1) {
     const diff = Math.abs(numbers[0].toFloat() - target);
     if (diff < 1e-6) return 1.0;
@@ -614,7 +614,7 @@ const GRAPH_8_DATA = {
       { step: 5, node: "e", queue: ["f", "g"], added_edges: [], note: "Dequeue e, seluruh tetangga telah dikunjungi" },
       { step: 6, node: "f", queue: ["g", "h"], added_edges: ["(f,h)"], note: "Dequeue f, masukkan h ke antrean" },
       { step: 7, node: "g", queue: ["h"], added_edges: [], note: "Dequeue g, tetangga h sudah berada di antrean" },
-      { step: 8, node: "h", queue: [], added_edges: [], note: "Dequeue h, antrean kosong. Pohon Rentang BFS selesai!" }
+      { step: 8, node: "h", queue: [], added_edges: [], note: "Dequeue h, antrean kosong. <em>Spanning tree</em> BFS selesai!" }
     ]
   },
   dfs: {
@@ -630,14 +630,14 @@ const GRAPH_8_DATA = {
     ],
     height: 7,
     steps: [
-      { step: 1, active: "a", chosen: "b", stack: ["a", "b"], edge: "(a,b)", action: "Maju ke simpul b" },
-      { step: 2, active: "b", chosen: "c", stack: ["a", "b", "c"], edge: "(b,c)", action: "Maju ke simpul c" },
-      { step: 3, active: "c", chosen: "e", stack: ["a", "b", "c", "e"], edge: "(c,e)", action: "Maju ke simpul e (sisi c-a merupakan sisi balik)" },
-      { step: 4, active: "e", chosen: "d", stack: ["a", "b", "c", "e", "d"], edge: "(e,d)", action: "Maju ke simpul d (sisi e-b merupakan sisi balik)" },
-      { step: 5, active: "d", chosen: "f", stack: ["a", "b", "c", "e", "d", "f"], edge: "(d,f)", action: "Maju ke simpul f (sisi d-b merupakan sisi balik)" },
-      { step: 6, active: "f", chosen: "h", stack: ["a", "b", "c", "e", "d", "f", "h"], edge: "(f,h)", action: "Maju ke simpul h" },
-      { step: 7, active: "h", chosen: "g", stack: ["a", "b", "c", "e", "d", "f", "h", "g"], edge: "(h,g)", action: "Maju ke simpul g" },
-      { step: 8, active: "g", chosen: "-", stack: ["a", "b", "c", "e", "d", "f", "h"], edge: "(g,d) [Sisi Balik]", action: "Jalan buntu di simpul g. Melacak balik hingga seluruh simpul selesai dikunjungi." }
+      { step: 1, active: "a", chosen: "b", stack: ["a", "b"], edge: "(a,b)", action: "Maju ke verteks b" },
+      { step: 2, active: "b", chosen: "c", stack: ["a", "b", "c"], edge: "(b,c)", action: "Maju ke verteks c" },
+      { step: 3, active: "c", chosen: "e", stack: ["a", "b", "c", "e"], edge: "(c,e)", action: "Maju ke verteks e (<em>edge</em> c-a merupakan <em>edge</em> balik)" },
+      { step: 4, active: "e", chosen: "d", stack: ["a", "b", "c", "e", "d"], edge: "(e,d)", action: "Maju ke verteks d (<em>edge</em> e-b merupakan <em>edge</em> balik)" },
+      { step: 5, active: "d", chosen: "f", stack: ["a", "b", "c", "e", "d", "f"], edge: "(d,f)", action: "Maju ke verteks f (<em>edge</em> d-b merupakan <em>edge</em> balik)" },
+      { step: 6, active: "f", chosen: "h", stack: ["a", "b", "c", "e", "d", "f", "h"], edge: "(f,h)", action: "Maju ke verteks h" },
+      { step: 7, active: "h", chosen: "g", stack: ["a", "b", "c", "e", "d", "f", "h", "g"], edge: "(h,g)", action: "Maju ke verteks g" },
+      { step: 8, active: "g", chosen: "-", stack: ["a", "b", "c", "e", "d", "f", "h"], edge: "(g,d) [Edge Balik]", action: "Jalan buntu di verteks g. Melacak balik hingga seluruh verteks selesai dikunjungi." }
     ]
   }
 };
@@ -991,7 +991,7 @@ function updateUIWithResults(data) {
   kpiBfs.textContent = (savingsBfs > 0 ? "+" : "") + savingsBfs + "%";
   kpiBfs.className = "kpi-value " + (savingsBfs >= 0 ? "text-cyan" : "text-amber");
 
-  document.getElementById("kpiPeakMemory").textContent = `${strats.aegts.peak_frontier} simpul`;
+  document.getElementById("kpiPeakMemory").textContent = `${strats.aegts.peak_frontier} verteks`;
   document.getElementById("kpiTotalTime").textContent = `${data.total_computation_ms} ms`;
 
   // 2. Strategy Cards Update
@@ -1031,9 +1031,9 @@ function updateStrategyCard(key, strat) {
     badge.textContent = strat.success ? "SOLVED" : "FAILED";
     badge.className = `badge ${strat.success ? "badge-success" : "badge-danger"}`;
   }
-  if (nodes) nodes.textContent = `${strat.nodes_evaluated} simpul`;
+  if (nodes) nodes.textContent = `${strat.nodes_evaluated} verteks`;
   if (time) time.textContent = `${strat.execution_time_ms} ms`;
-  if (mem) mem.textContent = `${strat.peak_frontier} simpul`;
+  if (mem) mem.textContent = `${strat.peak_frontier} verteks`;
   if (expr) {
     if (strat.success && strat.expression) {
       const tex = `${formatArithmeticToTeX(strat.expression, true)} = 24`;
@@ -1362,9 +1362,9 @@ function renderTracingTable() {
     }
     header.innerHTML = `
       <th>Iterasi (${renderTeX("t")})</th>
-      <th>Simpul Dequeue (${renderTeX("u")})</th>
+      <th>Verteks Dequeue (${renderTeX("u")})</th>
       <th>Antrean ${renderTeX("Q")} (Frontier)</th>
-      <th>Sisi Pohon Ditambahkan (${renderTeX("E_T")})</th>
+      <th><em>Edge</em> Pohon Ditambahkan (${renderTeX("E_T")})</th>
       <th>Keterangan Operasi</th>
     `;
 
@@ -1389,9 +1389,9 @@ function renderTracingTable() {
     }
     header.innerHTML = `
       <th>Iterasi (${renderTeX("t")})</th>
-      <th>Simpul Aktif (${renderTeX("u")})</th>
+      <th>Verteks Aktif (${renderTeX("u")})</th>
       <th>Tumpukan ${renderTeX("S")} (Stack)</th>
-      <th>Sisi Pohon / Sisi Balik</th>
+      <th><em>Edge</em> Pohon / <em>Edge</em> Balik</th>
       <th>Keterangan Operasi</th>
     `;
 
@@ -1400,7 +1400,7 @@ function renderTracingTable() {
       const isBackEdge = s.edge.includes("Balik") || s.edge.includes("Back");
       const cleanEdge = s.edge.replace(/\s*\[.*\]/, "");
       const edgeLabel = isBackEdge
-        ? `<strong class="text-red">${renderTeX(cleanEdge)} <span class="badge badge-accent" style="font-size:0.7rem;">Sisi Balik</span></strong>`
+        ? `<strong class="text-red">${renderTeX(cleanEdge)} <span class="badge badge-accent" style="font-size:0.7rem;"><em>Edge</em> Balik</span></strong>`
         : `<strong class="text-emerald">${renderTeX(s.edge)}</strong>`;
 
       return `
@@ -1428,22 +1428,22 @@ function renderTracingTable() {
 
     body.innerHTML = `
       <tr>
-        <td><strong>Titik (${renderTeX("V")})</strong></td>
+        <td><strong>Verteks (${renderTeX("V")})</strong></td>
         <td>${renderTeX("|V| = 8")}</td>
         <td>${renderTeX("\\{a, b, c, d, e, f, g, h\\}")}</td>
         <td colspan="2">Ordo graf ${renderTeX("|V| = 8")}</td>
       </tr>
       <tr>
-        <td><strong>Sisi (${renderTeX("E")})</strong></td>
+        <td><strong><em>Edge</em> (${renderTeX("E")})</strong></td>
         <td>${renderTeX("|E| = 11")}</td>
         <td>${renderTeX("\\{(a,b), (a,c), (b,c), (b,d), (b,e), (c,e), (d,e), (d,f), (d,g), (f,h), (g,h)\\}")}</td>
         <td colspan="2">Ukuran graf ${renderTeX("|E| = 11")} (memuat sikel)</td>
       </tr>
       <tr>
-        <td><strong>Pohon Rentang (${renderTeX("T")})</strong></td>
+        <td><strong><em>Spanning Tree</em> (${renderTeX("T")})</strong></td>
         <td>${renderTeX("|E_T| = |V| - 1 = 7")}</td>
-        <td>Dibutuhkan eliminasi 4 sisi sikel (${renderTeX("|E| - |E_T| = 11 - 7 = 4")})</td>
-        <td colspan="2">Klik tombol "Pohon Rentang BFS" atau "Pohon Rentang DFS" di atas untuk melihat dekomposisinya.</td>
+        <td>Dibutuhkan eliminasi 4 <em>edge</em> sikel (${renderTeX("|E| - |E_T| = 11 - 7 = 4")})</td>
+        <td colspan="2">Klik tombol "<em>Spanning Tree</em> BFS" atau "<em>Spanning Tree</em> DFS" di atas untuk melihat dekomposisinya.</td>
       </tr>
     `;
   }
